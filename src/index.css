@@ -1,5 +1,6 @@
 * {
   font-family: arial,sans-serif;
+  box-sizing: border-box;
 }
 
 body {
@@ -10,18 +11,33 @@ body {
   height: 100vh;
   align-items: center;
 }
-
+.wrapper{
+  max-width:800px;
+  padding:2rem;
+}
 .app {
   display: flex;
-  width: 652px;
-  height: 360px;
+  width:100%;
+  min-width:625px;
+  min-height: 360px;
 }
+
+
 
 .output, 
 .input {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  box-sizing: border-box;
+}
+
+.input{
+  font-size: 1.1rem;
+}
+
+
+.textarea-wrapper{
+  position: relative;
 }
 
 textarea {
@@ -29,13 +45,14 @@ textarea {
   color: #bdc1c6;
   border: none;
   resize: none;
-  padding: 10px;
-  width: 280px !important;
-  height: 146px;
+  padding: 10px 8px;
+  width: 280px;
+  height: 150px;
   border-radius: 10px;
   outline: none;
   overflow: auto;
-  font-size: 28px;
+  font-size: 1.3rem;
+  font-weight: 400;
   margin-top: 10px;
 }
 
@@ -44,7 +61,7 @@ textarea {
 }
 
 .arrow-container {
-  padding: 15px;
+  padding: 8px 15px;
   cursor:pointer;
   user-select:none;
 
@@ -79,6 +96,29 @@ input {
   width: 100%;
   
 }
+.input:focus{
+  border: none;
+}
+@media screen and (max-width:713px){
+  
+  .app{
+    flex-direction: column;
+    justify-content:center;
+    align-items: center;
+    width:100%;
+    min-width:calc(100vw - 4rem);
+    height:auto;
+
+  }
+  .output, 
+  .input {
+    width: 100%;
+  
+  }
+  textarea{
+    width:100%;
+  }
+}
 
 .search-bar input {
   background: url(https://www.gstatic.com/images/icons/material/system/2x/search_grey600_24dp.png) right 8px center no-repeat;
@@ -111,6 +151,15 @@ input {
   overflow: auto;
 }
 
+@media screen and (max-width:532px){
+  body {
+    align-items: flex-start;
+  }
+  .option-list ul{
+    flex-wrap: nowrap;
+  }
+}
+
 .option-list li {
   color: #bdc1c6;
   font-size: 14px;
@@ -136,22 +185,30 @@ input {
 
 .button-container {
   color:#bdc1c6;
+  display:flex;
+  align-items:center;
   padding: 18px;
-  height: 20px;
+  height: 10px;
   cursor:pointer;
   user-select:none;
 }
 
+.select-drop-down {
+  display: flex;
+  border: 1px solid #818588;
+  border-radius: 8px;
+  align-items: center;
+}
+
 .select-drop-down input {
+  border: none;
+  outline: none;
   color: #8ab4f8;
   padding: 5px 15px;
   font-size: 15px;
 }
 
 .select-drop-down .down-arrow svg {
-  position: relative;
-  left: 265px;
-  top: -33px;
   width: 26px;
   height: 26px;
   fill: #8ab4f8;
@@ -160,11 +217,11 @@ input {
 }
 
 .input .delete {
-  position: relative;
-  left: 265px;
-  top: -156px;
-  font-size: 50px;
-  color:#bdc1c6;
+  position: absolute;
+  right: 0;
+  top: 20px;
+  font-size: 45px;
+  color:gray;
   width:min-content;
   
 }

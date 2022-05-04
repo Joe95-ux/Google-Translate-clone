@@ -1,4 +1,5 @@
 import SelectDropdown from "./SelectDropdown";
+import { useState } from "react";
 
 const TextBox = ({
   variant,
@@ -7,12 +8,24 @@ const TextBox = ({
   setTextToTranslate,
   textToTranslate,
   translatedText,
-  setTranslatedText,
+  setTranslatedText
 }) => {
+  const [showDelete, setShowDelete] = useState(false);
+
   const handleClick = () => {
     setTextToTranslate("");
     setTranslatedText("");
   };
+
+  const handleChange = e => {
+    setTextToTranslate(e.target.value);
+    if (e.target.textContent.length > 1) {
+      setShowDelete(true);
+    } else {
+      setShowDelete(false);
+    }
+  };
+
   return (
     <div className={variant}>
       <SelectDropdown
@@ -20,18 +33,21 @@ const TextBox = ({
         setShowModal={setShowModal}
         selectedLanguage={selectedLanguage}
       />
-      <textarea
-        disabled={variant === "output"}
-        className={variant}
-        placeholder={variant === "input" ? "Enter text" : "Translation"}
-        onChange={(e) => setTextToTranslate(e.target.value)}
-        value={variant === "input" ? textToTranslate : translatedText}
-      />
-      {variant === "input" && (
-        <div className="delete" onClick={handleClick}>
-          ˟
-        </div>
-      )}
+      <div className="textarea-wrapper">
+        <textarea
+          disabled={variant === "output"}
+          className={variant}
+          placeholder={variant === "input" ? "Enter text" : "Translation"}
+          onChange={handleChange}
+          value={variant === "input" ? textToTranslate : translatedText}
+        />
+
+        {variant === "input" &&
+          showDelete &&
+          <div className="delete" onClick={handleClick}>
+            ˟
+          </div>}
+      </div>
     </div>
   );
 };

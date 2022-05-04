@@ -39,6 +39,7 @@ const App = () => {
   }
 
   return (
+    <div className="wrapper">
     <div className="app">
       {!showModal && (
         <>
@@ -77,6 +78,8 @@ const App = () => {
           }
         />
       )}
+    </div>
+    
     </div>
   )
 }
