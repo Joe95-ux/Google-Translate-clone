@@ -12,8 +12,9 @@ app.use(express.json());
 app.get('/languages', async (req, res) => {
   const options = {
     method: 'GET',
-    url:'https://google-translate20.p.rapidapi.com/languages',
+    url:'https://google-translate113.p.rapidapi.com/api/v1/translator/support-languages',
     headers: {
+      'content-type': 'application/x-www-form-urlencoded',
       'x-rapidapi-host': process.env.RAPID_API_HOST,
       'x-rapidapi-key': process.env.RAPID_API_KEY,
     },
@@ -42,6 +43,7 @@ app.get('/translation', async (req, res) => {
       sl: inputLanguage,
     },
     headers: {
+      'content-type': 'application/x-www-form-urlencoded',
       'x-rapidapi-host': process.env.RAPID_API_HOST,
       'x-rapidapi-key': process.env.RAPID_API_KEY,
     },
@@ -49,7 +51,7 @@ app.get('/translation', async (req, res) => {
 
   try {
     const response = await axios(
-      'https://google-translate20.p.rapidapi.com/translate',
+      'https://google-translate113.p.rapidapi.com/api/v1/translator/text',
       options
     )
     res.status(200).json(response.data.data.translation)
