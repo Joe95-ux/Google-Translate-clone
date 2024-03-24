@@ -8,8 +8,9 @@ import axios from 'axios'
 const App = () => {
   const [showModal, setShowModal] = useState(false)
   const [languages, setLanguages] = useState(null)
+  const [isLoading, setIsLoading] = useState(false);
   const [inputLanguage, setInputLanguage] = useState('English')
-  const [outputLanguage, setOutputLanguage] = useState('Polish')
+  const [outputLanguage, setOutputLanguage] = useState('French')
   const [textToTranslate, setTextToTranslate] = useState('')
   const [translatedText, setTranslatedText] = useState('')
 
@@ -26,11 +27,13 @@ const App = () => {
     const data = {
       textToTranslate, outputLanguage, inputLanguage
     }
+    setIsLoading(true)
     const response = await axios.get('http://localhost:4000/translation', {
       params : data
     })
     console.log('response', response)
-    setTranslatedText(response.data)
+    setTranslatedText(response.data.trans)
+    setIsLoading(false);
   }
 
   const handleClick = () => {
@@ -58,10 +61,10 @@ const App = () => {
             variant="output"
             setShowModal={setShowModal}
             selectedLanguage={outputLanguage}
-            translatedText={translatedText}
+            translatedText={isLoading ? 'Fetching response...' : translatedText}
           />
           <div className="button-container" onClick={translate}>
-            <Button />
+            <Button disable={isLoading}/>
           </div>
         </>
       )}

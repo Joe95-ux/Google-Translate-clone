@@ -1,8 +1,8 @@
 import React from 'react'
 
-const Button = () => {
+const Button = ({disable}) => {
   return (
-    <div>➟</div>
+    <div>{disable ? <small style={{pointerEvents:'none'}}>fetching...</small> : '➟'}</div>
   )
 }
 
