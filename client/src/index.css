@@ -12,7 +12,7 @@ body {
   align-items: center;
 }
 .wrapper{
-  max-width:800px;
+  max-width:900px;
   padding:2rem;
 }
 .app {
@@ -79,11 +79,17 @@ textarea {
 }
 
 .search-bar {
+  position: relative;
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 10px;
 
+}
+.close-button{
+  position: relative;
+  top: 4px;
 }
 
 input {

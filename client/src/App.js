@@ -31,10 +31,17 @@ const App = () => {
     const response = await axios.get('http://localhost:4000/translation', {
       params : data
     })
-    console.log('response', response)
     setTranslatedText(response.data.trans)
     setIsLoading(false);
+    saveTranslation({text: textToTranslate, to: outputLanguage, from: inputLanguage, translation:response.data.trans, timestamp: new Date().toLocaleString() })
+
   }
+
+  const saveTranslation = (translation) => {
+    const translations = JSON.parse(localStorage.getItem('translations')) || [];
+    translations.push(translation);
+    localStorage.setItem('translations', JSON.stringify(translations));
+  };
 
   const handleClick = () => {
     setInputLanguage(outputLanguage)
