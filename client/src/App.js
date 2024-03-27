@@ -3,6 +3,7 @@ import TextBox from './components/TextBox'
 import Arrows from './components/Arrows'
 import Button from './components/Button'
 import Modal from './components/Modal'
+import History from './components/History'
 import axios from 'axios'
 
 const App = () => {
@@ -50,45 +51,46 @@ const App = () => {
 
   return (
     <div className="wrapper">
-    <div className="app">
-      {!showModal && (
-        <>
-          <TextBox
-            variant="input"
+      <History/>
+      <div className="app">
+        {!showModal && (
+          <>
+            <TextBox
+              variant="input"
+              setShowModal={setShowModal}
+              selectedLanguage={inputLanguage}
+              setTextToTranslate={setTextToTranslate}
+              textToTranslate={textToTranslate}
+              setTranslatedText={setTranslatedText}
+            />
+            <div className="arrow-container" onClick={handleClick}>
+              <Arrows />
+            </div>
+            <TextBox
+              variant="output"
+              setShowModal={setShowModal}
+              selectedLanguage={outputLanguage}
+              translatedText={isLoading ? 'Fetching response...' : translatedText}
+            />
+            <div className="button-container" onClick={translate}>
+              <Button disable={isLoading}/>
+            </div>
+          </>
+        )}
+        {showModal && (
+          <Modal
+            showModal={showModal}
             setShowModal={setShowModal}
-            selectedLanguage={inputLanguage}
-            setTextToTranslate={setTextToTranslate}
-            textToTranslate={textToTranslate}
-            setTranslatedText={setTranslatedText}
+            languages={languages}
+            chosenLanguage={
+              showModal === 'input' ? inputLanguage : outputLanguage
+            }
+            setChosenLanguage={
+              showModal === 'input' ? setInputLanguage : setOutputLanguage
+            }
           />
-          <div className="arrow-container" onClick={handleClick}>
-            <Arrows />
-          </div>
-          <TextBox
-            variant="output"
-            setShowModal={setShowModal}
-            selectedLanguage={outputLanguage}
-            translatedText={isLoading ? 'Fetching response...' : translatedText}
-          />
-          <div className="button-container" onClick={translate}>
-            <Button disable={isLoading}/>
-          </div>
-        </>
-      )}
-      {showModal && (
-        <Modal
-          showModal={showModal}
-          setShowModal={setShowModal}
-          languages={languages}
-          chosenLanguage={
-            showModal === 'input' ? inputLanguage : outputLanguage
-          }
-          setChosenLanguage={
-            showModal === 'input' ? setInputLanguage : setOutputLanguage
-          }
-        />
-      )}
-    </div>
+        )}
+      </div>
     
     </div>
   )
