@@ -4,6 +4,9 @@ import Arrows from './components/Arrows'
 import Button from './components/Button'
 import Modal from './components/Modal'
 import History from './components/History'
+import { FaHistory } from "react-icons/fa";
+import { useHistory } from "./hooks/useHistory";
+import { Toaster, toast} from 'sonner'
 import axios from 'axios'
 
 const App = () => {
@@ -14,14 +17,29 @@ const App = () => {
   const [outputLanguage, setOutputLanguage] = useState('French')
   const [textToTranslate, setTextToTranslate] = useState('')
   const [translatedText, setTranslatedText] = useState('')
+  const [translations, setTranslations] = useState([]);
+  const historyModal = useHistory();
+  const activeStyles = {
+    active:{
+      opacity: historyModal.isOpen ? "0" : "1"
+    },
+
+  }
+
 
 
   const getLanguages = async () => {
     const response = await axios.get('http://localhost:4000/languages');
     setLanguages(response.data)
   }
+
   useEffect(() => {
     getLanguages()
+    const data = localStorage.getItem('translations');
+    const parsedData = JSON.parse(data);
+    if (parsedData) {
+      setTranslations(parsedData.reverse());
+    }
   }, [])
 
   const translate = async () => {
@@ -29,17 +47,26 @@ const App = () => {
       textToTranslate, outputLanguage, inputLanguage
     }
     setIsLoading(true)
-    const response = await axios.get('http://localhost:4000/translation', {
-      params : data
-    })
-    setTranslatedText(response.data.trans)
-    setIsLoading(false);
-    saveTranslation({text: textToTranslate, to: outputLanguage, from: inputLanguage, translation:response.data.trans, timestamp: new Date().toLocaleString() })
+    try {
+      if(textToTranslate !== "" && textToTranslate !== null){
+        const response = await axios.get('http://localhost:4000/translation', {
+        params : data
+        })
+        setTranslatedText(response.data.trans)
+        setIsLoading(false);
+        saveTranslation({text: textToTranslate, to: outputLanguage, from: inputLanguage, translation:response.data.trans, timestamp: new Date().toLocaleString() })
+
+      }else{
+        setIsLoading(false);
+        toast.warning("please provide text to translate");
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
 
   }
 
   const saveTranslation = (translation) => {
-    const translations = JSON.parse(localStorage.getItem('translations')) || [];
     translations.push(translation);
     localStorage.setItem('translations', JSON.stringify(translations));
   };
@@ -51,7 +78,8 @@ const App = () => {
 
   return (
     <div className="wrapper">
-      <History/>
+      <Toaster/>
+      <History translations={translations} setTranslations={setTranslations}/>
       <div className="app">
         {!showModal && (
           <>
@@ -90,6 +118,14 @@ const App = () => {
             }
           />
         )}
+      </div>
+      <div className='open-history' style={activeStyles.active} onClick={historyModal.onOpen}>
+        <div className='open-history-inner'>
+          <FaHistory />
+          <h3>View History</h3>
+        </div>
+        
+
       </div>
     
     </div>

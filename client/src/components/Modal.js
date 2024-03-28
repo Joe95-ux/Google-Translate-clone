@@ -14,8 +14,9 @@ const Modal = ({
     language.toLowerCase().startsWith(searchedLanguage.toLowerCase())
   );
 
-  const handleClick = (e) => {
-    setChosenLanguage(e.target.textContent);
+  const handleSelect = (e, language) => {
+    e.stopPropagation(); // Stop event propagation to prevent triggering parent elements' click handlers
+    setChosenLanguage(language);
     setShowModal(false);
   };
 
@@ -40,13 +41,12 @@ const Modal = ({
       <div className="option-container">
         <ul>
           {filteredLanguages?.map((filteredLanguage) => (
-            <div className="list-item">
+            <div className="list-item" key={uuidV4()}>
               <div className="icon">
                 {chosenLanguage === filteredLanguage ? "✓" : ""}
               </div>
               <li
-                key={uuidV4()}
-                onClick={handleClick}
+                onClick={(e) => handleSelect(e, filteredLanguage)}
                 style={{
                   color: chosenLanguage === filteredLanguage ? "#8ab4f8" : null,
                 }}
