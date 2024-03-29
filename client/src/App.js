@@ -67,8 +67,9 @@ const App = () => {
   }
 
   const saveTranslation = (translation) => {
-    translations.push(translation);
-    localStorage.setItem('translations', JSON.stringify(translations));
+    let translationData = [...translations, translation];
+    setTranslations(translationData);
+    localStorage.setItem('translations', JSON.stringify(translationData));
   };
 
   const handleClick = () => {

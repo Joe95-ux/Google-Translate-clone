@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { v4 as uuidV4 } from "uuid";
 
 const Modal = ({
   showModal,
@@ -18,6 +17,7 @@ const Modal = ({
     e.stopPropagation(); // Stop event propagation to prevent triggering parent elements' click handlers
     setChosenLanguage(language);
     setShowModal(false);
+   
   };
 
   const handleChange = (e) => {
@@ -40,13 +40,12 @@ const Modal = ({
       </div>
       <div className="option-container">
         <ul>
-          {filteredLanguages?.map((filteredLanguage) => (
-            <div className="list-item" key={uuidV4()}>
+          {filteredLanguages?.map((filteredLanguage, index) => (
+            <div className="list-item" key={index} >
               <div className="icon">
                 {chosenLanguage === filteredLanguage ? "✓" : ""}
               </div>
-              <li
-                onClick={(e) => handleSelect(e, filteredLanguage)}
+              <li onClick={(e) => handleSelect(e, filteredLanguage)}
                 style={{
                   color: chosenLanguage === filteredLanguage ? "#8ab4f8" : null,
                 }}
