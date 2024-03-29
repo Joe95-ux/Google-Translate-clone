@@ -321,7 +321,11 @@ input {
 }
 .content-inner{
   padding: 1rem;
+  transition: all 0.5s ease;
   border-bottom: 1px solid rgb(30 41 59);
+}
+.content-inner:hover{
+  background-color: rgb(30 41 59);
 }
 .content-head{
   display: flex;
@@ -341,6 +345,7 @@ input {
 .languages{
   margin-top: 2rem;
   font-size: 16px;
+  cursor: pointer;
 }
 .lang-to{
   color: #bdc1c6;

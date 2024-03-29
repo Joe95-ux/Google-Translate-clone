@@ -4,7 +4,7 @@ import { IoMdClose } from "react-icons/io";
 import { useHistory } from "../hooks/useHistory";
 import { toast } from 'sonner'
 
-const History = ({ translations, setTranslations }) => {
+const History = ({ translations, setTranslations, handleHistory }) => {
   const historyModal = useHistory();
   const sidebarRef = useRef();
 
@@ -81,7 +81,7 @@ const History = ({ translations, setTranslations }) => {
                   </div>
                   <IoMdClose className="close-history-btn"  onClick={()=>handeleDelete(index)}/>
                 </div>
-                <div className="languages">
+                <div className="languages" onClick={()=>handleHistory(translation.from, translation.to, translation.text, translation.translation)}>
                   <p className="lang-from">{translation.text}</p>
                   <p className="lang-to">{translation.translation}</p>
                 </div>

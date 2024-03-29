@@ -77,10 +77,18 @@ const App = () => {
     setOutputLanguage(inputLanguage)
   }
 
+  const handleReTranslate = (from, to, text, translatedText)=>{
+    setInputLanguage(from);
+    setOutputLanguage(to);
+    setTextToTranslate(text);
+    setTranslatedText(translatedText);
+
+  }
+
   return (
     <div className="wrapper">
       <Toaster/>
-      <History translations={translations} setTranslations={setTranslations}/>
+      <History translations={translations} setTranslations={setTranslations} handleHistory={handleReTranslate}/>
       <div className="app">
         {!showModal && (
           <>
