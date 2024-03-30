@@ -5,6 +5,7 @@ import Button from './components/Button'
 import Modal from './components/Modal'
 import History from './components/History'
 import { FaHistory } from "react-icons/fa";
+import { IoIosStar } from "react-icons/io";
 import { useHistory } from "./hooks/useHistory";
 import { Toaster, toast} from 'sonner'
 import axios from 'axios'
@@ -26,8 +27,6 @@ const App = () => {
 
   }
 
-
-
   const getLanguages = async () => {
     const response = await axios.get('http://localhost:4000/languages');
     setLanguages(response.data)
@@ -38,7 +37,7 @@ const App = () => {
     const data = localStorage.getItem('translations');
     const parsedData = JSON.parse(data);
     if (parsedData) {
-      setTranslations(parsedData.reverse());
+      setTranslations(parsedData);
     }
   }, [])
 
@@ -67,7 +66,7 @@ const App = () => {
   }
 
   const saveTranslation = (translation) => {
-    let translationData = [...translations, translation];
+    let translationData = [translation, ...translations];
     setTranslations(translationData);
     localStorage.setItem('translations', JSON.stringify(translationData));
   };
@@ -128,10 +127,15 @@ const App = () => {
           />
         )}
       </div>
-      <div className='open-history' style={activeStyles.active} onClick={historyModal.onOpen}>
-        <div className='open-history-inner'>
+      <div className='open-history'>
+        <div className='open-history-inner' style={activeStyles.active} onClick={historyModal.onOpen}>
           <FaHistory />
           <h3>View History</h3>
+        </div>
+
+        <div className='saved'>
+          <IoIosStar />
+          <h3>Saved</h3>
         </div>
         
 
