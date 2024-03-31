@@ -4,9 +4,11 @@ import Arrows from './components/Arrows'
 import Button from './components/Button'
 import Modal from './components/Modal'
 import History from './components/History'
+import Saved from './components/Saved'
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
 import { useHistory } from "./hooks/useHistory";
+import { useSaveModal } from './hooks/useSaveModal';
 import { Toaster, toast} from 'sonner'
 import axios from 'axios'
 
@@ -21,10 +23,14 @@ const App = () => {
   const [translations, setTranslations] = useState([]);
   const [savedTranslations, setSavedTranslations] = useState([]);
   const historyModal = useHistory();
+  const saveModal = useSaveModal();
   const activeStyles = {
     active:{
       color: historyModal.isOpen && "#38BDF8"
     },
+    activeSaved:{
+      color: saveModal.isOpen && "#38BDF8" 
+    }
 
   }
 
@@ -91,6 +97,7 @@ const App = () => {
     <div className="wrapper">
       <Toaster/>
       <History translations={translations} setTranslations={setTranslations} handleHistory={handleReTranslate} savedTranslations={savedTranslations} setSavedTranslations={setSavedTranslations}/>
+      <Saved translations={translations} setTranslations={setTranslations} handleHistory={handleReTranslate} savedTranslations={savedTranslations} setSavedTranslations={setSavedTranslations}/>
       <div className="app">
         {!showModal && (
           <>
@@ -136,7 +143,7 @@ const App = () => {
           <h3>History</h3>
         </div>
 
-        <div className='saved'>
+        <div className='saved' style={activeStyles.activeSaved} onClick={saveModal.onOpen}>
           <IoIosStar />
           <h3>Saved</h3>
         </div>
