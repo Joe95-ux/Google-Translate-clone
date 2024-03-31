@@ -19,10 +19,11 @@ const App = () => {
   const [textToTranslate, setTextToTranslate] = useState('')
   const [translatedText, setTranslatedText] = useState('')
   const [translations, setTranslations] = useState([]);
+  const [savedTranslations, setSavedTranslations] = useState([]);
   const historyModal = useHistory();
   const activeStyles = {
     active:{
-      opacity: historyModal.isOpen ? "0" : "1"
+      color: historyModal.isOpen && "#38BDF8"
     },
 
   }
@@ -35,10 +36,12 @@ const App = () => {
   useEffect(() => {
     getLanguages()
     const data = localStorage.getItem('translations');
-    const parsedData = JSON.parse(data);
+    const parsedData = JSON.parse(data) || [];
     if (parsedData) {
       setTranslations(parsedData);
     }
+    const saved = JSON.parse(localStorage.getItem('savedTranslations')) || [];
+    setSavedTranslations(saved);
   }, [])
 
   const translate = async () => {
@@ -53,7 +56,7 @@ const App = () => {
         })
         setTranslatedText(response.data.trans)
         setIsLoading(false);
-        saveTranslation({text: textToTranslate, to: outputLanguage, from: inputLanguage, translation:response.data.trans, timestamp: new Date().toLocaleString() })
+        saveTranslation({text: textToTranslate, to: outputLanguage, from: inputLanguage, translation:response.data.trans, timestamp: new Date().toLocaleString(), saved:false })
 
       }else{
         setIsLoading(false);
@@ -87,7 +90,7 @@ const App = () => {
   return (
     <div className="wrapper">
       <Toaster/>
-      <History translations={translations} setTranslations={setTranslations} handleHistory={handleReTranslate}/>
+      <History translations={translations} setTranslations={setTranslations} handleHistory={handleReTranslate} savedTranslations={savedTranslations} setSavedTranslations={setSavedTranslations}/>
       <div className="app">
         {!showModal && (
           <>
@@ -130,7 +133,7 @@ const App = () => {
       <div className='open-history'>
         <div className='open-history-inner' style={activeStyles.active} onClick={historyModal.onOpen}>
           <FaHistory />
-          <h3>View History</h3>
+          <h3>History</h3>
         </div>
 
         <div className='saved'>

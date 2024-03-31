@@ -210,7 +210,7 @@ input {
 
 .select-drop-down {
   display: flex;
-  border: 1px solid #818588;
+  border: 1px solid rgb(100 116 139);
   border-radius: 8px;
   align-items: center;
 }
@@ -303,8 +303,14 @@ input {
   color: #f5f5f5;
   justify-content: center;
 }
+.history-actions{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .close-history-btn{
   cursor: pointer;
+  margin-left: 8px;
   transition: all 0.5s ease;
 }
 .close-history-btn:hover{
@@ -376,9 +382,12 @@ input {
   display: flex;
   align-items: center;
   cursor: pointer;
+  padding: 8px 12px;
+  border: 1px solid rgb(100 116 139);
+  border-radius: 50px;
 }
 .open-history-inner:hover, .saved:hover{
-  color: #38BDF8
+  color: #38BDF8;
 }
 .open-history h3, .saved h3{
   margin-left: 5px;

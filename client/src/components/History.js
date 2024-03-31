@@ -1,10 +1,11 @@
 import React from "react";
 import { useRef, useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
+import { IoIosStarOutline } from "react-icons/io";
 import { useHistory } from "../hooks/useHistory";
 import { toast } from 'sonner'
 
-const History = ({ translations, setTranslations, handleHistory }) => {
+const History = ({ translations, setTranslations, handleHistory, savedTranslations, setSavedTranslations }) => {
   const historyModal = useHistory();
   const sidebarRef = useRef();
 
@@ -36,7 +37,7 @@ const History = ({ translations, setTranslations, handleHistory }) => {
     }
   };
 
-  const handeleDelete = (index)=>{
+  const handleDelete = (index)=>{
     const updatedTranslations = [...translations];
     updatedTranslations.splice(index, 1);
     setTranslations(updatedTranslations);
@@ -44,9 +45,24 @@ const History = ({ translations, setTranslations, handleHistory }) => {
     toast.success("One translation deleted");
 
   }
+
+  const handleSave = (index)=>{
+    const translationHistory = [...translations];
+    const translation = translationHistory[index];
+    translation.saved = !translation.saved;
+    const updatedHistory = [translation, ...translations];
+    let updatedSavedTranslations = [translation, ...savedTranslations];
+    updatedSavedTranslations = updatedSavedTranslations.filter(trans => trans.saved === true);
+    setTranslations(updatedHistory);
+    setSavedTranslations(updatedSavedTranslations);
+    localStorage.setItem('translations', JSON.stringify(updatedHistory));
+    localStorage.setItem('savedTranslations', JSON.stringify(updatedSavedTranslations));
+    toast.success("One translation saved!");
+  }
+
   const deleteAll = ()=>{
     localStorage.removeItem('translations');
-    setTranslations("")
+    setTranslations("");
     toast.success("History cleared successfully!");
   }
 
@@ -79,7 +95,10 @@ const History = ({ translations, setTranslations, handleHistory }) => {
                     <span>→</span>
                     <span>{translation.to}</span>
                   </div>
-                  <IoMdClose className="close-history-btn"  onClick={()=>handeleDelete(index)}/>
+                  <div className="history-actions">
+                    <IoIosStarOutline style={{fill: translation.saved === true && "#eab308", cursor:"pointer", transition: "all 0.5s ease"}} onClick={()=>handleSave(index)}/>
+                    <IoMdClose className="close-history-btn"  onClick={()=>handleDelete(index)}/>
+                  </div>
                 </div>
                 <div className="languages" onClick={()=>handleHistory(translation.from, translation.to, translation.text, translation.translation)}>
                   <p className="lang-from">{translation.text}</p>
