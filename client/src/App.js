@@ -8,6 +8,7 @@ import Saved from './components/Saved'
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
 import { useHistory } from "./hooks/useHistory";
+import Header from './components/Header'
 import { useSaveModal } from './hooks/useSaveModal';
 import { Toaster, toast} from 'sonner'
 import axios from 'axios'
@@ -98,6 +99,7 @@ const App = () => {
       <Toaster/>
       <History translations={translations} setTranslations={setTranslations} handleHistory={handleReTranslate} savedTranslations={savedTranslations} setSavedTranslations={setSavedTranslations}/>
       <Saved translations={translations} setTranslations={setTranslations} handleHistory={handleReTranslate} savedTranslations={savedTranslations} setSavedTranslations={setSavedTranslations}/>
+      <Header/>
       <div className="app">
         {!showModal && (
           <>

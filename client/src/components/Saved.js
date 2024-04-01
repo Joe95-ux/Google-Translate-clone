@@ -104,7 +104,7 @@ const Saved = ({ translations, setTranslations, handleHistory, savedTranslations
                     <span>{translation.to}</span>
                   </div>
                   <div className="history-actions">
-                    <div style={{ cursor:"pointer", transition: "all 0.5s ease"}} onClick={()=>handleDelete(index)}>
+                    <div title="remove saved translation" style={{ cursor:"pointer", transition: "all 0.5s ease"}} onClick={()=>handleDelete(index)}>
                       {translation.saved ? <IoIosStar style={{fill: "#ca8a04"}}/> : <IoIosStarOutline/>}
                     </div>
                   </div>

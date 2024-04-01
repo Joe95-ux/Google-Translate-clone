@@ -105,10 +105,12 @@ const History = ({ translations, setTranslations, handleHistory, savedTranslatio
                     <span>{translation.to}</span>
                   </div>
                   <div className="history-actions">
-                    <div style={{ cursor:"pointer", transition: "all 0.5s ease"}} onClick={()=>handleSave(index)}>
+                    <div title={translation.saved ? "undo save" : "save translation"} style={{ cursor:"pointer", transition: "all 0.5s ease"}} onClick={()=>handleSave(index)}>
                       {translation.saved ? <IoIosStar style={{fill: "#ca8a04"}}/> : <IoIosStarOutline/>}
                     </div>
-                    <IoMdClose className="close-history-btn"  onClick={()=>handleDelete(index)}/>
+                    <div title="remove from history">
+                      <IoMdClose className="close-history-btn"  onClick={()=>handleDelete(index)}/>
+                    </div>
                   </div>
                 </div>
                 <div className="languages" onClick={()=>handleHistory(translation.from, translation.to, translation.text, translation.translation)}>
