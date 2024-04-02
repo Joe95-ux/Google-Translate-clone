@@ -26,7 +26,7 @@ const History = ({ translations, setTranslations, handleHistory, savedTranslatio
 
   const styles = {
     active: {
-      right: historyModal.isOpen ? "0" : "-400px",
+      right: historyModal.isOpen ? "0" : "-420px",
     },
     close: {
       opacity: historyModal.isOpen ? "1" : "0",
@@ -55,7 +55,7 @@ const History = ({ translations, setTranslations, handleHistory, savedTranslatio
     let updatedSavedTranslations = [...savedTranslations];
   
     if (isSaved) {
-      updatedSavedTranslations.push(translationToToggle);
+      updatedSavedTranslations.unshift(translationToToggle);
       toast.success("Translation saved!");
     } else {
       updatedSavedTranslations = updatedSavedTranslations.filter((trans) => trans !== translationToToggle);

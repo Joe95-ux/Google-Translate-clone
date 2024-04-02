@@ -26,7 +26,7 @@ const Saved = ({ translations, setTranslations, handleHistory, savedTranslations
 
   const styles = {
     active: {
-      right: saveModal.isOpen ? "0" : "-400px",
+      right: saveModal.isOpen ? "0" : "-420px",
     },
     close: {
       opacity: saveModal.isOpen ? "1" : "0",

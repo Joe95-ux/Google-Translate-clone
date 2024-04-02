@@ -1,7 +1,6 @@
 import SelectDropdown from "./SelectDropdown";
-import { FaRegCopy } from "react-icons/fa6";
+import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
-import { useState } from "react";
 import { toast } from "sonner";
 
 const TextBox = ({
@@ -12,9 +11,11 @@ const TextBox = ({
   textToTranslate,
   translatedText,
   setTranslatedText,
+  showDelete, 
+  setShowDelete,
+  showCopy, 
+  setShowCopy
 }) => {
-  const [showDelete, setShowDelete] = useState(false);
-  const [showCopy, setShowCopy] = useState(false);
 
   const handleClick = () => {
     setTextToTranslate("");
@@ -39,12 +40,6 @@ const TextBox = ({
       }
     }
   };
-  if(textToTranslate.length > 0){
-    setShowDelete(true)
-  }
-  if(translatedText.length > 0){
-    setShowCopy(true);
-  }
 
   const handleCopy = () => {
     navigator.clipboard
@@ -93,7 +88,7 @@ const TextBox = ({
             style={{ cursor: "pointer" }}
             title="copy translation"
           >
-            <FaRegCopy size={22} style={{ color: "rgb(203 213 225)" }} />
+            <PiCopySimple size={22} style={{ color: "rgb(203 213 225)" }} />
           </div>
         )}
       </div>

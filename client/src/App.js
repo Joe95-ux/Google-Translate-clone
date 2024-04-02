@@ -17,6 +17,8 @@ const App = () => {
   const [showModal, setShowModal] = useState(false)
   const [languages, setLanguages] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [showCopy, setShowCopy] = useState(false);
   const [inputLanguage, setInputLanguage] = useState('English')
   const [outputLanguage, setOutputLanguage] = useState('French')
   const [textToTranslate, setTextToTranslate] = useState('')
@@ -62,6 +64,7 @@ const App = () => {
         params : data
         })
         setTranslatedText(response.data.trans)
+        setShowCopy(true)
         setIsLoading(false);
         saveTranslation({text: textToTranslate, to: outputLanguage, from: inputLanguage, translation:response.data.trans, timestamp: new Date().toLocaleString(), saved:false })
 
@@ -91,6 +94,8 @@ const App = () => {
     setOutputLanguage(to);
     setTextToTranslate(text);
     setTranslatedText(translatedText);
+    setShowDelete(true);
+    setShowCopy(true);
 
   }
 
@@ -110,6 +115,10 @@ const App = () => {
               setTextToTranslate={setTextToTranslate}
               textToTranslate={textToTranslate}
               setTranslatedText={setTranslatedText}
+              showDelete={showDelete}
+              setShowDelete={setShowDelete}
+              showCopy={showCopy}
+              setShowCopy={setShowCopy}
             />
             <div className="arrow-container" onClick={handleClick}>
               <Arrows />
@@ -119,6 +128,8 @@ const App = () => {
               setShowModal={setShowModal}
               selectedLanguage={outputLanguage}
               translatedText={isLoading ? 'Fetching response...' : translatedText}
+              showCopy={showCopy}
+              setShowCopy={setShowCopy}
             />
             <div className="button-container" onClick={translate}>
               <Button disable={isLoading}/>
