@@ -43,7 +43,7 @@ const Saved = ({ translations, setTranslations, handleHistory, savedTranslations
     let updatedSavedTranslations = [...savedTranslations];
     const translationToDelete = updatedSavedTranslations[index];
     const translationHistory = [...translations];
-    let translationToMutate = translationHistory.find((trans) => trans.timestamp === translationToDelete.timestamp);
+    let translationToMutate = translationHistory.find((trans) => trans.timestamp === translationToDelete.timestamp) || translationToDelete;
     translationToMutate.saved = false;
 
     updatedSavedTranslations.splice(index, 1);
