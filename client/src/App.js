@@ -127,7 +127,7 @@ const App = () => {
               variant="output"
               setShowModal={setShowModal}
               selectedLanguage={outputLanguage}
-              translatedText={isLoading ? 'Fetching response...' : translatedText}
+              translatedText={isLoading ? 'Translating...' : translatedText}
               showCopy={showCopy}
               setShowCopy={setShowCopy}
             />

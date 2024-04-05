@@ -31,6 +31,8 @@ const TextBox = ({
         setShowDelete(true);
       } else {
         setShowDelete(false);
+        setShowCopy(false);
+        setTranslatedText("");
       }
     }else{
       if(e.target.value.length > 0 ){
