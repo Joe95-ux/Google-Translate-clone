@@ -11,6 +11,13 @@ body {
   /* height: 100vh;
   align-items: center; */
 }
+
+.nav-items{
+  display:flex;
+  align-items:center;
+  margin-left:auto;
+}
+
 h3{
   margin: 0;
 }
@@ -372,10 +379,21 @@ input {
 }
 .open-history{
   width: 100%;
-  display: flex;
   justify-content: flex-end;
   transform: translateX(-54px);
+  display: none;
 }
+
+@media screen and (max-width:420px){
+  .open-history{
+    display: flex;
+  }
+  .nav-items{
+    display: none;
+  }
+}
+
+
 
 @media screen and (max-width:532px){
   .open-history{
@@ -394,8 +412,14 @@ input {
   cursor: pointer;
   padding: 8px 12px;
   border: 1px solid rgb(100 116 139);
+}
+.btm-btn{
   border-radius: 50px;
 }
+.top-btn{
+  border-radius: 5px;
+}
+
 .open-history-inner:hover, .saved:hover{
   color: #38BDF8;
 }

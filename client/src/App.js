@@ -151,12 +151,12 @@ const App = () => {
         )}
       </div>
       <div className='open-history'>
-        <div className='open-history-inner' style={activeStyles.active} onClick={historyModal.onOpen}>
+        <div className='open-history-inner, btm-btn' style={activeStyles.active} onClick={historyModal.onOpen}>
           <FaHistory />
           <h3>History</h3>
         </div>
 
-        <div className='saved' style={activeStyles.activeSaved} onClick={saveModal.onOpen}>
+        <div className='saved, btm-btn' style={activeStyles.activeSaved} onClick={saveModal.onOpen}>
           <IoIosStar />
           <h3>Saved</h3>
         </div>
