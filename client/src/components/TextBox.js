@@ -1,7 +1,9 @@
+import  React, {useEffect, useRef} from "react";
 import SelectDropdown from "./SelectDropdown";
 import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
 import { toast } from "sonner";
+
 
 const TextBox = ({
   variant,
@@ -16,13 +18,10 @@ const TextBox = ({
   showCopy, 
   setShowCopy
 }) => {
+  const inputBoxRef = useRef(null);
+  const outputBoxRef = useRef(null);
+  const actionsRef = useRef(null);
 
-  const handleClick = () => {
-    setTextToTranslate("");
-    setTranslatedText("");
-    setShowDelete(false);
-    setShowCopy(false);
-  };
 
   const handleChange = (e) => {
     if (e.target.className === "input") {
@@ -42,6 +41,34 @@ const TextBox = ({
       }
     }
   };
+  
+  const adjustTextareaHeight = (textarea)=>{
+    if (textarea) {
+      textarea.style.height = 'auto';
+      const extraHeight = actionsRef.current.offsetHeight;
+      const newHeight = textarea.scrollHeight + extraHeight;
+      textarea.style.height = `${newHeight}px`;
+    }
+  }
+
+  useEffect(()=>{
+    if(variant === "input"){
+      adjustTextareaHeight(inputBoxRef.current);
+    }else{
+      adjustTextareaHeight(outputBoxRef.current);
+    }
+   
+
+  }, [textToTranslate, translatedText, variant])
+
+  const handleClick = () => {
+    setTextToTranslate("");
+    setTranslatedText("");
+    setShowDelete(false);
+    setShowCopy(false);
+    adjustTextareaHeight();
+  };
+
 
   const handleCopy = () => {
     navigator.clipboard
@@ -55,23 +82,23 @@ const TextBox = ({
   };
 
   return (
-    <div className={variant}>
-      <SelectDropdown
+    <div className={variant} style={{borderRight: variant === "input" && "1px solid rgb(100 116 139)", padding:"1rem"}}>
+      {/* <SelectDropdown
         style={variant}
         setShowModal={setShowModal}
         selectedLanguage={selectedLanguage}
-      />
+      /> */}
       <div
         className="textarea-wrapper"
-        style={{ display: variant === "input" ? "flex" : "block" }}
+        style={{flexDirection: variant === "input" ? "row" : "column" }}
       >
         <textarea
+          ref={variant === "input" ? inputBoxRef : outputBoxRef}
           readOnly={variant === "output"}
           className={variant}
           placeholder={variant === "input" ? "Enter text" : "Translation"}
           onChange={handleChange}
           value={variant === "input" ? textToTranslate : translatedText}
-          style={{ flex: variant === "input" && 1 }}
         />
 
         {variant === "input" && showDelete && (
@@ -85,10 +112,11 @@ const TextBox = ({
         )}
         {variant === "output" && showCopy && (
           <div
-            className="copy"
+            className="textarea-actions"
             onClick={handleCopy}
             style={{ cursor: "pointer" }}
             title="copy translation"
+            ref={actionsRef}
           >
             <PiCopySimple size={22} style={{ color: "rgb(203 213 225)" }} />
           </div>
