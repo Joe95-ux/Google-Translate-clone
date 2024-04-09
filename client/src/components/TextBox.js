@@ -1,5 +1,4 @@
 import  React, {useEffect, useRef} from "react";
-import SelectDropdown from "./SelectDropdown";
 import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
 import { toast } from "sonner";
@@ -20,7 +19,6 @@ const TextBox = ({
 }) => {
   const inputBoxRef = useRef(null);
   const outputBoxRef = useRef(null);
-  const actionsRef = useRef(null);
 
 
   const handleChange = (e) => {
@@ -45,9 +43,7 @@ const TextBox = ({
   const adjustTextareaHeight = (textarea)=>{
     if (textarea) {
       textarea.style.height = 'auto';
-      const extraHeight = actionsRef.current.offsetHeight;
-      const newHeight = textarea.scrollHeight + extraHeight;
-      textarea.style.height = `${newHeight}px`;
+      textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }
 
@@ -83,11 +79,6 @@ const TextBox = ({
 
   return (
     <div className={variant} style={{borderRight: variant === "input" && "1px solid rgb(100 116 139)", padding:"1rem"}}>
-      {/* <SelectDropdown
-        style={variant}
-        setShowModal={setShowModal}
-        selectedLanguage={selectedLanguage}
-      /> */}
       <div
         className="textarea-wrapper"
         style={{flexDirection: variant === "input" ? "row" : "column" }}
@@ -116,7 +107,6 @@ const TextBox = ({
             onClick={handleCopy}
             style={{ cursor: "pointer" }}
             title="copy translation"
-            ref={actionsRef}
           >
             <PiCopySimple size={22} style={{ color: "rgb(203 213 225)" }} />
           </div>

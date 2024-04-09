@@ -1,11 +1,12 @@
 import React from "react";
 
-const SelectDropdown = ({ style, selectedLanguage, setShowModal }) => {
+const SelectDropdown = ({ type, selectedLanguage, setShowModal }) => {
    
 
   return (
-    <div className="select-drop-down" onClick={()=> setShowModal(style)}>
-      <input value={selectedLanguage} />
+    <div className="select-drop-down" onClick={()=> setShowModal(type)}>
+      {/* <input value={selectedLanguage} /> */}
+      <span>{selectedLanguage}</span>
       <div className="down-arrow">
         <svg
           focusable="false"

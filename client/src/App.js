@@ -1,9 +1,9 @@
 import { useEffect, useState} from "react";
 import TextBox from "./components/TextBox";
-import Arrows from "./components/Arrows";
 import Button from "./components/Button";
 import Modal from "./components/Modal";
 import History from "./components/History";
+import ComposeHeader from "./components/ComposeHeader";
 import Saved from "./components/Saved";
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
@@ -131,6 +131,7 @@ const App = () => {
       <div className="app">
         {!showModal && (
           <div className="compose-box">
+            <ComposeHeader setShowModal={setShowModal} inputLanguage={inputLanguage} outputLanguage={outputLanguage} handleClick ={handleClick}/>
             <div className="compose-box-inner">
               <TextBox
                 variant="input"
@@ -144,9 +145,6 @@ const App = () => {
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}
               />
-              {/* <div className="arrow-container" onClick={handleClick}>
-              <Arrows />
-            </div> */}
               <TextBox
                 variant="output"
                 setShowModal={setShowModal}
@@ -155,9 +153,9 @@ const App = () => {
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}
               />
-              {/* <div className="button-container" onClick={translate}>
-              <Button disable={isLoading}/>
-            </div> */}
+              <div className="button-container" onClick={translate}>
+                <Button disable={isLoading}/>
+            </div> 
             </div>
           </div>
         )}
