@@ -9,6 +9,7 @@ import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
 import { useHistory } from "./hooks/useHistory";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { useSaveModal } from "./hooks/useSaveModal";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
@@ -192,6 +193,7 @@ const App = () => {
           <h3>Saved</h3>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };

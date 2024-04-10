@@ -4,7 +4,7 @@ const SelectDropdown = ({ type, selectedLanguage, setShowModal }) => {
    
 
   return (
-    <div className="select-drop-down" onClick={()=> setShowModal(type)}>
+    <div className="select-drop-down" onClick={()=> setShowModal(type)} style={{justifyContent:type === "output" ? "flex-end" : "flex-start"}}>
       {/* <input value={selectedLanguage} /> */}
       <span>{selectedLanguage}</span>
       <div className="down-arrow">

@@ -14,7 +14,6 @@ const ComposeHeader = ({ setShowModal, inputLanguage, outputLanguage, handleClic
       </div>
       <SelectDropdown
         type="output"
-        className="flex-end"
         setShowModal={setShowModal}
         selectedLanguage={outputLanguage}
       />
