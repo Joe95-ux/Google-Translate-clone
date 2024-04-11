@@ -145,6 +145,7 @@ const App = () => {
                 setShowDelete={setShowDelete}
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}
+                onTranslate={translate}
               />
               <TextBox
                 variant="output"
@@ -153,6 +154,7 @@ const App = () => {
                 translatedText={isLoading ? "Translating..." : translatedText}
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}
+                onTranslate={translate}
               />
               <div className="button-container" onClick={translate}>
                 <Button disable={isLoading}/>
@@ -176,7 +178,7 @@ const App = () => {
       </div>
       <div className="open-history">
         <div
-          className="open-history-inner, btm-btn"
+          className="open-history-inner btm-btn"
           style={activeStyles.active}
           onClick={historyModal.onOpen}
         >
@@ -185,7 +187,7 @@ const App = () => {
         </div>
 
         <div
-          className="saved, btm-btn"
+          className="saved btm-btn"
           style={activeStyles.activeSaved}
           onClick={saveModal.onOpen}
         >
