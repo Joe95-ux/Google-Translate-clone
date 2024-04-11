@@ -47,7 +47,6 @@ app.get('/translation', async (req, res) => {
   const fromLang = await getLanguageShort(inputLanguage);
   const toLang = await getLanguageShort(outputLanguage);
   
-
   const options = {
     method: 'POST',
     headers: {
