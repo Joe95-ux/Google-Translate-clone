@@ -1,4 +1,4 @@
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import TextBox from "./components/TextBox";
 import Button from "./components/Button";
 import Modal from "./components/Modal";
@@ -30,7 +30,28 @@ const App = () => {
   const saveModal = useSaveModal();
 
   
+  const [otherInputLangs, setOtherInputLangs] = useState(["Detect language", "French", "English"]);
+  const [otherOutputLangs, setOtherOutputLangs] = useState(["English", "French"]);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 765) {
+        setOtherInputLangs([inputLanguage]);
+        setOtherOutputLangs([outputLanguage]);
+      } else {
+        setOtherInputLangs(["Detect language", "English", "French"]);
+        setOtherOutputLangs(["English", "French"])
+      }
+    };
 
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const activeStyles = {
     active: {
@@ -100,8 +121,6 @@ const App = () => {
     setOutputLanguage(inputLanguage);
   };
 
-  
-
   const handleReTranslate = (from, to, text, translatedText) => {
     setInputLanguage(from);
     setOutputLanguage(to);
@@ -110,6 +129,7 @@ const App = () => {
     setShowDelete(true);
     setShowCopy(true);
   };
+
 
   return (
     <div className="wrapper">
@@ -132,7 +152,16 @@ const App = () => {
       <div className="app">
         {!showModal && (
           <div className="compose-box">
-            <ComposeHeader setShowModal={setShowModal} inputLanguage={inputLanguage} outputLanguage={outputLanguage} handleClick ={handleClick}/>
+            <ComposeHeader
+              setShowModal={setShowModal}
+              inputLanguage={inputLanguage}
+              outputLanguage={outputLanguage}
+              handleClick={handleClick}
+              otherInputLangs={otherInputLangs}
+              otherOutputLangs={otherOutputLangs}
+              setInputLanguage={setInputLanguage}
+              setOutputLanguage={setOutputLanguage}
+            />
             <div className="compose-box-inner">
               <TextBox
                 variant="input"
@@ -157,8 +186,8 @@ const App = () => {
                 onTranslate={translate}
               />
               <div className="button-container" onClick={translate}>
-                <Button disable={isLoading}/>
-            </div> 
+                <Button disable={isLoading} />
+              </div>
             </div>
           </div>
         )}
@@ -166,13 +195,15 @@ const App = () => {
           <Modal
             showModal={showModal}
             setShowModal={setShowModal}
-            languages={languages}
+            languages={showModal === "input" ? languages : languages?.slice(1)}
             chosenLanguage={
               showModal === "input" ? inputLanguage : outputLanguage
             }
             setChosenLanguage={
               showModal === "input" ? setInputLanguage : setOutputLanguage
             }
+            otherLangs={showModal === "input" ? otherInputLangs : otherOutputLangs}
+            setOtherLangs={showModal === "input" ? setOtherInputLangs : setOtherOutputLangs}
           />
         )}
       </div>
@@ -195,7 +226,7 @@ const App = () => {
           <h3>Saved</h3>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 };

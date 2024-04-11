@@ -8,6 +8,8 @@ const Modal = ({
   languages,
   chosenLanguage,
   setChosenLanguage,
+  otherLangs,
+  setOtherLangs
 }) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
 
@@ -19,7 +21,21 @@ const Modal = ({
     e.stopPropagation(); // Stop event propagation to prevent triggering parent elements' click handlers
     setChosenLanguage(language);
     setShowModal(false);
-   
+    
+    setOtherLangs(prevLangs => {
+      let langs = [...prevLangs];
+
+      if(langs.length === 1){
+        langs = [language]
+      }else{
+        if (language !== "Detect language" && !langs.includes(language)) {
+          langs.splice(langs.length - 1, 1, language);
+        }
+
+      }
+  
+      return langs;
+    }); 
   };
 
   const handleChange = (e) => {

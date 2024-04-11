@@ -1,13 +1,27 @@
-import React from "react";
 
-const SelectDropdown = ({ type, selectedLanguage, setShowModal }) => {
+
+const SelectDropdown = ({ type, selectedLanguage, setShowModal, inputOptions, outputOptions, setInputLanguage, setOutputLanguage }) => {
+
+  const langOptions = type === "input" ? inputOptions : outputOptions;
+
+  const handleLangSet = (lang)=>{
+    if(type === "input"){
+      setInputLanguage(lang);
+    }else{
+      setOutputLanguage(lang)
+    }
+  }
    
 
   return (
-    <div className="select-drop-down" onClick={()=> setShowModal(type)} style={{justifyContent:type === "output" ? "flex-end" : "flex-start"}}>
+    <div className="select-drop-down"  style={{justifyContent:type === "output" ? "flex-end" : "flex-start"}}>
       {/* <input value={selectedLanguage} /> */}
-      <span>{selectedLanguage}</span>
-      <div className="down-arrow">
+      <div className="lang-nav">
+        {langOptions?.map((lang, index) =>
+         <span key={index} className={lang === selectedLanguage ? "lang-style lang-option" : "lang-option"} onClick={()=>handleLangSet(lang)}>{lang}</span>
+        )}
+      </div>
+      <div className="down-arrow" onClick={()=> setShowModal(type)}>
         <svg
           focusable="false"
           xmlns="http://www.w3.org/2000/svg"
