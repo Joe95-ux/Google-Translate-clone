@@ -1,6 +1,7 @@
 import React from "react";
 
 const Arrows = () => {
+
   return (
     <div title="Swap Languages">
       <svg

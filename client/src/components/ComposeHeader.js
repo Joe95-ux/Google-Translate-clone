@@ -9,8 +9,11 @@ const ComposeHeader = ({
   otherInputLangs,
   otherOutputLangs,
   setInputLanguage,
-  setOutputLanguage
+  setOutputLanguage,
+  setOtherOutputLangs,
+  setOtherInputLangs
 }) => {
+
   return (
     <div className="compose-box-header">
       <SelectDropdown
@@ -21,8 +24,12 @@ const ComposeHeader = ({
         outputOptions={otherOutputLangs}
         setInputLanguage={setInputLanguage}
         setOutputLanguage={setOutputLanguage}
+        inputLanguage={inputLanguage}
+        outputLanguage={outputLanguage}
+        setOutputOptions={setOtherOutputLangs}
+        setInputOptions={setOtherInputLangs}
       />
-      <div className="arrow-container" onClick={handleClick}>
+      <div className={inputLanguage === "Detect language" ? "arrow-container disabled-arrow" : "arrow-container"} onClick={handleClick}>
         <Arrows />
       </div>
       <SelectDropdown
@@ -33,6 +40,10 @@ const ComposeHeader = ({
         outputOptions={otherOutputLangs}
         setInputLanguage={setInputLanguage}
         setOutputLanguage={setOutputLanguage}
+        inputLanguage={inputLanguage}
+        outputLanguage={outputLanguage}
+        setOutputOptions={setOtherOutputLangs}
+        setInputOptions={setOtherInputLangs}
       />
     </div>
   );

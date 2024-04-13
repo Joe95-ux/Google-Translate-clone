@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 import { IoMdClose } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 
@@ -8,8 +8,15 @@ const Modal = ({
   languages,
   chosenLanguage,
   setChosenLanguage,
-  otherLangs,
-  setOtherLangs
+  setOtherLangs,
+  otherInputLangs,
+  otherOutputLangs,
+  setInputLanguage,
+  setOutputLanguage,
+  setOtherOutputLangs,
+  setOtherInputLangs,
+  inputLanguage,
+  outputLanguage
 }) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
 
@@ -20,28 +27,50 @@ const Modal = ({
   const handleSelect = (e, language) => {
     e.stopPropagation(); // Stop event propagation to prevent triggering parent elements' click handlers
     setChosenLanguage(language);
-    setShowModal(false);
+
+    if(showModal === "input"){
+      if(language === outputLanguage){
+        const newOutputLang = otherOutputLangs.find(lange => lange !== language);
+        setOutputLanguage(newOutputLang);
+        setOtherOutputLangs(prevLangs => {
+          if (!prevLangs.includes(newOutputLang)) {
+            return [...prevLangs.slice(0, -1), newOutputLang];
+          }
+          return prevLangs;
+        });
+      }
+
+    }else{
+      if(language === inputLanguage){
+        const newInputLang = otherInputLangs.find(lange => lange !== language && lange !== "Detect language");
+        setInputLanguage(newInputLang);
+        setOtherInputLangs(prevLangs => {
+          if (!prevLangs.includes(newInputLang)) {
+            return [...prevLangs.slice(0, -1), newInputLang];
+          }
+          return prevLangs;
+        });
+      }
+    }
     
     setOtherLangs(prevLangs => {
       let langs = [...prevLangs];
-
-      if(langs.length === 1){
-        langs = [language]
-      }else{
-        if (language !== "Detect language" && !langs.includes(language)) {
-          langs.splice(langs.length - 1, 1, language);
-        }
-
+      if (language !== "Detect language" && !langs.includes(language)) {
+        langs.splice(langs.length - 1, 1, language);
       }
   
       return langs;
-    }); 
+    });
+
+    setShowModal(false);
   };
 
   const handleChange = (e) => {
     setSearchedLanguage(e.target.value);
     setChosenLanguage(e.target.value);
   };
+
+
   return (
     <div className="option-list">
       <div className="search-bar">

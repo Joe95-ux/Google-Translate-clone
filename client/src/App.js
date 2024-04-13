@@ -29,30 +29,9 @@ const App = () => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
 
-  
   const [otherInputLangs, setOtherInputLangs] = useState(["Detect language", "French", "English"]);
-  const [otherOutputLangs, setOtherOutputLangs] = useState(["English", "French"]);
+  const [otherOutputLangs, setOtherOutputLangs] = useState(["English", "Spanish", "French"]);
   
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 765) {
-        setOtherInputLangs([inputLanguage]);
-        setOtherOutputLangs([outputLanguage]);
-      } else {
-        setOtherInputLangs(["Detect language", "English", "French"]);
-        setOtherOutputLangs(["English", "French"])
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   const activeStyles = {
     active: {
       color: historyModal.isOpen && "#38BDF8",
@@ -117,8 +96,50 @@ const App = () => {
   };
 
   const handleClick = () => {
-    setInputLanguage(outputLanguage);
-    setOutputLanguage(inputLanguage);
+    // Check if inputLanguage is not "Detect language"
+    if (inputLanguage !== "Detect language") {
+      // Swap input and output languages if they are different
+      if (inputLanguage !== outputLanguage) {
+        setInputLanguage(outputLanguage);
+        setOutputLanguage(inputLanguage);
+        setOtherOutputLangs(prevLangs => {
+          if (prevLangs.length === 1) {
+            return [inputLanguage];
+          } else {
+            return prevLangs.includes(inputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), inputLanguage];
+          }
+          
+        });
+      } else {
+        // Select a new outputLanguage different from inputLanguage
+        let newOutputLanguage;
+        if(otherOutputLangs.length === 1){
+          newOutputLanguage = languages?.find(lang => lang !== inputLanguage && lang !== "Detect language");
+        }else{
+          newOutputLanguage = otherOutputLangs?.find(lang => lang !== inputLanguage);
+        }
+        
+        // Update outputLanguage
+        setOutputLanguage(newOutputLanguage);
+        setOtherOutputLangs(prevLangs => {
+          if (prevLangs.length === 1) {
+            return [newOutputLanguage];
+          } else {
+            return prevLangs.includes(newOutputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), newOutputLanguage];
+          }
+          
+        });
+      }
+  
+      // Update other input and output languages
+      setOtherInputLangs(prevLangs => {
+        if (prevLangs.length === 1) {
+          return [outputLanguage];
+        } else {
+          return prevLangs.includes(outputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), outputLanguage];
+        }
+      });
+    }
   };
 
   const handleReTranslate = (from, to, text, translatedText) => {
@@ -161,6 +182,8 @@ const App = () => {
               otherOutputLangs={otherOutputLangs}
               setInputLanguage={setInputLanguage}
               setOutputLanguage={setOutputLanguage}
+              setOtherOutputLangs={setOtherOutputLangs}
+              setOtherInputLangs={setOtherInputLangs}
             />
             <div className="compose-box-inner">
               <TextBox
@@ -204,6 +227,14 @@ const App = () => {
             }
             otherLangs={showModal === "input" ? otherInputLangs : otherOutputLangs}
             setOtherLangs={showModal === "input" ? setOtherInputLangs : setOtherOutputLangs}
+            otherInputLangs={otherInputLangs}
+            otherOutputLangs={otherOutputLangs}
+            setInputLanguage={setInputLanguage}
+            setOutputLanguage={setOutputLanguage}
+            setOtherOutputLangs={setOtherOutputLangs}
+            setOtherInputLangs={setOtherInputLangs}
+            inputLanguage={inputLanguage}
+            outputLanguage={outputLanguage}
           />
         )}
       </div>

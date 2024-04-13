@@ -150,6 +150,12 @@ textarea::placeholder{
   height: 26px;
   fill: rgb(241 245 249);
 }
+.arrow-container.disabled-arrow{
+  cursor: default;
+}
+.arrow-container.disabled-arrow svg{
+  fill:rgb(100 116 139)
+}
 
 .option-list {
   width: 100%;
