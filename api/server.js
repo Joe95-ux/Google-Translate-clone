@@ -8,15 +8,16 @@ const app = express()
 app.use(cors());
 
 app.use(express.json());
+const headers = {
+  'content-type': 'application/x-www-form-urlencoded',
+  'x-rapidapi-host': process.env.RAPID_API_HOST,
+  'x-rapidapi-key': process.env.RAPID_API_KEY,
+}
 
 const lanOptions = {
   method: 'GET',
   url:'https://google-translate113.p.rapidapi.com/api/v1/translator/support-languages',
-  headers: {
-    'content-type': 'application/x-www-form-urlencoded',
-    'x-rapidapi-host': process.env.RAPID_API_HOST,
-    'x-rapidapi-key': process.env.RAPID_API_KEY,
-  },
+  headers:headers
 }
 async function getLanguageShort(language){
   let lan;
@@ -61,11 +62,7 @@ app.get('/translation', async (req, res) => {
   
   const options = {
     method: 'POST',
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-      'x-rapidapi-host': process.env.RAPID_API_HOST,
-      'x-rapidapi-key': process.env.RAPID_API_KEY,
-    },
+    headers:headers,
     data: new URLSearchParams({
       from: fromLang,
       to: toLang,
@@ -80,6 +77,27 @@ app.get('/translation', async (req, res) => {
       options
     )
     res.status(200).json(response.data)
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ message: err })
+  }
+})
+
+app.get('/detect-language', async (req, res) => {
+  const {textToTranslate} = req.query;
+  console.log("query=", req.query)
+  const encodedParams = new URLSearchParams();
+  encodedParams.set('text', textToTranslate);
+  const options = {
+    method: 'POST',
+    url: 'https://google-translate113.p.rapidapi.com/api/v1/translator/detect-language',
+    headers:headers,
+    data: encodedParams
+  }
+
+  try {
+    const response = await axios.request(options);
+    res.status(200).json(response.data.source_lang);
   } catch (err) {
     console.log(err)
     res.status(500).json({ message: err })

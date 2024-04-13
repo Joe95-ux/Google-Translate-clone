@@ -19,6 +19,7 @@ const Modal = ({
   outputLanguage
 }) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
+  chosenLanguage = chosenLanguage.includes("Detected") ? chosenLanguage.split(" - ")[0] : chosenLanguage
 
   const filteredLanguages = languages?.filter((language) =>
     language.toLowerCase().startsWith(searchedLanguage.toLowerCase())
@@ -39,6 +40,19 @@ const Modal = ({
           return prevLangs;
         });
       }
+      // remove any Detected suffix if any from inputlanguageoptions
+      setOtherInputLangs(prevLangs => {
+        const updatedOptions = prevLangs.map(language => {
+          if(language.includes("Detected")){
+            return "Detect language";
+          }else{
+            return language
+          }
+        })
+
+        return updatedOptions;
+        
+      })
 
     }else{
       if(language === inputLanguage){

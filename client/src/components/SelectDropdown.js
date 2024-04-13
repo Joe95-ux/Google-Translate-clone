@@ -46,6 +46,23 @@ const SelectDropdown = ({
           return prevLangs;
         });
       }
+
+      if(!lang.includes("Detected")){
+        setInputOptions(prevLangs => {
+          const updatedOptions = prevLangs.map(language => {
+            if(language.includes("Detected")){
+              return "Detect language";
+            }else{
+              return language
+            }
+          })
+
+          return updatedOptions;
+          
+        })
+
+      }
+      
     } else {
       setOutputLanguage(lang);
       if (lang === inputLanguage) {

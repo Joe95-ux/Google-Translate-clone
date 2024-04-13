@@ -30,10 +30,10 @@ const TextBox = ({
       setScreenWidth(window.innerWidth);
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -90,12 +90,14 @@ const TextBox = ({
       });
   };
 
-
   return (
     <div
       className={variant}
       style={{
-        borderRight: variant === "input" && screenWidth > 600 && "1px solid rgb(100 116 139)",
+        borderRight:
+          variant === "input" &&
+          screenWidth > 600 &&
+          "1px solid rgb(100 116 139)",
         order: variant === "output" && screenWidth < 601 && "2",
         padding: "1rem",
       }}
@@ -127,28 +129,50 @@ const TextBox = ({
         </div>
         {variant === "input" && textToTranslate.length > 0 && (
           <div>
-            <div style={{display:"flex", alignItems:"center", margin:"1rem 0 0"}}>
-              <BsTranslate size={22} style={{ color: "rgb(68, 138, 251)" }} />
-              <span
-                style={{
-                  fontSize: "14px",
-                  marginLeft: "10px",
-                  color: "#f5f5f5",
-                }}
-              >
-                Translate from:{" "}
-                <span onClick={onTranslate} style={{ color: "rgb(68, 138, 251)", cursor: "pointer" }}>
-                  {selectedLanguage}
-                </span>
-              </span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                margin: "1rem 0 0",
+              }}
+            >
+              {!selectedLanguage.includes("language") && (
+                <>
+                  <BsTranslate
+                    size={22}
+                    style={{ color: "rgb(68, 138, 251)" }}
+                  />
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      marginLeft: "10px",
+                      color: "#f5f5f5",
+                    }}
+                  >
+                    Translate from:{" "}
+                    <span
+                      onClick={onTranslate}
+                      style={{ color: "rgb(68, 138, 251)", cursor: "pointer" }}
+                    >
+                      {selectedLanguage.includes("Detected") ? selectedLanguage.split(" - ")[0] : selectedLanguage}
+                    </span>
+                  </span>
+                </>
+              )}
             </div>
             <div className="textarea-actions">
               <div className="left-actions">
-                <HiOutlineMicrophone size={22}
-                  style={{ color: "rgb(203 213 225)", cursor: "pointer" }}/>
+                <HiOutlineMicrophone
+                  size={22}
+                  style={{ color: "rgb(203 213 225)", cursor: "pointer" }}
+                />
                 <HiOutlineSpeakerWave
                   size={22}
-                  style={{ color: "rgb(203 213 225)", cursor: "pointer", marginLeft:"12px" }}
+                  style={{
+                    color: "rgb(203 213 225)",
+                    cursor: "pointer",
+                    marginLeft: "12px",
+                  }}
                 />
               </div>
               <div className="right-actions">
@@ -169,7 +193,7 @@ const TextBox = ({
               />
             </div>
             <div className="right-actions">
-              <div title="copy translation" style={{display:"flex"}}>
+              <div title="copy translation" style={{ display: "flex" }}>
                 <PiCopySimple
                   size={22}
                   style={{

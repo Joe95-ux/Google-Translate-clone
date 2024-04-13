@@ -46,6 +46,7 @@ const App = () => {
     setLanguages(response.data);
   };
 
+ 
   useEffect(() => {
     getLanguages();
     const data = localStorage.getItem("translations");
@@ -56,6 +57,42 @@ const App = () => {
     const saved = JSON.parse(localStorage.getItem("savedTranslations")) || [];
     setSavedTranslations(saved);
   }, []);
+
+  useEffect(() => {
+    if (inputLanguage === "Detect language" && textToTranslate !== "" && textToTranslate !== null) {
+      const detectLanguage = async () => {
+        const response = await axios.get("http://localhost:4000/detect-language", {params: {textToTranslate}});
+        const detectedLang = response.data + " - Detected";
+        setInputLanguage(detectedLang);
+        setOtherInputLangs(prevLangs => {
+          // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
+          return [detectedLang, ...prevLangs.slice(1)];
+        });
+      };
+
+      detectLanguage();
+    }
+  }, [inputLanguage, textToTranslate]);
+
+  useEffect(() => {
+    if(textToTranslate === "" || textToTranslate === null){
+      setOtherInputLangs(prevLangs => {
+        const updatedOptions = prevLangs.map(language => {
+          if(language.includes("Detected")){
+            return "Detect language";
+          }else{
+            return language
+          }
+        })
+
+        return updatedOptions;
+        
+      })
+      setInputLanguage("Detect language")
+
+    }
+
+  }, [textToTranslate])
 
   const translate = async () => {
     const data = {
