@@ -18,7 +18,13 @@ const lanOptions = {
     'x-rapidapi-key': process.env.RAPID_API_KEY,
   },
 }
-async function getLanguageShort(lan){
+async function getLanguageShort(language){
+  let lan;
+  if(language === "Detect language"){
+    lan = "Automatic";
+  }else{
+    lan = language;
+  }
   try {
     const response = await axios.request(lanOptions)
     const data = response.data;
@@ -34,7 +40,13 @@ async function getLanguageShort(lan){
 app.get('/languages', async (req, res) => {
   try {
     const response = await axios.request(lanOptions);
-    const arrayData = response.data.map((language)=>language.language);
+    const arrayData = response.data.map((language)=>{
+      if(language.language === "Automatic"){
+        return "Detect language"
+      }else{
+        return language.language
+      }
+    });
     res.status(200).json(arrayData);
   } catch (err) {
     console.log(err)
