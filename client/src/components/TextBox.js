@@ -140,7 +140,7 @@ const TextBox = ({
                 <>
                   <BsTranslate
                     size={22}
-                    style={{ color: "rgb(68, 138, 251)" }}
+                    style={{ color: "#38BDF8" }}
                   />
                   <span
                     style={{
@@ -152,7 +152,7 @@ const TextBox = ({
                     Translate from:{" "}
                     <span
                       onClick={onTranslate}
-                      style={{ color: "rgb(68, 138, 251)", cursor: "pointer" }}
+                      style={{ color: "#38BDF8", cursor: "pointer" }}
                     >
                       {selectedLanguage.includes("Detected") ? selectedLanguage.split(" - ")[0] : selectedLanguage}
                     </span>

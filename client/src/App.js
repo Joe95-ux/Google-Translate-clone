@@ -106,13 +106,14 @@ const App = () => {
         const response = await axios.get("http://localhost:4000/translation", {
           params: data,
         });
+
         setTranslatedText(response.data.trans);
         setShowCopy(true);
         setIsLoading(false);
         saveTranslation({
           text: textToTranslate,
           to: outputLanguage,
-          from: inputLanguage,
+          from: inputLanguage.includes("Detected") ? inputLanguage.split(" - ")[0] : inputLanguage,
           translation: response.data.trans,
           timestamp: new Date().toLocaleString(),
           saved: false,
@@ -134,16 +135,17 @@ const App = () => {
 
   const handleClick = () => {
     // Check if inputLanguage is not "Detect language"
-    if (inputLanguage !== "Detect language") {
+    let inputLang = inputLanguage.includes("Detected") ? inputLanguage.split(" - ")[0] : inputLanguage;
+    if (!inputLang.includes("Detect language")) {
       // Swap input and output languages if they are different
-      if (inputLanguage !== outputLanguage) {
+      if (inputLang !== outputLanguage) {
         setInputLanguage(outputLanguage);
-        setOutputLanguage(inputLanguage);
+        setOutputLanguage(inputLang);
         setOtherOutputLangs(prevLangs => {
           if (prevLangs.length === 1) {
-            return [inputLanguage];
+            return [inputLang];
           } else {
-            return prevLangs.includes(inputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), inputLanguage];
+            return prevLangs.includes(inputLang) ? prevLangs : [...prevLangs.slice(0, -1), inputLang];
           }
           
         });
@@ -151,9 +153,9 @@ const App = () => {
         // Select a new outputLanguage different from inputLanguage
         let newOutputLanguage;
         if(otherOutputLangs.length === 1){
-          newOutputLanguage = languages?.find(lang => lang !== inputLanguage && lang !== "Detect language");
+          newOutputLanguage = languages?.find(lang => lang !== inputLang && lang !== "Detect language");
         }else{
-          newOutputLanguage = otherOutputLangs?.find(lang => lang !== inputLanguage);
+          newOutputLanguage = otherOutputLangs?.find(lang => lang !== inputLang);
         }
         
         // Update outputLanguage
@@ -176,6 +178,10 @@ const App = () => {
           return prevLangs.includes(outputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), outputLanguage];
         }
       });
+      if(textToTranslate !== "" && translatedText !== ""){
+        setTextToTranslate(translatedText);
+        setTranslatedText(textToTranslate);
+      }
     }
   };
 

@@ -107,7 +107,7 @@ const SelectDropdown = ({
               }
               onClick={() => handleLangSet(lang)}
             >
-              {lang}
+              {lang.includes("Detected") && !lang.includes(selectedLanguage) ? "Detect language" : lang }
             </span>
           ))
         )}

@@ -1,3 +1,4 @@
+import React from "react";
 import SelectDropdown from "./SelectDropdown";
 import Arrows from "./Arrows";
 
@@ -29,7 +30,7 @@ const ComposeHeader = ({
         setOutputOptions={setOtherOutputLangs}
         setInputOptions={setOtherInputLangs}
       />
-      <div className={inputLanguage === "Detect language" ? "arrow-container disabled-arrow" : "arrow-container"} onClick={handleClick}>
+      <div className={inputLanguage.includes("Detect language") ? "arrow-container disabled-arrow" : "arrow-container"} onClick={handleClick}>
         <Arrows />
       </div>
       <SelectDropdown
