@@ -20,6 +20,7 @@ const TextBox = ({
   setShowDelete,
   showCopy,
   setShowCopy,
+  detectLanguage
 }) => {
   const inputBoxRef = useRef(null);
   const outputBoxRef = useRef(null);
@@ -154,7 +155,7 @@ const TextBox = ({
                       onClick={onTranslate}
                       style={{ color: "#38BDF8", cursor: "pointer" }}
                     >
-                      {selectedLanguage.includes("Detected") ? selectedLanguage.split(" - ")[0] : selectedLanguage}
+                      {detectLanguage}
                     </span>
                   </span>
                 </>

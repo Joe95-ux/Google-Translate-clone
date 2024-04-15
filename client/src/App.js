@@ -24,6 +24,7 @@ const App = () => {
   const [outputLanguage, setOutputLanguage] = useState("French");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translatedText, setTranslatedText] = useState("");
+  const [detectedLang, setDetectedLang] = useState("");
   const [translations, setTranslations] = useState([]);
   const [savedTranslations, setSavedTranslations] = useState([]);
   const historyModal = useHistory();
@@ -58,21 +59,32 @@ const App = () => {
     setSavedTranslations(saved);
   }, []);
 
+
   useEffect(() => {
-    if (inputLanguage === "Detect language" && textToTranslate !== "" && textToTranslate !== null) {
+    if (textToTranslate !== "" && textToTranslate !== null && !inputLanguage.includes("Detected")) {
       const detectLanguage = async () => {
         const response = await axios.get("http://localhost:4000/detect-language", {params: {textToTranslate}});
-        const detectedLang = response.data + " - Detected";
-        setInputLanguage(detectedLang);
-        setOtherInputLangs(prevLangs => {
-          // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
-          return [detectedLang, ...prevLangs.slice(1)];
-        });
+        const detectedLanguage = response.data + " - Detected"; 
+        setDetectedLang(response.data);
+        if(inputLanguage === "Detect language"){
+          setInputLanguage(detectedLanguage);
+          setOtherInputLangs(prevLangs => {
+            // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
+            return [detectedLanguage, ...prevLangs.slice(1)];
+          });
+
+        }else{
+          setInputLanguage(detectedLang);
+          setOtherInputLangs(prevLangs => {
+            // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
+            return [...prevLangs.slice(0, -1), detectedLang];
+          });
+        }
       };
 
       detectLanguage();
     }
-  }, [inputLanguage, textToTranslate]);
+  }, [detectedLang, inputLanguage, textToTranslate]);
 
   useEffect(() => {
     if(textToTranslate === "" || textToTranslate === null){
@@ -175,7 +187,15 @@ const App = () => {
         if (prevLangs.length === 1) {
           return [outputLanguage];
         } else {
-          return prevLangs.includes(outputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), outputLanguage];
+          const adjustedLangs = prevLangs.map(lang => {
+            if(lang.includes("Detected") && !lang.includes(inputLanguage)){
+              return "Detect language"
+            } else{
+              return lang
+            }
+
+          })
+          return adjustedLangs.includes(outputLanguage) ? adjustedLangs : [...adjustedLangs.slice(0, -1), outputLanguage];
         }
       });
       if(textToTranslate !== "" && translatedText !== ""){
@@ -188,6 +208,24 @@ const App = () => {
   const handleReTranslate = (from, to, text, translatedText) => {
     setInputLanguage(from);
     setOutputLanguage(to);
+    // set otherInputLangs
+    setOtherInputLangs(prevLangs => {
+      const adjustedLangs = prevLangs.map(lang => {
+        if(lang.includes("Detected")){
+          return "Detect language"
+        } else{
+          return lang
+        }
+
+      })
+      return adjustedLangs.includes(from) ? adjustedLangs : [...adjustedLangs.slice(0, -1), from];
+    });
+
+    // set otherOutputLangs
+    setOtherOutputLangs(prevLangs => {
+      return prevLangs.includes(to) ? prevLangs : [...prevLangs.slice(0, -1), to];
+    });
+
     setTextToTranslate(text);
     setTranslatedText(translatedText);
     setShowDelete(true);
@@ -241,6 +279,7 @@ const App = () => {
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}
                 onTranslate={translate}
+                detectLanguage={detectedLang}
               />
               <TextBox
                 variant="output"
@@ -250,6 +289,7 @@ const App = () => {
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}
                 onTranslate={translate}
+                detectLanguage={detectedLang}
               />
               <div className="button-container" onClick={translate}>
                 <Button disable={isLoading} />
