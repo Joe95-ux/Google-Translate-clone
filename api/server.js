@@ -2,10 +2,17 @@ const PORT = 4000
 const axios = require('axios').default
 const express = require('express')
 const cors = require('cors')
+const  { OpenAI } =  require("openai");
 require('dotenv').config()
 const app = express()
 
 app.use(cors());
+
+//openai config
+
+const openai = new OpenAI({
+  apiKey: process.env.OPEN_API_KEY
+});
 
 app.use(express.json());
 const headers = {
@@ -23,6 +30,8 @@ async function getLanguageShort(language){
   let lan;
   if(language === "Detect language"){
     lan = "Automatic";
+  }else if(language.includes("Detected")){
+    lan = language.split(" - ")[0];
   }else{
     lan = language;
   }
@@ -83,25 +92,51 @@ app.get('/translation', async (req, res) => {
   }
 })
 
-app.get('/detect-language', async (req, res) => {
-  const {textToTranslate} = req.query;
-  console.log("query=", req.query)
-  const encodedParams = new URLSearchParams();
-  encodedParams.set('text', textToTranslate);
-  const options = {
-    method: 'POST',
-    url: 'https://google-translate113.p.rapidapi.com/api/v1/translator/detect-language',
-    headers:headers,
-    data: encodedParams
-  }
+// app.get('/detect-language', async (req, res) => {
+//   const {textToTranslate} = req.query;
+//   const encodedParams = new URLSearchParams();
+//   encodedParams.set('text', textToTranslate);
+//   const options = {
+//     method: 'POST',
+//     url: 'https://google-translate113.p.rapidapi.com/api/v1/translator/detect-language',
+//     headers:headers,
+//     data: encodedParams
+//   }
 
+//   try {
+//     const response = await axios.request(options);
+//     res.status(200).json(response.data.source_lang);
+//   } catch (err) {
+//     console.log(err)
+//     res.status(500).json({ message: err })
+//   }
+// })
+
+
+// open ai requests
+
+app.get("/detect-language", async (req, res) => {
   try {
-    const response = await axios.request(options);
-    res.status(200).json(response.data.source_lang);
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({ message: err })
+    const {textToTranslate} = req.query;
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          "role": "system",
+          "content": "Hello! I'm here to help you detect the language of a given text. Please provide the text you want me to analyze. I will only send the language as response and nothing more"
+        },
+        {
+          "role": "user",
+          "content": textToTranslate
+        }
+      ]
+      
+    });
+    res.status(200).json(response.choices[0].message.content)
+  } catch (error) {
+    console.error("error", error);
+    res.status(500).json({ error: error.message });
   }
-})
+});
 
 app.listen(PORT, () => console.log('Server running on port ' + PORT))
