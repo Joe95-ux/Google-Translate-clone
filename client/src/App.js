@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TextBox from "./components/TextBox";
 import Button from "./components/Button";
 import Modal from "./components/Modal";
@@ -32,6 +32,7 @@ const App = () => {
 
   const [otherInputLangs, setOtherInputLangs] = useState(["Detect language", "French", "English"]);
   const [otherOutputLangs, setOtherOutputLangs] = useState(["English", "Spanish", "French"]);
+  const translateRef = useRef(false);
   
   const activeStyles = {
     active: {
@@ -74,10 +75,9 @@ const App = () => {
           });
 
         }else{
-          setInputLanguage(detectedLang);
           setOtherInputLangs(prevLangs => {
             // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
-            return [...prevLangs.slice(0, -1), detectedLang];
+            return prevLangs.includes(inputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), inputLanguage];
           });
         }
       };
@@ -136,6 +136,7 @@ const App = () => {
       }
     } catch (error) {
       toast.error(error.message);
+      setIsLoading(false)
     }
   };
 
@@ -265,6 +266,8 @@ const App = () => {
               setOutputLanguage={setOutputLanguage}
               setOtherOutputLangs={setOtherOutputLangs}
               setOtherInputLangs={setOtherInputLangs}
+              translate={translate}
+              translateRef={translateRef}
             />
             <div className="compose-box-inner">
               <TextBox
@@ -318,6 +321,8 @@ const App = () => {
             setOtherInputLangs={setOtherInputLangs}
             inputLanguage={inputLanguage}
             outputLanguage={outputLanguage}
+            translateRef={translateRef}
+            translate={translate}
           />
         )}
       </div>

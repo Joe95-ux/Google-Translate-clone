@@ -1,3 +1,4 @@
+import "regenerator-runtime";
 import React, { useEffect, useRef, useState } from "react";
 import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
@@ -6,6 +7,7 @@ import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { HiOutlineMicrophone } from "react-icons/hi2";
 import { MdOutlineShare } from "react-icons/md";
 import { toast } from "sonner";
+import speech, {useSpeechRecognition} from "react-speech-recognition";
 
 const TextBox = ({
   variant,
@@ -25,7 +27,10 @@ const TextBox = ({
   const inputBoxRef = useRef(null);
   const outputBoxRef = useRef(null);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const {listening, transcript} = useSpeechRecognition();
 
+  const inputPlaceholder = listening ? "Speak Now" : "Enter Text to translate";
+  const inputValue = transcript ? transcript : textToTranslate;
   useEffect(() => {
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
@@ -109,9 +114,9 @@ const TextBox = ({
             ref={variant === "input" ? inputBoxRef : outputBoxRef}
             readOnly={variant === "output"}
             className={variant}
-            placeholder={variant === "input" ? "Enter text" : "Translation"}
+            placeholder={variant === "input" ? inputPlaceholder : "Translation"}
             onChange={handleChange}
-            value={variant === "input" ? textToTranslate : translatedText}
+            value={variant === "input" ? inputValue : translatedText}
           />
 
           {variant === "input" && showDelete && (
@@ -166,6 +171,7 @@ const TextBox = ({
                 <HiOutlineMicrophone
                   size={22}
                   style={{ color: "rgb(203 213 225)", cursor: "pointer" }}
+                  onClick={()=>speech.startListening()}
                 />
                 <HiOutlineSpeakerWave
                   size={22}

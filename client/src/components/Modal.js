@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import { IoMdClose } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 
@@ -16,7 +16,9 @@ const Modal = ({
   setOtherOutputLangs,
   setOtherInputLangs,
   inputLanguage,
-  outputLanguage
+  outputLanguage,
+  translateRef,
+  translate
 }) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
   chosenLanguage = chosenLanguage.includes("Detected") ? chosenLanguage.split(" - ")[0] : chosenLanguage
@@ -65,6 +67,7 @@ const Modal = ({
           return prevLangs;
         });
       }
+      translateRef.current = true;
     }
     
     setOtherLangs(prevLangs => {
@@ -78,6 +81,13 @@ const Modal = ({
 
     setShowModal(false);
   };
+
+  useEffect(() => {
+    if (translateRef.current) {
+      translate();
+      translateRef.current = false; // Reset flag
+    }
+  }, [outputLanguage, translate, translateRef]);
 
   const handleChange = (e) => {
     setSearchedLanguage(e.target.value);
