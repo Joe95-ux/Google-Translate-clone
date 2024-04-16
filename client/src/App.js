@@ -288,6 +288,7 @@ const App = () => {
                 variant="output"
                 setShowModal={setShowModal}
                 selectedLanguage={outputLanguage}
+                setTextToTranslate={setTextToTranslate}
                 translatedText={isLoading ? "Translating..." : translatedText}
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}

@@ -5,9 +5,13 @@ import { IoMdClose } from "react-icons/io";
 import { BsTranslate } from "react-icons/bs";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { HiOutlineMicrophone } from "react-icons/hi2";
+import { FaRegCircleStop } from "react-icons/fa6";
 import { MdOutlineShare } from "react-icons/md";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
-import speech, {useSpeechRecognition} from "react-speech-recognition";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 const TextBox = ({
   variant,
@@ -22,15 +26,25 @@ const TextBox = ({
   setShowDelete,
   showCopy,
   setShowCopy,
-  detectLanguage
+  detectLanguage,
 }) => {
   const inputBoxRef = useRef(null);
   const outputBoxRef = useRef(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const {listening, transcript} = useSpeechRecognition();
+  const {
+    listening,
+    transcript,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  useEffect(() => {
+    // Update animation state based on speech recognition state
+    setIsAnimating(listening);
+  }, [listening]);
 
   const inputPlaceholder = listening ? "Speak Now" : "Enter Text to translate";
-  const inputValue = transcript ? transcript : textToTranslate;
   useEffect(() => {
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
@@ -83,7 +97,14 @@ const TextBox = ({
     setShowDelete(false);
     setShowCopy(false);
     adjustTextareaHeight();
+    if (transcript) {
+      resetTranscript();
+    }
   };
+
+  useEffect(() => {
+    setTextToTranslate(transcript);
+  }, [setTextToTranslate, transcript]);
 
   const handleCopy = () => {
     navigator.clipboard
@@ -94,6 +115,14 @@ const TextBox = ({
       .catch((err) => {
         toast.error("faild to copy translation");
       });
+  };
+
+  const handleSpeechRecognition = () => {
+    if (!browserSupportsSpeechRecognition) {
+      toast.error("your browser does not support speech recognition");
+    } else {
+      SpeechRecognition.startListening({ continuous: true });
+    }
   };
 
   return (
@@ -116,7 +145,7 @@ const TextBox = ({
             className={variant}
             placeholder={variant === "input" ? inputPlaceholder : "Translation"}
             onChange={handleChange}
-            value={variant === "input" ? inputValue : translatedText}
+            value={variant === "input" ? textToTranslate : translatedText}
           />
 
           {variant === "input" && showDelete && (
@@ -133,7 +162,7 @@ const TextBox = ({
             </div>
           )}
         </div>
-        {variant === "input" && textToTranslate.length > 0 && (
+        {variant === "input" && (
           <div>
             <div
               style={{
@@ -144,10 +173,7 @@ const TextBox = ({
             >
               {!selectedLanguage.includes("language") && (
                 <>
-                  <BsTranslate
-                    size={22}
-                    style={{ color: "#38BDF8" }}
-                  />
+                  <BsTranslate size={22} style={{ color: "#38BDF8" }} />
                   <span
                     style={{
                       fontSize: "14px",
@@ -168,19 +194,50 @@ const TextBox = ({
             </div>
             <div className="textarea-actions">
               <div className="left-actions">
-                <HiOutlineMicrophone
-                  size={22}
-                  style={{ color: "rgb(203 213 225)", cursor: "pointer" }}
-                  onClick={()=>speech.startListening()}
-                />
-                <HiOutlineSpeakerWave
-                  size={22}
-                  style={{
-                    color: "rgb(203 213 225)",
-                    cursor: "pointer",
-                    marginLeft: "12px",
-                  }}
-                />
+                {listening ? (
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    animate={{ rotate: isAnimating ? [0, -5, 5, -5, 0] : 0 }}
+                    transition={{ duration: 0.5 }}
+                    style={{
+                      originX: 0.5,
+                      originY: 0.5,
+                      display: "inline-block",
+                    }}
+                  >
+                    <FaRegCircleStop
+                      size={22}
+                      style={{
+                        color: "#38BDF8",
+                        cursor: "pointer",
+                      }}
+                      onClick={SpeechRecognition.stopListening}
+                    />
+                  </motion.button>
+                ) : (
+                  <HiOutlineMicrophone
+                    size={22}
+                    style={{
+                      color: listening
+                        ? "rgb(203 213 225)"
+                        : "rgb(148 163 184)",
+                      cursor: "pointer",
+                    }}
+                    onClick={handleSpeechRecognition}
+                  />
+                )}
+
+                {textToTranslate.length > 0 && (
+                  <HiOutlineSpeakerWave
+                    size={22}
+                    style={{
+                      color: "rgb(148 163 184)",
+                      cursor: "pointer",
+                      marginLeft: "12px",
+                    }}
+                  />
+                )}
               </div>
               <div className="right-actions">
                 <span style={{ fontSize: "14px" }}>
@@ -196,7 +253,7 @@ const TextBox = ({
             <div className="left-actions">
               <HiOutlineSpeakerWave
                 size={22}
-                style={{ color: "rgb(203 213 225)", cursor: "pointer" }}
+                style={{ color: "rgb(148 163 184)", cursor: "pointer" }}
               />
             </div>
             <div className="right-actions">
@@ -204,7 +261,7 @@ const TextBox = ({
                 <PiCopySimple
                   size={22}
                   style={{
-                    color: "rgb(203 213 225)",
+                    color: "rgb(148 163 184)",
                     transform: "rotate(180deg)",
                     cursor: "pointer",
                   }}
@@ -215,7 +272,7 @@ const TextBox = ({
                 size={22}
                 style={{
                   marginLeft: "12px",
-                  color: "rgb(203 213 225)",
+                  color: "rgb(148 163 184)",
                   cursor: "pointer",
                 }}
               />
