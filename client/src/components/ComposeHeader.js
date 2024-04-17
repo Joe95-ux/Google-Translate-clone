@@ -14,7 +14,8 @@ const ComposeHeader = ({
   setOtherOutputLangs,
   setOtherInputLangs,
   translate,
-  translateRef
+  translateRef,
+  textToTranslate
 }) => {
 
   return (
@@ -33,6 +34,7 @@ const ComposeHeader = ({
         setInputOptions={setOtherInputLangs}
         translate={translate}
         translateRef={translateRef}
+        textToTranslate={textToTranslate}
       />
       <div className={inputLanguage.includes("Detect language") ? "arrow-container disabled-arrow" : "arrow-container"} onClick={handleClick}>
         <Arrows />
@@ -51,6 +53,7 @@ const ComposeHeader = ({
         setInputOptions={setOtherInputLangs}
         translate={translate}
         translateRef={translateRef}
+        textToTranslate={textToTranslate}
       />
     </div>
   );

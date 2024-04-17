@@ -1,4 +1,3 @@
-import "regenerator-runtime";
 import React, { useEffect, useRef, useState } from "react";
 import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
@@ -36,13 +35,16 @@ const TextBox = ({
     listening,
     transcript,
     resetTranscript,
+    isMicrophoneAvailable,
+    browserSupportsContinuousListening,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
+
   useEffect(() => {
     // Update animation state based on speech recognition state
-    setIsAnimating(listening);
-  }, [listening]);
+    setIsAnimating(transcript);
+  }, [transcript]);
 
   const inputPlaceholder = listening ? "Speak Now" : "Enter Text to translate";
   useEffect(() => {
@@ -91,20 +93,26 @@ const TextBox = ({
     }
   }, [textToTranslate, translatedText, variant]);
 
+  useEffect(()=>{
+    if(textToTranslate.length > 0){
+      setShowDelete(true);
+    }
+
+  }, [setShowDelete, textToTranslate])
+
   const handleClick = () => {
     setTextToTranslate("");
     setTranslatedText("");
     setShowDelete(false);
     setShowCopy(false);
     adjustTextareaHeight();
-    if (transcript) {
-      resetTranscript();
-    }
   };
 
   useEffect(() => {
-    setTextToTranslate(transcript);
-  }, [setTextToTranslate, transcript]);
+    if (listening) {
+      setTextToTranslate(transcript);
+    }
+  }, [listening, setTextToTranslate, transcript]);
 
   const handleCopy = () => {
     navigator.clipboard
@@ -119,11 +127,27 @@ const TextBox = ({
 
   const handleSpeechRecognition = () => {
     if (!browserSupportsSpeechRecognition) {
-      toast.error("your browser does not support speech recognition");
+      toast.error("Sorry, voice input isn't supported on your browser.");
     } else {
-      SpeechRecognition.startListening({ continuous: true });
+      if(isMicrophoneAvailable){
+        if(browserSupportsContinuousListening){
+          resetTranscript();
+          SpeechRecognition.startListening({ continuous: true });
+        }else{
+          SpeechRecognition.startListening();
+        }
+
+      }else{
+        SpeechRecognition.stopListening();
+        toast.info("Grant translate.io access to microphone.")
+      }
     }
   };
+
+  const handleStopSpeechRecognition = () =>{
+    SpeechRecognition.stopListening();
+    console.log(transcript);
+  }
 
   return (
     <div
@@ -195,15 +219,15 @@ const TextBox = ({
             <div className="textarea-actions">
               <div className="left-actions">
                 {listening ? (
-                  <motion.button
+                  <motion.div
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     animate={{ rotate: isAnimating ? [0, -5, 5, -5, 0] : 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ repeat: Infinity, duration: 0.3 }}
                     style={{
                       originX: 0.5,
                       originY: 0.5,
-                      display: "inline-block",
+                      display: "flex",
                     }}
                   >
                     <FaRegCircleStop
@@ -212,9 +236,9 @@ const TextBox = ({
                         color: "#38BDF8",
                         cursor: "pointer",
                       }}
-                      onClick={SpeechRecognition.stopListening}
+                      onClick={handleStopSpeechRecognition}
                     />
-                  </motion.button>
+                  </motion.div>
                 ) : (
                   <HiOutlineMicrophone
                     size={22}

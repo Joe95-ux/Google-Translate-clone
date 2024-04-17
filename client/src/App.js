@@ -268,6 +268,7 @@ const App = () => {
               setOtherInputLangs={setOtherInputLangs}
               translate={translate}
               translateRef={translateRef}
+              textToTranslate={textToTranslate}
             />
             <div className="compose-box-inner">
               <TextBox

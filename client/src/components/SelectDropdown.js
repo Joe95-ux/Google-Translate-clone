@@ -12,6 +12,7 @@ const SelectDropdown = ({
   outputLanguage,
   setOutputOptions,
   setInputOptions,
+  textToTranslate,
   translate,
   translateRef
 }) => {
@@ -83,11 +84,11 @@ const SelectDropdown = ({
   };
 
   useEffect(() => {
-    if (translateRef.current) {
+    if (translateRef.current && textToTranslate !== "") {
       translate();
       translateRef.current = false; // Reset flag
     }
-  }, [outputLanguage, translate, translateRef]);
+  }, [outputLanguage, textToTranslate, translate, translateRef]);
   
 
   return (
