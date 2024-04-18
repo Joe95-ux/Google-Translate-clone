@@ -18,7 +18,6 @@ const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [languages, setLanguages] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
   const [inputLanguage, setInputLanguage] = useState("English");
   const [outputLanguage, setOutputLanguage] = useState("French");
@@ -27,6 +26,7 @@ const App = () => {
   const [detectedLang, setDetectedLang] = useState("");
   const [translations, setTranslations] = useState([]);
   const [savedTranslations, setSavedTranslations] = useState([]);
+  const [showDelete, setShowDelete] = useState(false);
   const historyModal = useHistory();
   const saveModal = useSaveModal();
 
@@ -233,6 +233,18 @@ const App = () => {
     setShowCopy(true);
   };
 
+  const synthesizeSpeech = async (text) => {
+    try {
+      const response = await axios.post("http://localhost:4000/synthesize-speech", {
+        input: text,
+      });
+      console.log(response.data.url)
+      return response.data.url;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
 
   return (
     <div className="wrapper">
@@ -284,6 +296,8 @@ const App = () => {
                 setShowCopy={setShowCopy}
                 onTranslate={translate}
                 detectLanguage={detectedLang}
+                synthesizeSpeech={synthesizeSpeech}
+                text={textToTranslate}
               />
               <TextBox
                 variant="output"
@@ -293,8 +307,12 @@ const App = () => {
                 translatedText={isLoading ? "Translating..." : translatedText}
                 showCopy={showCopy}
                 setShowCopy={setShowCopy}
+                showDelete={showDelete}
+                setShowDelete={setShowDelete}
                 onTranslate={translate}
                 detectLanguage={detectedLang}
+                synthesizeSpeech={synthesizeSpeech}
+                text={translatedText}
               />
               <div className="button-container" onClick={translate}>
                 <Button disable={isLoading} />

@@ -1,5 +1,7 @@
 const PORT = 4000;
 const axios = require("axios").default;
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const { OpenAI } = require("openai");
@@ -15,6 +17,7 @@ const openai = new OpenAI({
 });
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 const headers = {
   "content-type": "application/x-www-form-urlencoded",
   "x-rapidapi-host": process.env.RAPID_API_HOST,
@@ -136,5 +139,41 @@ app.get("/detect-language", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post("/synthesize-speech", async (req, res) => {
+  const { input } = req.body;
+
+  try {
+    // Generate speech audio from the input text using OpenAI text-to-speech API
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: "alloy",
+      input,
+    });
+
+    // Write the audio data to a temporary file
+    const audioFilePath = path.resolve(__dirname, "public", "speech.mp3");
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    await fs.promises.writeFile(audioFilePath, buffer);
+
+    // Send the URL of the generated audio file in the response
+    res.json({ url: "http://localhost:4000/speech.mp3" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Failed to synthesize speech" });
+  }
+});
+
+app.get("/speech.mp3", (req, res) => {
+  const audioFilePath = path.resolve(__dirname, "public", "speech.mp3");
+  res.sendFile(audioFilePath, {
+    headers: {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": 0
+    }
+  });
+});
+
 
 app.listen(PORT, () => console.log("Server running on port " + PORT));

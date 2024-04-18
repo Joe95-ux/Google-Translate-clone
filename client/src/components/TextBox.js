@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useEffect, useRef, useState } from "react";
 import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
 import { BsTranslate } from "react-icons/bs";
@@ -26,11 +26,16 @@ const TextBox = ({
   showCopy,
   setShowCopy,
   detectLanguage,
+  synthesizeSpeech,
+  text,
 }) => {
   const inputBoxRef = useRef(null);
   const outputBoxRef = useRef(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audio, setAudio] = useState(null);
+  const [loadingAudio, setLoadingAudio] = useState(false);
   const {
     listening,
     transcript,
@@ -39,7 +44,6 @@ const TextBox = ({
     browserSupportsContinuousListening,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
-
 
   useEffect(() => {
     // Update animation state based on speech recognition state
@@ -93,13 +97,6 @@ const TextBox = ({
     }
   }, [textToTranslate, translatedText, variant]);
 
-  useEffect(()=>{
-    if(textToTranslate.length > 0){
-      setShowDelete(true);
-    }
-
-  }, [setShowDelete, textToTranslate])
-
   const handleClick = () => {
     setTextToTranslate("");
     setTranslatedText("");
@@ -111,8 +108,10 @@ const TextBox = ({
   useEffect(() => {
     if (listening) {
       setTextToTranslate(transcript);
+    } else {
+      resetTranscript();
     }
-  }, [listening, setTextToTranslate, transcript]);
+  }, [listening, resetTranscript, setTextToTranslate, transcript]);
 
   const handleCopy = () => {
     navigator.clipboard
@@ -125,29 +124,70 @@ const TextBox = ({
       });
   };
 
+  useEffect(() => {
+    if (textToTranslate !== "") {
+      setShowDelete(true);
+    }
+  }, [resetTranscript, setShowDelete, textToTranslate]);
+
   const handleSpeechRecognition = () => {
     if (!browserSupportsSpeechRecognition) {
       toast.error("Sorry, voice input isn't supported on your browser.");
     } else {
-      if(isMicrophoneAvailable){
-        if(browserSupportsContinuousListening){
-          resetTranscript();
+      if (isMicrophoneAvailable) {
+        if (browserSupportsContinuousListening) {
           SpeechRecognition.startListening({ continuous: true });
-        }else{
+        } else {
           SpeechRecognition.startListening();
         }
-
-      }else{
+      } else {
         SpeechRecognition.stopListening();
-        toast.info("Grant translate.io access to microphone.")
+        toast.info("Grant translate.io access to microphone.");
       }
     }
   };
 
-  const handleStopSpeechRecognition = () =>{
+  const handleStopSpeechRecognition = () => {
     SpeechRecognition.stopListening();
+    resetTranscript();
     console.log(transcript);
+  };
+
+  useEffect(() => {
+    if (audio) {
+      audio.play();
+    }
+  }, [audio]);
+
+  const handleListenAudio = async (text) => {
+    setLoadingAudio(true);
+    try {
+      let speechUrl = await synthesizeSpeech(text);
+      if (speechUrl) {
+        const newAudio = new Audio(speechUrl);
+        console.log(newAudio);
+        setAudio(newAudio);
+        setLoadingAudio(false);
+        toast.info("Speech is generated with AI");
+        setAudioPlaying(true);
+        setIsAnimating(true);
+      } else {
+        console.error("Failed to generate speech: Empty speech URL");
+        setLoadingAudio(false);
+        toast.error("Failed to generate speech");
+      }
+    } catch (error) {
+      console.error("Error generating speech:", error);
+      toast.error("Failed to generate speech");
+    }
   }
+
+  const handleStopAudio = () => {
+    if (audio) {
+      audio.pause();
+    }
+    setAudioPlaying(false);
+  };
 
   return (
     <div
@@ -253,14 +293,54 @@ const TextBox = ({
                 )}
 
                 {textToTranslate.length > 0 && (
-                  <HiOutlineSpeakerWave
-                    size={22}
-                    style={{
-                      color: "rgb(148 163 184)",
-                      cursor: "pointer",
-                      marginLeft: "12px",
-                    }}
-                  />
+                  <>
+                    {!audioPlaying && !loadingAudio && (
+                      <HiOutlineSpeakerWave
+                        size={22}
+                        style={{
+                          color: "rgb(148 163 184)",
+                          cursor: "pointer",
+                          marginLeft: "12px",
+                        }}
+                        onClick={() => handleListenAudio(text)}
+                      />
+                    )}
+                    {loadingAudio && (
+                      <small
+                        style={{
+                          color: "rgb(148 163 184)",
+                          marginLeft: "12px",
+                        }}
+                      >
+                        loading speech...
+                      </small>
+                    )}
+                    {audioPlaying && !loadingAudio && (
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        animate={{
+                          rotate: isAnimating ? [0, -5, 5, -5, 0] : 0,
+                        }}
+                        transition={{ repeat: Infinity, duration: 0.3 }}
+                        style={{
+                          originX: 0.5,
+                          originY: 0.5,
+                          display: "flex",
+                        }}
+                      >
+                        <FaRegCircleStop
+                          size={22}
+                          style={{
+                            color: "#38BDF8",
+                            cursor: "pointer",
+                            marginLeft: "12px",
+                          }}
+                          onClick={handleStopAudio}
+                        />
+                      </motion.div>
+                    )}
+                  </>
                 )}
               </div>
               <div className="right-actions">
@@ -275,10 +355,44 @@ const TextBox = ({
         {variant === "output" && showCopy && (
           <div className="textarea-actions">
             <div className="left-actions">
-              <HiOutlineSpeakerWave
-                size={22}
-                style={{ color: "rgb(148 163 184)", cursor: "pointer" }}
-              />
+              <>
+                {!audioPlaying && !loadingAudio && (
+                  <HiOutlineSpeakerWave
+                    size={22}
+                    style={{ color: "rgb(148 163 184)", cursor: "pointer" }}
+                    onClick={() => handleListenAudio(text)}
+                  />
+                )}
+                {loadingAudio && (
+                  <small
+                    style={{ color: "rgb(148 163 184)", marginLeft: "12px" }}
+                  >
+                    loading speech...
+                  </small>
+                )}
+                {audioPlaying && (
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    animate={{ rotate: isAnimating ? [0, -5, 5, -5, 0] : 0 }}
+                    transition={{ repeat: Infinity, duration: 0.3 }}
+                    style={{
+                      originX: 0.5,
+                      originY: 0.5,
+                      display: "flex",
+                    }}
+                  >
+                    <FaRegCircleStop
+                      size={22}
+                      style={{
+                        color: "#38BDF8",
+                        cursor: "pointer",
+                      }}
+                      onClick={handleStopAudio}
+                    />
+                  </motion.div>
+                )}
+              </>
             </div>
             <div className="right-actions">
               <div title="copy translation" style={{ display: "flex" }}>
