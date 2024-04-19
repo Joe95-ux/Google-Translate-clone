@@ -142,6 +142,7 @@ app.get("/detect-language", async (req, res) => {
 
 app.post("/synthesize-speech", async (req, res) => {
   const { input } = req.body;
+  const timestamp = Date.now();
 
   try {
     // Generate speech audio from the input text using OpenAI text-to-speech API
@@ -152,20 +153,38 @@ app.post("/synthesize-speech", async (req, res) => {
     });
 
     // Write the audio data to a temporary file
-    const audioFilePath = path.resolve(__dirname, "public", "speech.mp3");
+    const directory = path.resolve(__dirname, "public");
+
+    // Delete all existing files in the directory
+    await deleteFilesInDirectory(directory);
+
+    // Modify the filename to include the timestamp
+    const audioFilePath = path.resolve(directory, `speech_${timestamp}.mp3`);
     const buffer = Buffer.from(await mp3.arrayBuffer());
     await fs.promises.writeFile(audioFilePath, buffer);
 
     // Send the URL of the generated audio file in the response
-    res.json({ url: "http://localhost:4000/speech.mp3" });
+    res.json({ url: `http://localhost:4000/speech_${timestamp}.mp3` });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Failed to synthesize speech" });
   }
 });
 
-app.get("/speech.mp3", (req, res) => {
-  const audioFilePath = path.resolve(__dirname, "public", "speech.mp3");
+// Function to delete all files in a directory
+async function deleteFilesInDirectory(directory) {
+  const files = await fs.promises.readdir(directory);
+  for (const file of files) {
+    await fs.promises.unlink(path.resolve(directory, file));
+    console.log(`File ${file} has been deleted.`);
+  }
+}
+
+app.get("/speech_:timestamp.mp3", (req, res) => {
+  const { timestamp } = req.params;
+  const audioFilePath = path.resolve(__dirname, "public", `speech_${timestamp}.mp3`);
+  
+  // Send the file to the client
   res.sendFile(audioFilePath, {
     headers: {
       "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -174,6 +193,7 @@ app.get("/speech.mp3", (req, res) => {
     }
   });
 });
+
 
 
 app.listen(PORT, () => console.log("Server running on port " + PORT));
