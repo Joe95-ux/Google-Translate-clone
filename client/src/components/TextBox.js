@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState } from "react";
+import React, {useCallback, useEffect, useRef, useState } from "react";
 import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
 import { BsTranslate } from "react-icons/bs";
@@ -125,10 +125,13 @@ const TextBox = ({
   };
 
   useEffect(() => {
-    if (textToTranslate !== "") {
+    if (textToTranslate === "" || textToTranslate === null || textToTranslate === undefined) {
+      setShowDelete(false);
+    } else {
       setShowDelete(true);
     }
-  }, [resetTranscript, setShowDelete, textToTranslate]);
+  }, [setShowDelete, textToTranslate]);
+  
 
   const handleSpeechRecognition = () => {
     if (!browserSupportsSpeechRecognition) {
@@ -153,11 +156,32 @@ const TextBox = ({
     console.log(transcript);
   };
 
+  const handleAudioEnded = useCallback(() => {
+    // Pause the audio playback and reset the audio element
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0; // Reset the playback position to the beginning
+      setAudio(null); // Remove the audio element from state
+      setAudioPlaying(false); // Update state to indicate that audio is not playing
+    }
+  }, [audio]);
+
   useEffect(() => {
     if (audio) {
       audio.play();
+  
+      // Add event listener for when the audio playback ends
+      audio.addEventListener('ended', handleAudioEnded);
     }
-  }, [audio]);
+  
+    // Cleanup function to remove event listener when component unmounts or audio changes
+    return () => {
+      if (audio) {
+        audio.removeEventListener('ended', handleAudioEnded);
+      }
+    };
+  }, [audio, handleAudioEnded]);
+  
 
   const handleListenAudio = async (text) => {
     setLoadingAudio(true);
@@ -165,10 +189,9 @@ const TextBox = ({
       let speechUrl = await synthesizeSpeech(text);
       if (speechUrl) {
         const newAudio = new Audio(speechUrl);
-        console.log(newAudio);
         setAudio(newAudio);
         setLoadingAudio(false);
-        toast.info("Speech is generated with AI");
+        toast.info("Speech was generated with AI");
         setAudioPlaying(true);
         setIsAnimating(true);
       } else {
@@ -185,6 +208,7 @@ const TextBox = ({
   const handleStopAudio = () => {
     if (audio) {
       audio.pause();
+      setAudio(null);
     }
     setAudioPlaying(false);
   };
@@ -235,7 +259,7 @@ const TextBox = ({
                 margin: "1rem 0 0",
               }}
             >
-              {!selectedLanguage.includes("language") && (
+              {!selectedLanguage.includes("language") && textToTranslate !== "" && (
                 <>
                   <BsTranslate size={22} style={{ color: "#38BDF8" }} />
                   <span
@@ -271,7 +295,7 @@ const TextBox = ({
                     }}
                   >
                     <FaRegCircleStop
-                      size={22}
+                      size={24}
                       style={{
                         color: "#38BDF8",
                         cursor: "pointer",
@@ -330,7 +354,7 @@ const TextBox = ({
                         }}
                       >
                         <FaRegCircleStop
-                          size={22}
+                          size={24}
                           style={{
                             color: "#38BDF8",
                             cursor: "pointer",

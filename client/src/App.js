@@ -30,10 +30,18 @@ const App = () => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
 
-  const [otherInputLangs, setOtherInputLangs] = useState(["Detect language", "French", "English"]);
-  const [otherOutputLangs, setOtherOutputLangs] = useState(["English", "Spanish", "French"]);
+  const [otherInputLangs, setOtherInputLangs] = useState([
+    "Detect language",
+    "French",
+    "English",
+  ]);
+  const [otherOutputLangs, setOtherOutputLangs] = useState([
+    "English",
+    "Spanish",
+    "French",
+  ]);
   const translateRef = useRef(false);
-  
+
   const activeStyles = {
     active: {
       color: historyModal.isOpen && "#38BDF8",
@@ -48,7 +56,6 @@ const App = () => {
     setLanguages(response.data);
   };
 
- 
   useEffect(() => {
     getLanguages();
     const data = localStorage.getItem("translations");
@@ -60,24 +67,31 @@ const App = () => {
     setSavedTranslations(saved);
   }, []);
 
-
   useEffect(() => {
-    if (textToTranslate !== "" && textToTranslate !== null && !inputLanguage.includes("Detected")) {
+    if (
+      textToTranslate !== "" &&
+      textToTranslate !== null &&
+      !inputLanguage.includes("Detected")
+    ) {
       const detectLanguage = async () => {
-        const response = await axios.get("http://localhost:4000/detect-language", {params: {textToTranslate}});
-        const detectedLanguage = response.data + " - Detected"; 
+        const response = await axios.get(
+          "http://localhost:4000/detect-language",
+          { params: { textToTranslate } }
+        );
+        const detectedLanguage = response.data + " - Detected";
         setDetectedLang(response.data);
-        if(inputLanguage === "Detect language"){
+        if (inputLanguage === "Detect language") {
           setInputLanguage(detectedLanguage);
-          setOtherInputLangs(prevLangs => {
+          setOtherInputLangs((prevLangs) => {
             // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
             return [detectedLanguage, ...prevLangs.slice(1)];
           });
-
-        }else{
-          setOtherInputLangs(prevLangs => {
+        } else {
+          setOtherInputLangs((prevLangs) => {
             // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
-            return prevLangs.includes(inputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), inputLanguage];
+            return prevLangs.includes(inputLanguage)
+              ? prevLangs
+              : [...prevLangs.slice(0, -1), inputLanguage];
           });
         }
       };
@@ -87,24 +101,21 @@ const App = () => {
   }, [detectedLang, inputLanguage, textToTranslate]);
 
   useEffect(() => {
-    if(textToTranslate === "" || textToTranslate === null){
-      setOtherInputLangs(prevLangs => {
-        const updatedOptions = prevLangs.map(language => {
-          if(language.includes("Detected")){
+    if (textToTranslate === "" || textToTranslate === null) {
+      setOtherInputLangs((prevLangs) => {
+        const updatedOptions = prevLangs.map((language) => {
+          if (language.includes("Detected")) {
             return "Detect language";
-          }else{
-            return language
+          } else {
+            return language;
           }
-        })
+        });
 
         return updatedOptions;
-        
-      })
-      setInputLanguage("Detect language")
-
+      });
+      setInputLanguage("Detect language");
     }
-
-  }, [textToTranslate])
+  }, [textToTranslate]);
 
   const translate = async () => {
     const data = {
@@ -125,7 +136,9 @@ const App = () => {
         saveTranslation({
           text: textToTranslate,
           to: outputLanguage,
-          from: inputLanguage.includes("Detected") ? inputLanguage.split(" - ")[0] : inputLanguage,
+          from: inputLanguage.includes("Detected")
+            ? inputLanguage.split(" - ")[0]
+            : inputLanguage,
           translation: response.data.trans,
           timestamp: new Date().toLocaleString(),
           saved: false,
@@ -136,7 +149,7 @@ const App = () => {
       }
     } catch (error) {
       toast.error(error.message);
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
@@ -148,58 +161,67 @@ const App = () => {
 
   const handleClick = () => {
     // Check if inputLanguage is not "Detect language"
-    let inputLang = inputLanguage.includes("Detected") ? inputLanguage.split(" - ")[0] : inputLanguage;
+    let inputLang = inputLanguage.includes("Detected")
+      ? inputLanguage.split(" - ")[0]
+      : inputLanguage;
     if (!inputLang.includes("Detect language")) {
       // Swap input and output languages if they are different
       if (inputLang !== outputLanguage) {
         setInputLanguage(outputLanguage);
         setOutputLanguage(inputLang);
-        setOtherOutputLangs(prevLangs => {
+        setOtherOutputLangs((prevLangs) => {
           if (prevLangs.length === 1) {
             return [inputLang];
           } else {
-            return prevLangs.includes(inputLang) ? prevLangs : [...prevLangs.slice(0, -1), inputLang];
+            return prevLangs.includes(inputLang)
+              ? prevLangs
+              : [...prevLangs.slice(0, -1), inputLang];
           }
-          
         });
       } else {
         // Select a new outputLanguage different from inputLanguage
         let newOutputLanguage;
-        if(otherOutputLangs.length === 1){
-          newOutputLanguage = languages?.find(lang => lang !== inputLang && lang !== "Detect language");
-        }else{
-          newOutputLanguage = otherOutputLangs?.find(lang => lang !== inputLang);
+        if (otherOutputLangs.length === 1) {
+          newOutputLanguage = languages?.find(
+            (lang) => lang !== inputLang && lang !== "Detect language"
+          );
+        } else {
+          newOutputLanguage = otherOutputLangs?.find(
+            (lang) => lang !== inputLang
+          );
         }
-        
+
         // Update outputLanguage
         setOutputLanguage(newOutputLanguage);
-        setOtherOutputLangs(prevLangs => {
+        setOtherOutputLangs((prevLangs) => {
           if (prevLangs.length === 1) {
             return [newOutputLanguage];
           } else {
-            return prevLangs.includes(newOutputLanguage) ? prevLangs : [...prevLangs.slice(0, -1), newOutputLanguage];
+            return prevLangs.includes(newOutputLanguage)
+              ? prevLangs
+              : [...prevLangs.slice(0, -1), newOutputLanguage];
           }
-          
         });
       }
-  
+
       // Update other input and output languages
-      setOtherInputLangs(prevLangs => {
+      setOtherInputLangs((prevLangs) => {
         if (prevLangs.length === 1) {
           return [outputLanguage];
         } else {
-          const adjustedLangs = prevLangs.map(lang => {
-            if(lang.includes("Detected") && !lang.includes(inputLanguage)){
-              return "Detect language"
-            } else{
-              return lang
+          const adjustedLangs = prevLangs.map((lang) => {
+            if (lang.includes("Detected") && !lang.includes(inputLanguage)) {
+              return "Detect language";
+            } else {
+              return lang;
             }
-
-          })
-          return adjustedLangs.includes(outputLanguage) ? adjustedLangs : [...adjustedLangs.slice(0, -1), outputLanguage];
+          });
+          return adjustedLangs.includes(outputLanguage)
+            ? adjustedLangs
+            : [...adjustedLangs.slice(0, -1), outputLanguage];
         }
       });
-      if(textToTranslate !== "" && translatedText !== ""){
+      if (textToTranslate !== "" && translatedText !== "") {
         setTextToTranslate(translatedText);
         setTranslatedText(textToTranslate);
       }
@@ -210,21 +232,24 @@ const App = () => {
     setInputLanguage(from);
     setOutputLanguage(to);
     // set otherInputLangs
-    setOtherInputLangs(prevLangs => {
-      const adjustedLangs = prevLangs.map(lang => {
-        if(lang.includes("Detected")){
-          return "Detect language"
-        } else{
-          return lang
+    setOtherInputLangs((prevLangs) => {
+      const adjustedLangs = prevLangs.map((lang) => {
+        if (lang.includes("Detected")) {
+          return "Detect language";
+        } else {
+          return lang;
         }
-
-      })
-      return adjustedLangs.includes(from) ? adjustedLangs : [...adjustedLangs.slice(0, -1), from];
+      });
+      return adjustedLangs.includes(from)
+        ? adjustedLangs
+        : [...adjustedLangs.slice(0, -1), from];
     });
 
     // set otherOutputLangs
-    setOtherOutputLangs(prevLangs => {
-      return prevLangs.includes(to) ? prevLangs : [...prevLangs.slice(0, -1), to];
+    setOtherOutputLangs((prevLangs) => {
+      return prevLangs.includes(to)
+        ? prevLangs
+        : [...prevLangs.slice(0, -1), to];
     });
 
     setTextToTranslate(text);
@@ -235,16 +260,18 @@ const App = () => {
 
   const synthesizeSpeech = async (text) => {
     try {
-      const response = await axios.post("http://localhost:4000/synthesize-speech", {
-        input: text,
-      });
-      console.log(response.data.url)
+      const response = await axios.post(
+        "http://localhost:4000/synthesize-speech",
+        {
+          input: text,
+        }
+      );
+      console.log(response.data.url);
       return response.data.url;
     } catch (error) {
       console.error("Error:", error);
     }
   };
-
 
   return (
     <div className="wrapper">
@@ -315,7 +342,9 @@ const App = () => {
                 text={translatedText}
               />
               <div className="button-container" onClick={translate}>
-                <Button disable={isLoading} />
+                {textToTranslate !== "" &&
+                  <Button disable={isLoading} />
+                }
               </div>
             </div>
           </div>
@@ -331,8 +360,12 @@ const App = () => {
             setChosenLanguage={
               showModal === "input" ? setInputLanguage : setOutputLanguage
             }
-            otherLangs={showModal === "input" ? otherInputLangs : otherOutputLangs}
-            setOtherLangs={showModal === "input" ? setOtherInputLangs : setOtherOutputLangs}
+            otherLangs={
+              showModal === "input" ? otherInputLangs : otherOutputLangs
+            }
+            setOtherLangs={
+              showModal === "input" ? setOtherInputLangs : setOtherOutputLangs
+            }
             otherInputLangs={otherInputLangs}
             otherOutputLangs={otherOutputLangs}
             setInputLanguage={setInputLanguage}

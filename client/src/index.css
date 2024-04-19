@@ -2,6 +2,7 @@
   font-family: arial,sans-serif;
   box-sizing: border-box;
 }
+
 :root{
   --display-flex:flex;
   --flex-column: column;
@@ -304,7 +305,7 @@ input {
     top: 0; 
     left: 0;
     transform: translate(0, 0);
-    margin: 2rem 0 1rem;
+    margin: 1rem 0 1rem;
     justify-content: center;
     border: 1px dotted;
     padding: 5px;
