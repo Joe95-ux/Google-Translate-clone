@@ -2,7 +2,7 @@ import React from "react";
 import { IoEnter } from "react-icons/io5";
 import { ThreeCircles } from "react-loader-spinner";
 
-const Button = ({ disable }) => {
+const Button = ({ disable, translate }) => {
   // const icon = '➟';
 
   return (
@@ -14,9 +14,10 @@ const Button = ({ disable }) => {
           radius="9"
           color="rgb(148 163 184)"
           ariaLabel="loading"
+          style={{ cursor: "default" }}
         />
       ) : (
-        <IoEnter size={30} />
+        <IoEnter size={30} onClick={translate} style={{ cursor: "pointer" }} />
       )}
     </div>
   );

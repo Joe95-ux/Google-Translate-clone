@@ -151,6 +151,11 @@ textarea::placeholder{
   height: 26px;
   fill: rgb(241 245 249);
 }
+
+.disabled{
+  cursor: default;
+  pointer-events: none;
+}
 .arrow-container.disabled-arrow{
   cursor: default;
 }
@@ -290,7 +295,6 @@ input {
   color: #ffff;
   display:flex;
   align-items:center;
-  cursor:pointer;
   user-select:none;
   position: absolute;
   top: 50%; 
@@ -439,7 +443,7 @@ span.lang-style::after{
 
 
 
-.history-head{
+.history-head, .share-head{
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -475,19 +479,24 @@ span.lang-style::after{
 }
 .close-history-btn{
   cursor: pointer;
+  border-radius: 5px;
   margin-left: 8px;
   transition: all 0.5s ease;
 }
 .close-history-btn:hover{
   background-color: rgb(31 41 55);
 }
-.clear-history h3{
+.clear-history h3, .share-head h4{
   font-size: 14px;
   text-align: right;
   color: #38BDF8;
   cursor: pointer;
   transition: color 0.5s ease;
 }
+.share-head h4{
+  color: #f5f5f5;
+}
+
 .clear-history h3:hover{
   color: rgb(220 38 38);
 }

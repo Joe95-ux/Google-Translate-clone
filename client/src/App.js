@@ -341,9 +341,9 @@ const App = () => {
                 synthesizeSpeech={synthesizeSpeech}
                 text={translatedText}
               />
-              <div className="button-container" onClick={translate}>
+              <div className="button-container">
                 {textToTranslate !== "" &&
-                  <Button disable={isLoading} />
+                  <Button disable={isLoading} translate={translate}/>
                 }
               </div>
             </div>
