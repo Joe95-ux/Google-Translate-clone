@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PiCopySimple } from "react-icons/pi";
 import { IoMdClose } from "react-icons/io";
 import { BsTranslate } from "react-icons/bs";
@@ -8,6 +8,7 @@ import { FaRegCircleStop } from "react-icons/fa6";
 import { MdOutlineShare } from "react-icons/md";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useShareModal } from "../hooks/useShareModal";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -45,6 +46,7 @@ const TextBox = ({
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
+  const shareModal = useShareModal();
   useEffect(() => {
     // Update animation state based on speech recognition state
     setIsAnimating(transcript);
@@ -125,13 +127,16 @@ const TextBox = ({
   };
 
   useEffect(() => {
-    if (textToTranslate === "" || textToTranslate === null || textToTranslate === undefined) {
+    if (
+      textToTranslate === "" ||
+      textToTranslate === null ||
+      textToTranslate === undefined
+    ) {
       setShowDelete(false);
     } else {
       setShowDelete(true);
     }
   }, [setShowDelete, textToTranslate]);
-  
 
   const handleSpeechRecognition = () => {
     if (!browserSupportsSpeechRecognition) {
@@ -169,19 +174,18 @@ const TextBox = ({
   useEffect(() => {
     if (audio) {
       audio.play();
-  
+
       // Add event listener for when the audio playback ends
-      audio.addEventListener('ended', handleAudioEnded);
+      audio.addEventListener("ended", handleAudioEnded);
     }
-  
+
     // Cleanup function to remove event listener when component unmounts or audio changes
     return () => {
       if (audio) {
-        audio.removeEventListener('ended', handleAudioEnded);
+        audio.removeEventListener("ended", handleAudioEnded);
       }
     };
   }, [audio, handleAudioEnded]);
-  
 
   const handleListenAudio = async (text) => {
     setLoadingAudio(true);
@@ -203,7 +207,7 @@ const TextBox = ({
       console.error("Error generating speech:", error);
       toast.error("Failed to generate speech");
     }
-  }
+  };
 
   const handleStopAudio = () => {
     if (audio) {
@@ -259,26 +263,27 @@ const TextBox = ({
                 margin: "1rem 0 0",
               }}
             >
-              {!selectedLanguage.includes("language") && textToTranslate !== "" && (
-                <>
-                  <BsTranslate size={22} style={{ color: "#38BDF8" }} />
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      marginLeft: "10px",
-                      color: "#f5f5f5",
-                    }}
-                  >
-                    Translate from:{" "}
+              {!selectedLanguage.includes("language") &&
+                textToTranslate !== "" && (
+                  <>
+                    <BsTranslate size={22} style={{ color: "#38BDF8" }} />
                     <span
-                      onClick={onTranslate}
-                      style={{ color: "#38BDF8", cursor: "pointer" }}
+                      style={{
+                        fontSize: "14px",
+                        marginLeft: "10px",
+                        color: "#f5f5f5",
+                      }}
                     >
-                      {detectLanguage}
+                      Translate from:{" "}
+                      <span
+                        onClick={onTranslate}
+                        style={{ color: "#38BDF8", cursor: "pointer" }}
+                      >
+                        {detectLanguage}
+                      </span>
                     </span>
-                  </span>
-                </>
-              )}
+                  </>
+                )}
             </div>
             <div className="textarea-actions">
               <div className="left-actions">
@@ -294,40 +299,52 @@ const TextBox = ({
                       display: "flex",
                     }}
                   >
-                    <FaRegCircleStop
-                      size={24}
-                      style={{
-                        color: "#38BDF8",
-                        cursor: "pointer",
-                      }}
+                    <div
+                      className="icon-wrapper"
                       onClick={handleStopSpeechRecognition}
-                    />
+                    >
+                      <FaRegCircleStop
+                        size={24}
+                        style={{
+                          color: "#38BDF8",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
                   </motion.div>
                 ) : (
-                  <HiOutlineMicrophone
-                    size={22}
-                    style={{
-                      color: listening
-                        ? "rgb(203 213 225)"
-                        : "rgb(148 163 184)",
-                      cursor: "pointer",
-                    }}
+                  <div
+                    className="icon-wrapper"
                     onClick={handleSpeechRecognition}
-                  />
+                  >
+                    <HiOutlineMicrophone
+                      size={22}
+                      style={{
+                        color: listening
+                          ? "rgb(203 213 225)"
+                          : "rgb(148 163 184)",
+                        cursor: "pointer",
+                      }}
+                    />
+                  </div>
                 )}
 
                 {textToTranslate.length > 0 && (
                   <>
                     {!audioPlaying && !loadingAudio && (
-                      <HiOutlineSpeakerWave
-                        size={22}
-                        style={{
-                          color: "rgb(148 163 184)",
-                          cursor: "pointer",
-                          marginLeft: "12px",
-                        }}
+                      <div
+                        className="icon-wrapper"
                         onClick={() => handleListenAudio(text)}
-                      />
+                      >
+                        <HiOutlineSpeakerWave
+                          size={22}
+                          style={{
+                            color: "rgb(148 163 184)",
+                            cursor: "pointer",
+                            marginLeft: "12px",
+                          }}
+                        />
+                      </div>
                     )}
                     {loadingAudio && (
                       <small
@@ -353,15 +370,16 @@ const TextBox = ({
                           display: "flex",
                         }}
                       >
-                        <FaRegCircleStop
-                          size={24}
-                          style={{
-                            color: "#38BDF8",
-                            cursor: "pointer",
-                            marginLeft: "12px",
-                          }}
-                          onClick={handleStopAudio}
-                        />
+                        <div className="icon-wrapper" onClick={handleStopAudio}>
+                          <FaRegCircleStop
+                            size={24}
+                            style={{
+                              color: "#38BDF8",
+                              cursor: "pointer",
+                              marginLeft: "12px",
+                            }}
+                          />
+                        </div>
                       </motion.div>
                     )}
                   </>
@@ -381,11 +399,15 @@ const TextBox = ({
             <div className="left-actions">
               <>
                 {!audioPlaying && !loadingAudio && (
-                  <HiOutlineSpeakerWave
-                    size={22}
-                    style={{ color: "rgb(148 163 184)", cursor: "pointer" }}
+                  <div
+                    className="icon-wrapper"
                     onClick={() => handleListenAudio(text)}
-                  />
+                  >
+                    <HiOutlineSpeakerWave
+                      size={22}
+                      style={{ color: "rgb(148 163 184)", cursor: "pointer" }}
+                    />
+                  </div>
                 )}
                 {loadingAudio && (
                   <small
@@ -406,20 +428,26 @@ const TextBox = ({
                       display: "flex",
                     }}
                   >
-                    <FaRegCircleStop
-                      size={22}
-                      style={{
-                        color: "#38BDF8",
-                        cursor: "pointer",
-                      }}
-                      onClick={handleStopAudio}
-                    />
+                    <div className="icon-wrapper" onClick={handleStopAudio}>
+                      <FaRegCircleStop
+                        size={22}
+                        style={{
+                          color: "#38BDF8",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
                   </motion.div>
                 )}
               </>
             </div>
             <div className="right-actions">
-              <div title="copy translation" style={{ display: "flex" }}>
+              <div
+                title="copy translation"
+                style={{ display: "flex" }}
+                className="icon-wrapper"
+                onClick={handleCopy}
+              >
                 <PiCopySimple
                   size={22}
                   style={{
@@ -427,17 +455,22 @@ const TextBox = ({
                     transform: "rotate(180deg)",
                     cursor: "pointer",
                   }}
-                  onClick={handleCopy}
                 />
               </div>
-              <MdOutlineShare
-                size={22}
-                style={{
-                  marginLeft: "12px",
-                  color: "rgb(148 163 184)",
-                  cursor: "pointer",
-                }}
-              />
+              <div
+                id="toggle-share"
+                className="icon-wrapper"
+                onClick={shareModal.onOpen}
+              >
+                <MdOutlineShare
+                  size={22}
+                  style={{
+                    marginLeft: "12px",
+                    color: "rgb(148 163 184)",
+                    cursor: "pointer",
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}

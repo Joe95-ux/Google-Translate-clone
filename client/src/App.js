@@ -10,7 +10,9 @@ import { IoIosStar } from "react-icons/io";
 import { useHistory } from "./hooks/useHistory";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ShareModal from "./components/ShareModal";
 import { useSaveModal } from "./hooks/useSaveModal";
+import { useShareModal } from "./hooks/useShareModal";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
 
@@ -29,6 +31,7 @@ const App = () => {
   const [showDelete, setShowDelete] = useState(false);
   const historyModal = useHistory();
   const saveModal = useSaveModal();
+  const shareModal = useShareModal();
 
   const [otherInputLangs, setOtherInputLangs] = useState([
     "Detect language",
@@ -342,11 +345,19 @@ const App = () => {
                 text={translatedText}
               />
               <div className="button-container">
-                {textToTranslate !== "" &&
-                  <Button disable={isLoading} translate={translate}/>
-                }
+                {textToTranslate !== "" && (
+                  <Button disable={isLoading} translate={translate} />
+                )}
               </div>
             </div>
+            {shareModal.isOpen && (
+              <ShareModal
+                from={inputLanguage}
+                to={outputLanguage}
+                textToTranslate={textToTranslate}
+                translatedText={translatedText}
+              />
+            )}
           </div>
         )}
         {showModal && (

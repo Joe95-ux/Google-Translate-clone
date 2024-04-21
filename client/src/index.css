@@ -45,6 +45,7 @@ h3{
   min-height: 350px;
 }
 .compose-box{
+  position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -440,13 +441,52 @@ span.lang-style::after{
   overflow-y: auto;
   overflow-x: hidden;
 }
+ /* share modal style */
+ .share-modal-wrapper{
+  position: absolute;
+  right: 1rem;
+  bottom: 2.5rem;
+ }
+ .share-modal-inner{
+  display: var(--display-flex);
+  flex-direction: var(--flex-column);
+  padding: 1rem;
+  border-radius: 5px;
+  background-color: rgb(17 24 39);
+  border: 1px solid rgb(30 41 59);
+  min-width: 240px;
+  color:  rgb(203 213 225);
+ }
+ .share-head h4{
+  font-weight: normal;
+  margin: 0;
+ }
 
+ .share-body{
+  margin-top: 2rem;
+  display: var(--display-flex);
+  justify-content: var(--justify-between);
+  align-items: var(--align-items);
+  color:  rgb(203 213 225);
+ }
+
+ .share-icon, .icon-wrapper{
+  display: var(--display-flex);
+  justify-content: var(--justify-content);
+  align-items: var(--align-items);
+  padding: 8px;
+  border-radius: 5px;
+  transition: all 0.5s linear;
+  cursor: pointer;
+ }
 
 
 .history-head, .share-head{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: var(--display-flex);
+  justify-content: var(--justify-between);
+  align-items: var(--align-items);
+}
+.history-head{
   padding: 1rem;
   border-bottom: 1px solid rgb(30 41 59);
 }
@@ -483,7 +523,7 @@ span.lang-style::after{
   margin-left: 8px;
   transition: all 0.5s ease;
 }
-.close-history-btn:hover{
+.close-history-btn:hover, .share-icon:hover, .icon-wrapper:hover{
   background-color: rgb(31 41 55);
 }
 .clear-history h3, .share-head h4{

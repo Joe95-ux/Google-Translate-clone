@@ -3,7 +3,7 @@ import React from "react";
 const Arrows = () => {
 
   return (
-    <div title="Swap Languages">
+    <div title="Swap Languages" className="icon-wrapper">
       <svg
         focusable="false"
         xmlns="http://www.w3.org/2000/svg"
