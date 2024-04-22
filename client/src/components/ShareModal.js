@@ -11,7 +11,7 @@ const ShareModal = ({ from, to, textToTranslate, translatedText }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (shareRef.current && !shareRef.current.contains(event.target) && event.target.id !== 'toggle-share') {
+      if (shareRef.current && !shareRef.current.contains(event.target) && event.target.id !== "toggle-share") {
         onClose();
       }
     };

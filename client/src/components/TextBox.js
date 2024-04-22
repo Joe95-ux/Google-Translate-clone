@@ -300,6 +300,7 @@ const TextBox = ({
                     }}
                   >
                     <div
+                      title="stop translation by voice"
                       className="icon-wrapper"
                       onClick={handleStopSpeechRecognition}
                     >
@@ -314,6 +315,7 @@ const TextBox = ({
                   </motion.div>
                 ) : (
                   <div
+                    title="Translate by voice"
                     className="icon-wrapper"
                     onClick={handleSpeechRecognition}
                   >
@@ -333,15 +335,18 @@ const TextBox = ({
                   <>
                     {!audioPlaying && !loadingAudio && (
                       <div
+                        title="listen"
                         className="icon-wrapper"
                         onClick={() => handleListenAudio(text)}
+                        style={{
+                          marginLeft: "10px",
+                        }}
                       >
                         <HiOutlineSpeakerWave
                           size={22}
                           style={{
                             color: "rgb(148 163 184)",
                             cursor: "pointer",
-                            marginLeft: "12px",
                           }}
                         />
                       </div>
@@ -370,13 +375,14 @@ const TextBox = ({
                           display: "flex",
                         }}
                       >
-                        <div className="icon-wrapper" onClick={handleStopAudio}>
+                        <div title="stop listening" className="icon-wrapper" onClick={handleStopAudio} style={{
+                              marginLeft: "12px",
+                            }}>
                           <FaRegCircleStop
                             size={24}
                             style={{
                               color: "#38BDF8",
                               cursor: "pointer",
-                              marginLeft: "12px",
                             }}
                           />
                         </div>
@@ -400,6 +406,7 @@ const TextBox = ({
               <>
                 {!audioPlaying && !loadingAudio && (
                   <div
+                    title="listen"
                     className="icon-wrapper"
                     onClick={() => handleListenAudio(text)}
                   >
@@ -411,7 +418,7 @@ const TextBox = ({
                 )}
                 {loadingAudio && (
                   <small
-                    style={{ color: "rgb(148 163 184)", marginLeft: "12px" }}
+                    style={{ color: "rgb(148 163 184)"}}
                   >
                     loading speech...
                   </small>
@@ -428,7 +435,7 @@ const TextBox = ({
                       display: "flex",
                     }}
                   >
-                    <div className="icon-wrapper" onClick={handleStopAudio}>
+                    <div title="stop listening" className="icon-wrapper" onClick={handleStopAudio}>
                       <FaRegCircleStop
                         size={22}
                         style={{
@@ -458,17 +465,22 @@ const TextBox = ({
                 />
               </div>
               <div
-                id="toggle-share"
                 className="icon-wrapper"
-                onClick={shareModal.onOpen}
+                title="share translation"
+                style={{
+                  marginLeft: "10px",
+                  color: "rgb(148 163 184)",
+                  cursor: "pointer",
+                }}
               >
                 <MdOutlineShare
+                  id="toggle-share"
                   size={22}
                   style={{
-                    marginLeft: "12px",
                     color: "rgb(148 163 184)",
                     cursor: "pointer",
                   }}
+                  onClick={shareModal.onOpen}
                 />
               </div>
             </div>
