@@ -176,7 +176,6 @@ async function deleteFilesInDirectory(directory) {
   const files = await fs.promises.readdir(directory);
   for (const file of files) {
     await fs.promises.unlink(path.resolve(directory, file));
-    console.log(`File ${file} has been deleted.`);
   }
 }
 
