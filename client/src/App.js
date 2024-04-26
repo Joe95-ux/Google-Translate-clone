@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import TextBox from "./components/TextBox";
+import Documents from "./components/Documents";
 import Button from "./components/Button";
 import Modal from "./components/Modal";
 import History from "./components/History";
@@ -23,6 +24,7 @@ const App = () => {
   const [showCopy, setShowCopy] = useState(false);
   const [inputLanguage, setInputLanguage] = useState("English");
   const [outputLanguage, setOutputLanguage] = useState("French");
+  const [activeType, setActiveType] = useState("Text");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [detectedLang, setDetectedLang] = useState("");
@@ -293,7 +295,7 @@ const App = () => {
         savedTranslations={savedTranslations}
         setSavedTranslations={setSavedTranslations}
       />
-      <Header />
+      <Header activeType={activeType} setActiveType={setActiveType} />
       <div className="app">
         {!showModal && (
           <div className="compose-box">
@@ -313,42 +315,49 @@ const App = () => {
               textToTranslate={textToTranslate}
             />
             <div className="compose-box-inner">
-              <TextBox
-                variant="input"
-                setShowModal={setShowModal}
-                selectedLanguage={inputLanguage}
-                setTextToTranslate={setTextToTranslate}
-                textToTranslate={textToTranslate}
-                setTranslatedText={setTranslatedText}
-                showDelete={showDelete}
-                setShowDelete={setShowDelete}
-                showCopy={showCopy}
-                setShowCopy={setShowCopy}
-                onTranslate={translate}
-                detectLanguage={detectedLang}
-                synthesizeSpeech={synthesizeSpeech}
-                text={textToTranslate}
-              />
-              <TextBox
-                variant="output"
-                setShowModal={setShowModal}
-                selectedLanguage={outputLanguage}
-                setTextToTranslate={setTextToTranslate}
-                translatedText={isLoading ? "Translating..." : translatedText}
-                showCopy={showCopy}
-                setShowCopy={setShowCopy}
-                showDelete={showDelete}
-                setShowDelete={setShowDelete}
-                onTranslate={translate}
-                detectLanguage={detectedLang}
-                synthesizeSpeech={synthesizeSpeech}
-                text={translatedText}
-              />
-              <div className="button-container">
-                {textToTranslate !== "" && (
-                  <Button disable={isLoading} translate={translate} />
-                )}
-              </div>
+              {activeType === "Text" && (
+                <>
+                  <TextBox
+                    variant="input"
+                    setShowModal={setShowModal}
+                    selectedLanguage={inputLanguage}
+                    setTextToTranslate={setTextToTranslate}
+                    textToTranslate={textToTranslate}
+                    setTranslatedText={setTranslatedText}
+                    showDelete={showDelete}
+                    setShowDelete={setShowDelete}
+                    showCopy={showCopy}
+                    setShowCopy={setShowCopy}
+                    onTranslate={translate}
+                    detectLanguage={detectedLang}
+                    synthesizeSpeech={synthesizeSpeech}
+                    text={textToTranslate}
+                  />
+                  <TextBox
+                    variant="output"
+                    setShowModal={setShowModal}
+                    selectedLanguage={outputLanguage}
+                    setTextToTranslate={setTextToTranslate}
+                    translatedText={
+                      isLoading ? "Translating..." : translatedText
+                    }
+                    showCopy={showCopy}
+                    setShowCopy={setShowCopy}
+                    showDelete={showDelete}
+                    setShowDelete={setShowDelete}
+                    onTranslate={translate}
+                    detectLanguage={detectedLang}
+                    synthesizeSpeech={synthesizeSpeech}
+                    text={translatedText}
+                  />
+                  <div className="button-container">
+                    {textToTranslate !== "" && (
+                      <Button disable={isLoading} translate={translate} />
+                    )}
+                  </div>
+                </>
+              )}
+              {activeType === "Documents" && <Documents />}
             </div>
             {shareModal.isOpen && (
               <ShareModal

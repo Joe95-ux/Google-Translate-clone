@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
 import { MdOutlineTranslate } from "react-icons/md";
@@ -6,10 +6,9 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
 
-const Header = () => {
+const Header = ({activeType, setActiveType}) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
-  const [activeType, setActiveType] = useState("Text");
 
   const activeStyles = {
     active: {
