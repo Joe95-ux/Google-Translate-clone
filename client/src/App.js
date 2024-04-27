@@ -357,11 +357,11 @@ const App = () => {
                   </div>
                 </>
               )}
-              {activeType === "Documents" && <Documents />}
+              {activeType === "Documents" && <Documents fromLanguage={inputLanguage} toLanguage={outputLanguage} />}
             </div>
             {shareModal.isOpen && (
               <ShareModal
-                from={inputLanguage}
+                fromLanguage={detectedLang || inputLanguage}
                 to={outputLanguage}
                 textToTranslate={textToTranslate}
                 translatedText={translatedText}

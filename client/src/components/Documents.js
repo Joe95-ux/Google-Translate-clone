@@ -14,6 +14,15 @@ const Documents = ({ fromLanguage, toLanguage }) => {
 
   const onDrop = async (acceptedFiles) => {
     const file = acceptedFiles[0];
+    handleData(file);
+  };
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    handleData(file);
+  };
+
+  const handleData = (file) => {
     const fileExtension = getFileExtension(file.name);
     if (file.size > 10 * 1024 * 1024) {
       // bigger than 10mb!
@@ -37,9 +46,10 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     setData(formData);
   };
 
-  const translateDoc = async (data) => {
+  const translateDoc = async () => {
     setLoading(true);
     try {
+
       const response = await axios.post(
         "http://localhost:4000/translate-document",
         data,
@@ -48,10 +58,11 @@ const Documents = ({ fromLanguage, toLanguage }) => {
         }
       );
       setTranslatedDocument(response.data);
+      setLoading(false);
     } catch (error) {
       console.error("Error translating document:", error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -65,33 +76,9 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     return supportedFileTypes.includes(fileExtension);
   };
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        // bigger than 10mb!
-        toast.error("File too large");
-        return;
-      }
-
-      setFileName(file.name);
-      setFileSize(file.size);
-
-      // Check file extension
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (!isSupportedFileType(fileExtension)) {
-        toast(
-          "Unsupported file type. Please upload a .docx, .pdf, .pptx, or .xlsx file."
-        );
-        setFileName("");
-        setFileSize("");
-        return;
-      }
-    }
-  };
-
   const handleCloseBox = () => {
     setFileName("");
+    setTranslatedDocument("")
   };
 
   return (
@@ -136,6 +123,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
           handleClose={handleCloseBox}
           filePath={translatedDocument}
           translateDoc={translateDoc}
+          loading={loading}
         />
       )}
     </>

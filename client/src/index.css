@@ -98,19 +98,28 @@ input[type="file"] {
   font-size: 1rem;
   font-weight: 500;
   display: inline-block;
-  padding: 10px 24px;
   cursor: pointer;
   letter-spacing: .25px;
   line-height: 20px;
   border: none;
 }
 
+a{
+  text-decoration: none;
+  color: #f5f5f5;
+}
+
 .custom-file-upload{
   width: 280px;
+  padding: 10px 24px;
 }
 
 .translate-doc-btn{
   transition: var(--main-transition);
+  display: var(--display-flex);
+  align-items: var(--align-items);
+  font-size: 15px;
+  padding: 10px 20px;
 }
 .translate-doc-btn:hover{
   background-color: rgb(30 41 59);
@@ -765,4 +774,22 @@ span.lang-style::after{
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #448AFB; 
+}
+
+/* spinners */
+.spinner-container{
+  margin-right: 12px;
+}
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
