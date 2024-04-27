@@ -1,11 +1,22 @@
 const PORT = 4000;
-const axios = require("axios").default;
-const fs = require("fs");
-const path = require("path");
-const express = require("express");
-const cors = require("cors");
-const { OpenAI } = require("openai");
-require("dotenv").config();
+import axios from "axios";
+import fs from "fs/promises";
+import path from "path";
+import express from "express";
+import cors from "cors";
+import multer from "multer";
+import { OpenAI } from "openai";
+import { extractRawText } from "mammoth";
+import pdf from "pdf-parse";
+import { translateText } from "./controllers/translateText.js";
+import { translateDoc, lanOptions } from "./util.js";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
 const app = express();
 
 app.use(cors());
@@ -16,39 +27,20 @@ const openai = new OpenAI({
   apiKey: process.env.OPEN_API_KEY,
 });
 
+// multer config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage });
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-const headers = {
-  "content-type": "application/x-www-form-urlencoded",
-  "x-rapidapi-host": process.env.RAPID_API_HOST,
-  "x-rapidapi-key": process.env.RAPID_API_KEY,
-};
-
-const lanOptions = {
-  method: "GET",
-  url: "https://google-translate113.p.rapidapi.com/api/v1/translator/support-languages",
-  headers: headers,
-};
-async function getLanguageShort(language) {
-  let lan;
-  if (language === "Detect language") {
-    lan = "Automatic";
-  } else if (language.includes("Detected")) {
-    lan = language.split(" - ")[0];
-  } else {
-    lan = language;
-  }
-  try {
-    const response = await axios.request(lanOptions);
-    const data = response.data;
-    const filteredLan = data.filter(
-      (languageObj) => languageObj.language === lan
-    );
-    return filteredLan[0].code;
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 app.get("/languages", async (req, res) => {
   try {
@@ -67,32 +59,63 @@ app.get("/languages", async (req, res) => {
   }
 });
 
-app.get("/translation", async (req, res) => {
-  const { textToTranslate, outputLanguage, inputLanguage } = req.query;
-  const fromLang = await getLanguageShort(inputLanguage);
-  const toLang = await getLanguageShort(outputLanguage);
+//translate Doc
+app.post("/translate-document", upload.single("file"), async (req, res) => {
+  let { fromLanguage, toLanguage } = req.body;
 
-  const options = {
-    method: "POST",
-    headers: headers,
-    data: new URLSearchParams({
-      from: fromLang,
-      to: toLang,
-      text: textToTranslate,
-    }),
+  const file = req.file;
+  const filePath = file.path;
+
+  const extractTextFromDocx = async (filePath) => {
+    const buffer = await fs.readFile(filePath);
+    const { value } = await extractRawText({ buffer });
+    return value;
   };
 
-  try {
-    const response = await axios.request(
-      "https://google-translate113.p.rapidapi.com/api/v1/translator/text",
-      options
-    );
-    res.status(200).json(response.data);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: err });
+  const extractTextFromPdf = async (filePath) => {
+    const buffer = await fs.readFile(filePath);
+    const data = await pdf(buffer);
+    return data.text;
+  };
+
+  // Extract text based on file type
+  let extractedText = "";
+  const fileExtension = path.extname(file.originalname).toLowerCase();
+  if (fileExtension === ".pdf") {
+    extractedText = await extractTextFromPdf(filePath);
+  } else if (fileExtension === ".docx") {
+    extractedText = await extractTextFromDocx(filePath);
+  } else if (fileExtension === ".pptx") {
+    // Extract text from PPTX (you may need a library like pptx-extractor)
+  } else if (fileExtension === ".xlsx") {
+    // Extract text from XLSX (you may need a library like xlsx)
   }
+
+  // Translate the extracted text
+  const translatedText = await translateDoc(
+    extractedText,
+    fromLanguage,
+    toLanguage
+  );
+
+  // Write translated text back to the document (simplified for demonstration)
+  const translatedFileName = `${Date.now()}_translated${path.extname(
+    file.originalname
+  )}`;
+  const translatedFilePath = path.join(
+    __dirname,
+    "public",
+    "uploads",
+    translatedFileName
+  );
+  await fs.writeFile(translatedFilePath, translatedText);
+
+  // Send back the translated document
+  res.sendFile(translatedFilePath);
 });
+
+//translate text
+app.get("/translation", translateText);
 
 // app.get('/detect-language', async (req, res) => {
 //   const {textToTranslate} = req.query;
@@ -181,18 +204,20 @@ async function deleteFilesInDirectory(directory) {
 
 app.get("/speech_:timestamp.mp3", (req, res) => {
   const { timestamp } = req.params;
-  const audioFilePath = path.resolve(__dirname, "public", `speech_${timestamp}.mp3`);
-  
+  const audioFilePath = path.resolve(
+    __dirname,
+    "public",
+    `speech_${timestamp}.mp3`
+  );
+
   // Send the file to the client
   res.sendFile(audioFilePath, {
     headers: {
       "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Pragma": "no-cache",
-      "Expires": 0
-    }
+      Pragma: "no-cache",
+      Expires: 0,
+    },
   });
 });
-
-
 
 app.listen(PORT, () => console.log("Server running on port " + PORT));
