@@ -1,6 +1,7 @@
 const PORT = 4000;
 import axios from "axios";
-import fs from "fs/promises";
+import fs from "fs";
+import { promises as fsPromises } from 'fs';
 import path from "path";
 import express from "express";
 import cors from "cors";
@@ -8,8 +9,21 @@ import multer from "multer";
 import { OpenAI } from "openai";
 import { extractRawText } from "mammoth";
 import pdf from "pdf-parse";
+import { Readable } from "stream";
 import { translateText } from "./controllers/translateText.js";
-import { translateDoc, lanOptions } from "./util.js";
+import {
+  translateDoc,
+  lanOptions,
+  generateTranslatedPdf,
+  convertDocxToHTML,
+  convertHTMLToDocx,
+  convertHTMLToPdf,
+  convertPdfToHTML,
+  convertHTMLToPptx,
+  convertPptxToHTML,
+  convertXlsxToHTML,
+  convertHTMLToXlsx,
+} from "./util.js";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
@@ -60,58 +74,58 @@ app.get("/languages", async (req, res) => {
 });
 
 //translate Doc
+
 app.post("/translate-document", upload.single("file"), async (req, res) => {
-  let { fromLanguage, toLanguage } = req.body;
+  try {
+    let { fromLanguage, toLanguage } = req.body;
 
-  const file = req.file;
-  const filePath = file.path;
+    const file = req.file;
+    const filePath = file.path;
 
-  const extractTextFromDocx = async (filePath) => {
-    const buffer = await fs.readFile(filePath);
-    const { value } = await extractRawText({ buffer });
-    return value;
-  };
+    const extractTextFromDocx = async (filePath) => {
+      const buffer = await fsPromises.readFile(filePath);
+      const { value } = await extractRawText({ buffer });
+      return value;
+    };
 
-  const extractTextFromPdf = async (filePath) => {
-    const buffer = await fs.readFile(filePath);
-    const data = await pdf(buffer);
-    return data.text;
-  };
+    const extractTextFromPdf = async (filePath) => {
+      const buffer = await fsPromises.readFile(filePath);
+      const data = await pdf(buffer);
+      return data.text;
+    };
 
-  // Extract text based on file type
-  let extractedText = "";
-  const fileExtension = path.extname(file.originalname).toLowerCase();
-  if (fileExtension === ".pdf") {
-    extractedText = await extractTextFromPdf(filePath);
-  } else if (fileExtension === ".docx") {
-    extractedText = await extractTextFromDocx(filePath);
-  } else if (fileExtension === ".pptx") {
-    // Extract text from PPTX (you may need a library like pptx-extractor)
-  } else if (fileExtension === ".xlsx") {
-    // Extract text from XLSX (you may need a library like xlsx)
+    // Extract text based on file type
+    let extractedText = "";
+    const fileExtension = path.extname(file.originalname).toLowerCase();
+    if (fileExtension === ".pdf") {
+      extractedText = await extractTextFromPdf(filePath);
+    } else if (fileExtension === ".docx") {
+      extractedText = await extractTextFromDocx(filePath);
+    } else if (fileExtension === ".pptx") {
+      // Extract text from PPTX (you may need a library like pptx-extractor)
+    } else if (fileExtension === ".xlsx") {
+      // Extract text from XLSX (you may need a library like xlsx)
+    }
+
+    // Translate the extracted text
+    const translatedText = await translateDoc(
+      extractedText,
+      fromLanguage,
+      toLanguage
+    );
+
+    // Generate a translated PDF document
+    const translatedPdfDoc = await generateTranslatedPdf(translatedText);
+
+    // Set response headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+
+    // Pipe the PDF stream to the response
+    translatedPdfDoc.pipe(res);
+  } catch (error) {
+    console.error('Error translating document:', error);
+    res.status(500).send('An error occurred while translating the document.');
   }
-
-  // Translate the extracted text
-  const translatedText = await translateDoc(
-    extractedText,
-    fromLanguage,
-    toLanguage
-  );
-
-  // Write translated text back to the document (simplified for demonstration)
-  const translatedFileName = `${Date.now()}_translated${path.extname(
-    file.originalname
-  )}`;
-  const translatedFilePath = path.join(
-    __dirname,
-    "public",
-    "uploads",
-    translatedFileName
-  );
-  await fs.writeFile(translatedFilePath, translatedText);
-
-  // Send back the translated document
-  res.sendFile(translatedFilePath);
 });
 
 //translate text
@@ -196,11 +210,35 @@ app.post("/synthesize-speech", async (req, res) => {
 
 // Function to delete all files in a directory
 async function deleteFilesInDirectory(directory) {
-  const files = await fs.promises.readdir(directory);
-  for (const file of files) {
-    await fs.promises.unlink(path.resolve(directory, file));
+  try {
+    // Check if the directory exists
+    const directoryExists = await fs.promises.access(directory, fs.constants.F_OK)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!directoryExists) {
+      console.error(`Directory ${directory} does not exist or is not accessible.`);
+      return;
+    }
+
+    // Read the files in the directory
+    const entries = await fs.promises.readdir(directory);
+
+    // Iterate over the entries and delete files starting with 'speech:'
+    for (const entry of entries) {
+      const entryPath = path.resolve(directory, entry);
+      const stats = await fs.promises.stat(entryPath);
+
+      // Check if the entry is a file and starts with 'speech:'
+      if (stats.isFile() && entry.startsWith('speech')) {
+        await fs.promises.unlink(entryPath);
+      }
+    }
+  } catch (error) {
+    console.error('Error deleting files in directory:', error);
   }
 }
+
 
 app.get("/speech_:timestamp.mp3", (req, res) => {
   const { timestamp } = req.params;
