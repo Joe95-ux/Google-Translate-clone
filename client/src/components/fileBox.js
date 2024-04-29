@@ -49,12 +49,11 @@ const FileBox = ({
         ) : (
           <>
             <button
-              onClick={translateDoc}
               className="translate-doc-btn"
               style={{ marginRight: "1rem" }}
             >
               <FiDownload size={18} style={{ marginRight: "12px" }} />{" "}
-              <a href={filePath} download="translated_document.docx">Download translation</a>
+              <a href={filePath} download="translated_document.pdf">Download translation</a>
             </button>
             <button onClick={openTranslatedFile} className="translate-doc-btn">
               <MdOutlineOpenInNew size={18} style={{ marginRight: "12px" }} />

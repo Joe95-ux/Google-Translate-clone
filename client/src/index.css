@@ -180,6 +180,13 @@ a{
   margin: 0;
 }
 
+@media screen and (max-width:765px) {
+  .drop-container, .line{
+    display: none;
+  }
+  
+}
+
 .filebox-wrapper{
   width: 640px;
   max-width: 100%;

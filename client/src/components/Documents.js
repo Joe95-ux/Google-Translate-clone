@@ -9,7 +9,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
-  const [data, setData] = useState(null);
+  const [formData, setFormData] = useState(null);
   const [translatedDocument, setTranslatedDocument] = useState(null);
 
   const onDrop = async (acceptedFiles) => {
@@ -43,7 +43,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     formData.append("file", file);
     formData.append("fromLanguage", fromLanguage);
     formData.append("toLanguage", toLanguage);
-    setData(formData);
+    setFormData(formData);
   };
 
   const translateDoc = async () => {
@@ -52,12 +52,12 @@ const Documents = ({ fromLanguage, toLanguage }) => {
 
       const response = await axios.post(
         "http://localhost:4000/translate-document",
-        data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
+        formData, {
+          responseType: 'blob', // Receive binary data
         }
       );
-      setTranslatedDocument(response.data);
+      const downloadUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      setTranslatedDocument(downloadUrl);
       setLoading(false);
     } catch (error) {
       console.error("Error translating document:", error);
