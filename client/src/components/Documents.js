@@ -51,7 +51,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     try {
 
       const response = await axios.post(
-        "http://localhost:4000/translate-document",
+        `${process.env.REACT_APP_API_ENDPOINT}/translate-document`,
         formData, {
           responseType: 'blob', // Receive binary data
         }

@@ -35,6 +35,7 @@ const App = () => {
   const saveModal = useSaveModal();
   const shareModal = useShareModal();
 
+
   const [otherInputLangs, setOtherInputLangs] = useState([
     "Detect language",
     "French",
@@ -57,7 +58,7 @@ const App = () => {
   };
 
   const getLanguages = async () => {
-    const response = await axios.get("http://localhost:4000/languages");
+    const response = await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/languages`);
     setLanguages(response.data);
   };
 
@@ -80,7 +81,7 @@ const App = () => {
     ) {
       const detectLanguage = async () => {
         const response = await axios.get(
-          "http://localhost:4000/detect-language",
+          `${process.env.REACT_APP_API_ENDPOINT}/detect-language`,
           { params: { textToTranslate } }
         );
         const detectedLanguage = response.data + " - Detected";
@@ -131,7 +132,7 @@ const App = () => {
     setIsLoading(true);
     try {
       if (textToTranslate !== "" && textToTranslate !== null) {
-        const response = await axios.get("http://localhost:4000/translation", {
+        const response = await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/translation`, {
           params: data,
         });
 
@@ -266,7 +267,7 @@ const App = () => {
   const synthesizeSpeech = async (text) => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/synthesize-speech",
+        `${process.env.REACT_APP_API_ENDPOINT}/synthesize-speech`,
         {
           input: text,
         }
