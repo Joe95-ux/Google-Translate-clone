@@ -67,6 +67,7 @@ h3, h4, p{
   position: relative;
   border-bottom: 1px solid rgb(100 116 139);
   padding: 5px 24px;
+  flex-wrap: wrap;
 }
 .compose-box-inner{
   display: flex;
@@ -134,6 +135,7 @@ a{
   text-align: center;
   flex: 1;
   padding: 1rem;
+  width: 100%;
 }
 .drop-area{
   padding: 2rem;
@@ -156,6 +158,7 @@ a{
   flex-direction: column;
   justify-content: center;
   width: 100%;
+  min-height: 250px;
   text-align: center;
 }
 
@@ -215,8 +218,6 @@ a{
 }
 
 
-
-
 .textarea-wrapper, .textarea-inner{
   position: relative;
   display: var(--display-flex);
@@ -226,6 +227,7 @@ a{
 
 .textarea-wrapper{
   height: 100%;
+  min-height: 250px;
   flex-direction: var(--flex-column);
   color: rgb(148 163 184);
 }
@@ -233,7 +235,7 @@ a{
 @media screen and (max-width:600px) {
   .wrapper {
     padding: 2rem 1rem;
-    max-width: calc(100vw - 1rem);
+    max-width: calc(100vw - 0.5rem);
   }
   .compose-box-inner{
     flex-direction: column;
@@ -539,6 +541,12 @@ span.lang-style::after{
   transition: all, 0.3s ease;
   border-radius: 50%;
   display: var(--display-flex);
+}
+
+@media screen and (max-width:600px) {
+  .select-drop-down .down-arrow{
+    margin-left: 0.5rem;
+  }
 }
 
 .select-drop-down .down-arrow:hover{
