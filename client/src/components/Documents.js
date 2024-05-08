@@ -72,7 +72,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
   };
 
   const isSupportedFileType = (fileExtension) => {
-    const supportedFileTypes = ["docx", "pdf", "pptx", "xlsx"];
+    const supportedFileTypes = ["docx", "doc", "pdf", "pptx", "xlsx"];
     return supportedFileTypes.includes(fileExtension);
   };
 

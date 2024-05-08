@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Dictionary = () => {
+const Dictionary = ({dic}) => {
   return (
     <div>Dictionary</div>
   )

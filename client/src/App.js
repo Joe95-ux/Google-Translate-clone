@@ -10,6 +10,7 @@ import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
 import { useHistory } from "./hooks/useHistory";
 import Header from "./components/Header";
+import Dictionary from "./components/Dictionary";
 import Footer from "./components/Footer";
 import ShareModal from "./components/ShareModal";
 import { useSaveModal } from "./hooks/useSaveModal";
@@ -27,6 +28,7 @@ const App = () => {
   const [activeType, setActiveType] = useState("Text");
   const [textToTranslate, setTextToTranslate] = useState("");
   const [translatedText, setTranslatedText] = useState("");
+  const [dictionary, setDictionary] = useState([]);
   const [detectedLang, setDetectedLang] = useState("");
   const [translations, setTranslations] = useState([]);
   const [savedTranslations, setSavedTranslations] = useState([]);
@@ -137,6 +139,7 @@ const App = () => {
         });
 
         setTranslatedText(response.data.trans);
+        setDictionary(response.data.dic || []);
         setShowCopy(true);
         setIsLoading(false);
         saveTranslation({
@@ -368,7 +371,9 @@ const App = () => {
                 translatedText={translatedText}
               />
             )}
+            {dictionary && <Dictionary dic={dictionary}/>}
           </div>
+
         )}
         {showModal && (
           <Modal
