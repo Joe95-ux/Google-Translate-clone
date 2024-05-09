@@ -592,7 +592,7 @@ span.lang-style::after{
   right: 1rem;
   bottom: 2.9rem;
  }
- .share-modal-inner{
+ .share-modal-inner, .dictionary-wrapper{
   display: var(--display-flex);
   flex-direction: var(--flex-column);
   padding: 1rem;
@@ -614,6 +614,55 @@ span.lang-style::after{
   align-items: var(--align-items);
   color:  rgb(203 213 225);
  }
+
+ /* dictionary style */
+ .dic-head{
+  color: rgb(203 213 225);
+  line-height: 1.2;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-bottom: 1px solid rgb(30 41 59);
+
+ }
+ .dictionary-wrapper h2{
+  font-weight: 500;
+  font-size: 1.2rem;
+ }
+ .dic-head h3{
+  font-weight: normal;
+  font-size: 16px;
+ }
+
+ .entry, .alternate-trans{
+  display: var(--display-flex);
+  align-items: var(--align-items);
+  flex-wrap: wrap;
+ }
+ .entry{
+  margin-top: 1rem;
+ }
+ .trans-word, .pos{
+  font-size: 1rem;
+  margin-right: 2rem;
+  color: rgb(203 213 225);
+ }
+ .trans-word{
+  font-weight: 500;
+ }
+ .pos{
+  font-weight: normal;
+  margin-right: 2rem;
+ }
+ .alternate-trans span{
+  font-size: 15px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid rgb(30 41 59);
+ }
+ .alternate-trans span:not(:last-child){
+  margin-right: 1.2rem;
+ }
+
 
  .share-icon, .icon-wrapper{
   display: var(--display-flex);
@@ -637,7 +686,7 @@ span.lang-style::after{
 }
 .history-head-wrapper{
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   position: sticky;
   top: 0;
 }
