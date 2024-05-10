@@ -619,18 +619,21 @@ span.lang-style::after{
  .dic-head{
   color: rgb(203 213 225);
   line-height: 1.2;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid rgb(30 41 59);
 
  }
  .dictionary-wrapper h2{
   font-weight: 500;
   font-size: 1.2rem;
+  margin: 0 0 1.2rem;
+  text-transform: capitalize;
  }
  .dic-head h3{
   font-weight: normal;
   font-size: 16px;
+  color: rgb(148 163 184);
  }
 
  .entry, .alternate-trans{
@@ -638,29 +641,46 @@ span.lang-style::after{
   align-items: var(--align-items);
   flex-wrap: wrap;
  }
- .entry{
-  margin-top: 1rem;
- }
+ 
+ .entry:not(:last-child) {
+  padding: 21px 0 16px;
+  border-bottom: 1px solid rgb(30 41 59);
+}
+.entry:last-child{
+  padding-top: 1rem;
+}
  .trans-word, .pos{
   font-size: 1rem;
   margin-right: 2rem;
-  color: rgb(203 213 225);
+  text-align: left;
+ }
+ .alternate-trans, .pos{
+  color: rgb(148 163 184);
  }
  .trans-word{
+  flex-basis: 10%;
   font-weight: 500;
+  color: rgb(203 213 225);
  }
  .pos{
   font-weight: normal;
   margin-right: 2rem;
  }
+ .pos, .trans-word, .alternate-trans span{
+  margin-bottom: 5px;
+ }
+ .alternate-trans{
+  justify-content: flex-start;
+ }
  .alternate-trans span{
   font-size: 15px;
   padding: 5px;
-  border-radius: 4px;
+  border-radius: 5px;
   border: 1px solid rgb(30 41 59);
+  background-color: rgb(30 41 59 / 1);
  }
  .alternate-trans span:not(:last-child){
-  margin-right: 1.2rem;
+  margin-right: 10px;
  }
 
 

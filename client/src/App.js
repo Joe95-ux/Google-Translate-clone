@@ -143,7 +143,7 @@ const App = () => {
         );
 
         setTranslatedText(response.data.trans);
-        setDictionary(response.data.dic || []);
+        setDictionary(response.data.dict || []);
         setShowCopy(true);
         setIsLoading(false);
         saveTranslation({
@@ -306,7 +306,7 @@ const App = () => {
       <Header activeType={activeType} setActiveType={setActiveType} />
       <div className="app">
         {!showModal && (
-          <>
+          <div style={{width:"100%"}}>
             <div className="compose-box">
               <ComposeHeader
                 setShowModal={setShowModal}
@@ -341,6 +341,7 @@ const App = () => {
                       detectLanguage={detectedLang}
                       synthesizeSpeech={synthesizeSpeech}
                       text={textToTranslate}
+                      setDic={setDictionary}
                     />
                     <TextBox
                       variant="output"
@@ -382,8 +383,8 @@ const App = () => {
                 />
               )}
             </div>
-            {dictionary && dictionary.length > 0 && <Dictionary dic={dictionary} trans={translatedText}/>}
-          </>
+            {dictionary && textToTranslate &&  dictionary.length > 0 && <Dictionary dic={dictionary} trans={translatedText}/>}
+          </div>
         )}
         {showModal && (
           <Modal

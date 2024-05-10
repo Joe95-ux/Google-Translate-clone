@@ -24,6 +24,7 @@ const TextBox = ({
   setTranslatedText,
   showDelete,
   setShowDelete,
+  setDic,
   showCopy,
   setShowCopy,
   detectLanguage,
@@ -74,6 +75,7 @@ const TextBox = ({
         setShowDelete(false);
         setShowCopy(false);
         setTranslatedText("");
+        setDic([]);
       }
     } else {
       if (e.target.value.length > 0) {
@@ -102,6 +104,7 @@ const TextBox = ({
   const handleClick = () => {
     setTextToTranslate("");
     setTranslatedText("");
+    setDic([]);
     setShowDelete(false);
     setShowCopy(false);
     adjustTextareaHeight();
