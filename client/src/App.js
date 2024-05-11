@@ -126,7 +126,7 @@ const App = () => {
     }
   }, [textToTranslate]);
 
-  const translate = async () => {
+  const translate = async (timestamp = null) => {
     const data = {
       textToTranslate,
       outputLanguage,
@@ -146,16 +146,19 @@ const App = () => {
         setDictionary(response.data.dict || []);
         setShowCopy(true);
         setIsLoading(false);
-        saveTranslation({
-          text: textToTranslate,
-          to: outputLanguage,
-          from: inputLanguage.includes("Detected")
-            ? inputLanguage.split(" - ")[0]
-            : inputLanguage,
-          translation: response.data.trans,
-          timestamp: new Date().toLocaleString(),
-          saved: false,
-        });
+        if(timestamp !== null){
+          saveTranslation({
+            text: textToTranslate,
+            to: outputLanguage,
+            from: inputLanguage.includes("Detected")
+              ? inputLanguage.split(" - ")[0]
+              : inputLanguage,
+            translation: response.data.trans,
+            timestamp: new Date().toLocaleString(),
+            saved: false,
+          });
+
+        }
       } else {
         setIsLoading(false);
         toast.warning("please provide text to translate");
@@ -241,7 +244,7 @@ const App = () => {
     }
   };
 
-  const handleReTranslate = (from, to, text, translatedText) => {
+  const handleReTranslate = (from, to, text, translatedText, timestamp) => {
     setInputLanguage(from);
     setOutputLanguage(to);
     // set otherInputLangs
@@ -266,7 +269,8 @@ const App = () => {
     });
 
     setTextToTranslate(text);
-    setTranslatedText(translatedText);
+    // setTranslatedText(translatedText);
+    translate(timestamp);
     setShowDelete(true);
     setShowCopy(true);
   };
@@ -383,7 +387,7 @@ const App = () => {
                 />
               )}
             </div>
-            {dictionary && textToTranslate &&  dictionary.length > 0 && <Dictionary dic={dictionary} trans={translatedText}/>}
+            {dictionary && textToTranslate &&  dictionary.length > 0 && activeType === "Text" && <Dictionary dic={dictionary} trans={translatedText}/>}
           </div>
         )}
         {showModal && (

@@ -109,7 +109,7 @@ const Saved = ({ translations, setTranslations, handleHistory, savedTranslations
                     </div>
                   </div>
                 </div>
-                <div className="languages" onClick={()=>handleHistory(translation.from, translation.to, translation.text, translation.translation)}>
+                <div className="languages" onClick={()=>handleHistory(translation.from, translation.to, translation.text, translation.translation, translation.timestamp)}>
                   <p className="lang-from">{translation.text}</p>
                   <p className="lang-to">{translation.translation}</p>
                 </div>
