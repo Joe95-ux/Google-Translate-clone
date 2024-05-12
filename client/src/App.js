@@ -126,15 +126,20 @@ const App = () => {
     }
   }, [textToTranslate]);
 
-  const translate = async (timestamp = null) => {
+  const translate = async (
+    timestamp = null,
+    text = textToTranslate,
+    outputLang = outputLanguage,
+    inputLang = inputLanguage
+  ) => {
     const data = {
-      textToTranslate,
-      outputLanguage,
-      inputLanguage,
+      text,
+      outputLang,
+      inputLang,
     };
     setIsLoading(true);
     try {
-      if (textToTranslate !== "" && textToTranslate !== null) {
+      if (text !== "" && text !== null) {
         const response = await axios.get(
           `${process.env.REACT_APP_API_ENDPOINT}/translation`,
           {
@@ -146,18 +151,17 @@ const App = () => {
         setDictionary(response.data.dict || []);
         setShowCopy(true);
         setIsLoading(false);
-        if(timestamp !== null){
+        if (!timestamp) {
           saveTranslation({
-            text: textToTranslate,
-            to: outputLanguage,
-            from: inputLanguage.includes("Detected")
-              ? inputLanguage.split(" - ")[0]
-              : inputLanguage,
+            text: text,
+            to: outputLang,
+            from: inputLang.includes("Detected")
+              ? inputLang.split(" - ")[0]
+              : inputLang,
             translation: response.data.trans,
             timestamp: new Date().toLocaleString(),
             saved: false,
           });
-
         }
       } else {
         setIsLoading(false);
@@ -270,7 +274,7 @@ const App = () => {
 
     setTextToTranslate(text);
     // setTranslatedText(translatedText);
-    translate(timestamp);
+    translate(timestamp, text, to, from);
     setShowDelete(true);
     setShowCopy(true);
   };
@@ -310,7 +314,7 @@ const App = () => {
       <Header activeType={activeType} setActiveType={setActiveType} />
       <div className="app">
         {!showModal && (
-          <div style={{width:"100%"}}>
+          <div style={{ width: "100%" }}>
             <div className="compose-box">
               <ComposeHeader
                 setShowModal={setShowModal}
@@ -387,7 +391,12 @@ const App = () => {
                 />
               )}
             </div>
-            {dictionary && textToTranslate &&  dictionary.length > 0 && activeType === "Text" && <Dictionary dic={dictionary} trans={translatedText}/>}
+            {dictionary &&
+              textToTranslate &&
+              dictionary.length > 0 &&
+              activeType === "Text" && (
+                <Dictionary dic={dictionary} trans={translatedText} />
+              )}
           </div>
         )}
         {showModal && (
