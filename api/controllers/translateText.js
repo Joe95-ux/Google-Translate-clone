@@ -2,9 +2,9 @@ import { getLanguageShort, headers } from "../util.js";
 import axios from "axios"
 
 export const translateText = async (req, res) => {
-  const { textToTranslate, outputLanguage, inputLanguage } = req.query;
-  const fromLang = await getLanguageShort(inputLanguage);
-  const toLang = await getLanguageShort(outputLanguage);
+  const { text, outputLang, inputLang, } = req.query;
+  const fromLang = await getLanguageShort(inputLang);
+  const toLang = await getLanguageShort(outputLang);
 
   const options = {
     method: "POST",
@@ -12,7 +12,7 @@ export const translateText = async (req, res) => {
     data: new URLSearchParams({
       from: fromLang,
       to: toLang,
-      text: textToTranslate,
+      text: text,
     }),
   };
 
