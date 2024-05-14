@@ -41,8 +41,23 @@ const openai = new OpenAI({
   apiKey: process.env.OPEN_API_KEY,
 });
 
+const deleteUploadsDirectory = (directory) => {
+  fs.readdir(directory, (err, files) => {
+    if (err) {
+      console.error('Error reading directory:', err);
+      return;
+    }
+
+    files.forEach((file) => {
+      const filePath = path.join(directory, file);
+      fs.unlinkSync(filePath); // Delete file or directory
+    });
+  });
+};
+
+
 // delete files in upload directory
-deleteFilesInDirectory("public/uploads/");
+deleteUploadsDirectory("public/uploads/");
 
 // multer config
 const storage = multer.diskStorage({
