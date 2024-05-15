@@ -37,6 +37,7 @@ const TextBox = ({
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audio, setAudio] = useState(null);
+  const [limit, setLimit] = useState(false);
   const [loadingAudio, setLoadingAudio] = useState(false);
   const {
     listening,
@@ -130,16 +131,20 @@ const TextBox = ({
   };
 
   useEffect(() => {
-    if (
-      textToTranslate === "" ||
-      textToTranslate === null ||
-      textToTranslate === undefined
-    ) {
+    if (textToTranslate === "" || textToTranslate === null || textToTranslate === undefined) {
       setShowDelete(false);
+      setLimit(false);
     } else {
       setShowDelete(true);
+      if (textToTranslate.length > 5000) {
+        setLimit(true);
+        setTextToTranslate((prev) => prev.substring(0, 5000));
+        toast.info("You have exceeded the word limit of 5000 words");
+      } else {
+        setLimit(false);
+      }
     }
-  }, [setShowDelete, textToTranslate]);
+  }, [setShowDelete, setTextToTranslate, textToTranslate]);
 
   const handleSpeechRecognition = () => {
     if (!browserSupportsSpeechRecognition) {
