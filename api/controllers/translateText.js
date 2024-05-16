@@ -2,10 +2,9 @@ import { getLanguageShort, headers } from "../util.js";
 import axios from "axios"
 
 export const translateText = async (req, res) => {
-  const { text, outputLang, inputLang, } = req.query;
+  const { text, outputLang, inputLang } = req.query;
   const fromLang = await getLanguageShort(inputLang);
   const toLang = await getLanguageShort(outputLang);
-
   const options = {
     method: "POST",
     headers: headers,

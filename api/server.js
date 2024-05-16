@@ -175,18 +175,23 @@ app.get("/detect-language", async (req, res) => {
   try {
     const { textToTranslate } = req.query;
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
           content:
-            "Hello! I'm here to help you detect the language of a given text. Please provide the text you want me to analyze. I will only send the language as response and nothing more. ",
+            "You are a language detector. Once a text is provided, detect the language and send only the language as response; for example English. If you fail to detect the language, send 'processing' as response.",
         },
         {
           role: "user",
           content: textToTranslate,
         },
       ],
+      temperature: 1,
+      max_tokens: 256,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
     });
     res.status(200).json(response.choices[0].message.content);
   } catch (error) {

@@ -28,6 +28,7 @@ export async function getLanguageShort(language) {
   } else {
     lan = language;
   }
+  
   try {
     const response = await axios.request(lanOptions);
     const data = response.data;
