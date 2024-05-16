@@ -61,6 +61,11 @@ h3, h4, p{
   border-radius: 8px;
   border: 1px solid rgb(100 116 139);
 }
+.text-limit{
+  border-bottom-left-radius: 5px;
+  border: 1px solid red;
+  border-right: 1px solid red !important;
+}
 .compose-box-header{
   display: flex;
   justify-content: space-between;

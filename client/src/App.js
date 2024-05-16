@@ -59,10 +59,18 @@ const App = () => {
   };
 
   const getLanguages = async () => {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_ENDPOINT}/languages`
-    );
-    setLanguages(response.data);
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_ENDPOINT}/languages`
+      );
+      setLanguages(response.data);
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast.error("An error occurred while fetching languages. Please try again later.");
+          
+      
+    }
   };
 
   useEffect(() => {
@@ -83,26 +91,34 @@ const App = () => {
       !inputLanguage.includes("Detected")
     ) {
       const detectLanguage = async () => {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_ENDPOINT}/detect-language`,
-          { params: { textToTranslate } }
-        );
-        const detectedLanguage = response.data + " - Detected";
-        setDetectedLang(response.data);
-        if (inputLanguage === "Detect language") {
-          setInputLanguage(detectedLanguage);
-          setOtherInputLangs((prevLangs) => {
-            // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
-            return [detectedLanguage, ...prevLangs.slice(1)];
-          });
-        } else {
-          setOtherInputLangs((prevLangs) => {
-            // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
-            return prevLangs.includes(inputLanguage)
-              ? prevLangs
-              : [...prevLangs.slice(0, -1), inputLanguage];
-          });
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_API_ENDPOINT}/detect-language`,
+            { params: { textToTranslate } }
+          );
+          const detectedLanguage = response.data + " - Detected";
+          setDetectedLang(response.data);
+          if (inputLanguage === "Detect language") {
+            setInputLanguage(detectedLanguage);
+            setOtherInputLangs((prevLangs) => {
+              // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
+              return [detectedLanguage, ...prevLangs.slice(1)];
+            });
+          } else {
+            setOtherInputLangs((prevLangs) => {
+              // const indexOfDetectedLang = prevLangs.findIndex(lang => lang === "Detect language");
+              return prevLangs.includes(inputLanguage)
+                ? prevLangs
+                : [...prevLangs.slice(0, -1), inputLanguage];
+            });
+          }
+          
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          toast.error("An error occurred while detecting the language. Please try again later.");
+          
         }
+        
       };
 
       detectLanguage();
@@ -291,6 +307,7 @@ const App = () => {
       return response.data.url;
     } catch (error) {
       console.error("Error:", error);
+      toast.error("An error occured while synthesizing speech. Please try again")
     }
   };
 

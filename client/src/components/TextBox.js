@@ -38,6 +38,7 @@ const TextBox = ({
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [audio, setAudio] = useState(null);
   const [limit, setLimit] = useState(false);
+  const [, setToastShown] = useState(false);
   const [loadingAudio, setLoadingAudio] = useState(false);
   const {
     listening,
@@ -131,20 +132,29 @@ const TextBox = ({
   };
 
   useEffect(() => {
-    if (textToTranslate === "" || textToTranslate === null || textToTranslate === undefined) {
+    if (
+      textToTranslate === "" ||
+      textToTranslate === null ||
+      textToTranslate === undefined
+    ) {
       setShowDelete(false);
       setLimit(false);
     } else {
       setShowDelete(true);
-      if (textToTranslate.length > 5000) {
+      const isExceedingLimit = textToTranslate.length >= 5000;
+      if (isExceedingLimit && !limit) {
         setLimit(true);
-        setTextToTranslate((prev) => prev.substring(0, 5000));
-        toast.info("You have exceeded the word limit of 5000 words");
-      } else {
+        setToastShown(true);
+        setTextToTranslate((prevText) => {
+          return prevText.substring(0, 5000);
+        });
+        toast.error("You have exceeded the character limit of 5000");
+      } else if (!isExceedingLimit && limit) {
         setLimit(false);
+        setToastShown(false)
       }
     }
-  }, [setShowDelete, setTextToTranslate, textToTranslate]);
+  }, [limit, setShowDelete, setTextToTranslate, textToTranslate]);
 
   const handleSpeechRecognition = () => {
     if (!browserSupportsSpeechRecognition) {
@@ -227,7 +237,9 @@ const TextBox = ({
 
   return (
     <div
-      className={variant}
+      className={`${variant} ${
+        variant === "input" && limit ? "text-limit" : ""
+      }`}
       style={{
         borderRight:
           variant === "input" &&
@@ -383,9 +395,14 @@ const TextBox = ({
                           display: "flex",
                         }}
                       >
-                        <div title="stop listening" className="icon-wrapper" onClick={handleStopAudio} style={{
-                              marginLeft: "12px",
-                            }}>
+                        <div
+                          title="stop listening"
+                          className="icon-wrapper"
+                          onClick={handleStopAudio}
+                          style={{
+                            marginLeft: "12px",
+                          }}
+                        >
                           <FaRegCircleStop
                             size={24}
                             style={{
@@ -425,9 +442,7 @@ const TextBox = ({
                   </div>
                 )}
                 {loadingAudio && (
-                  <small
-                    style={{ color: "rgb(148 163 184)"}}
-                  >
+                  <small style={{ color: "rgb(148 163 184)" }}>
                     loading speech...
                   </small>
                 )}
@@ -443,7 +458,11 @@ const TextBox = ({
                       display: "flex",
                     }}
                   >
-                    <div title="stop listening" className="icon-wrapper" onClick={handleStopAudio}>
+                    <div
+                      title="stop listening"
+                      className="icon-wrapper"
+                      onClick={handleStopAudio}
+                    >
                       <FaRegCircleStop
                         size={22}
                         style={{

@@ -61,6 +61,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
       setLoading(false);
     } catch (error) {
       console.error("Error translating document:", error);
+      toast.error("An erro occured while translating the document. Please try agin later.")
       setLoading(false);
     }
   };
