@@ -180,7 +180,7 @@ app.get("/detect-language", async (req, res) => {
         {
           role: "system",
           content:
-            "You are a language detector. Once a text is provided, detect the language and send only the language as response; for example English. If you fail to detect the language, send 'processing' as response.",
+            "You are a language detector. Once a text is provided, detect the language and send only the language as response; for example English.",
         },
         {
           role: "user",
