@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 
 const langLength = 135;
 
@@ -7,7 +7,7 @@ const LanguageLoader = () => {
   const divs = Array.from({ length: langLength }, (_, index) => index);
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', flexDirection: "column", }}>
+    <div className="loader-list">
       {divs.map((div) => (
         <motion.div
           key={div}
@@ -16,14 +16,14 @@ const LanguageLoader = () => {
           transition={{
             duration: 1.5,
             repeat: Infinity,
-            repeatType: 'loop',
+            repeatType: "loop",
           }}
           style={{
-            width: '100px',
-            height: '20px',
-            margin: '5px',
-            borderRadius: '10px',
-            backgroundColor: '#33415529',
+            width: "250px",
+            height: "26px",
+            margin: "5px",
+            borderRadius: "5px",
+            backgroundColor: "#33415529",
           }}
         />
       ))}

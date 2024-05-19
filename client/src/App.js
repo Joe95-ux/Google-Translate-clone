@@ -63,12 +63,13 @@ const App = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/languages`
       );
-      setLanguages(response.data);
+      if (response.data) {
+        setLanguages(response.data);
+      }
       
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error("An error occurred while fetching languages. Please try again later.");
-          
+      toast.error("An error occurred while fetching languages. Please try again later."); 
       
     }
   };
