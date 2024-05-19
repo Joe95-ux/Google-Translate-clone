@@ -1,6 +1,7 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
+import LanguageLoader from "./LanguageLoader";
 
 const Modal = ({
   showModal,
@@ -18,10 +19,12 @@ const Modal = ({
   inputLanguage,
   outputLanguage,
   translateRef,
-  translate
+  translate,
 }) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
-  chosenLanguage = chosenLanguage.includes("Detected") ? chosenLanguage.split(" - ")[0] : chosenLanguage
+  chosenLanguage = chosenLanguage.includes("Detected")
+    ? chosenLanguage.split(" - ")[0]
+    : chosenLanguage;
 
   const filteredLanguages = languages?.filter((language) =>
     language.toLowerCase().startsWith(searchedLanguage.toLowerCase())
@@ -31,11 +34,13 @@ const Modal = ({
     e.stopPropagation(); // Stop event propagation to prevent triggering parent elements' click handlers
     setChosenLanguage(language);
 
-    if(showModal === "input"){
-      if(language === outputLanguage){
-        const newOutputLang = otherOutputLangs.find(lange => lange !== language);
+    if (showModal === "input") {
+      if (language === outputLanguage) {
+        const newOutputLang = otherOutputLangs.find(
+          (lange) => lange !== language
+        );
         setOutputLanguage(newOutputLang);
-        setOtherOutputLangs(prevLangs => {
+        setOtherOutputLangs((prevLangs) => {
           if (!prevLangs.includes(newOutputLang)) {
             return [...prevLangs.slice(0, -1), newOutputLang];
           }
@@ -43,24 +48,24 @@ const Modal = ({
         });
       }
       // remove any Detected suffix if any from inputlanguageoptions
-      setOtherInputLangs(prevLangs => {
-        const updatedOptions = prevLangs.map(language => {
-          if(language.includes("Detected")){
+      setOtherInputLangs((prevLangs) => {
+        const updatedOptions = prevLangs.map((language) => {
+          if (language.includes("Detected")) {
             return "Detect language";
-          }else{
-            return language
+          } else {
+            return language;
           }
-        })
+        });
 
         return updatedOptions;
-        
-      })
-
-    }else{
-      if(language === inputLanguage){
-        const newInputLang = otherInputLangs.find(lange => lange !== language && lange !== "Detect language");
+      });
+    } else {
+      if (language === inputLanguage) {
+        const newInputLang = otherInputLangs.find(
+          (lange) => lange !== language && lange !== "Detect language"
+        );
         setInputLanguage(newInputLang);
-        setOtherInputLangs(prevLangs => {
+        setOtherInputLangs((prevLangs) => {
           if (!prevLangs.includes(newInputLang)) {
             return [...prevLangs.slice(0, -1), newInputLang];
           }
@@ -69,13 +74,13 @@ const Modal = ({
       }
       translateRef.current = true;
     }
-    
-    setOtherLangs(prevLangs => {
+
+    setOtherLangs((prevLangs) => {
       let langs = [...prevLangs];
       if (language !== "Detect language" && !langs.includes(language)) {
         langs.splice(langs.length - 1, 1, language);
       }
-  
+
       return langs;
     });
 
@@ -94,33 +99,42 @@ const Modal = ({
     setChosenLanguage(e.target.value);
   };
 
-
   return (
     <div className="option-list">
       <div className="search-bar">
         <input value={chosenLanguage} onChange={handleChange} />
-        <div className="close-button" >
-          <IoSearch size={22} style={{marginRight:"20px"}}/>
-          <IoMdClose size={22} onClick={() => setShowModal(null)} style={{cursor:"pointer"}}/>
+        <div className="close-button">
+          <IoSearch size={22} style={{ marginRight: "20px" }} />
+          <IoMdClose
+            size={22}
+            onClick={() => setShowModal(null)}
+            style={{ cursor: "pointer" }}
+          />
         </div>
       </div>
       <div className="option-container">
-        <ul>
-          {filteredLanguages?.map((filteredLanguage, index) => (
-            <div className="list-item" key={index} >
-              <div className="icon">
-                {chosenLanguage === filteredLanguage ? "✓" : ""}
+        {languages ? (
+          <ul>
+            {filteredLanguages?.map((filteredLanguage, index) => (
+              <div className="list-item" key={index}>
+                <div className="icon">
+                  {chosenLanguage === filteredLanguage ? "✓" : ""}
+                </div>
+                <li
+                  onClick={(e) => handleSelect(e, filteredLanguage)}
+                  style={{
+                    color:
+                      chosenLanguage === filteredLanguage ? "#8ab4f8" : null,
+                  }}
+                >
+                  {filteredLanguage}
+                </li>
               </div>
-              <li onClick={(e) => handleSelect(e, filteredLanguage)}
-                style={{
-                  color: chosenLanguage === filteredLanguage ? "#8ab4f8" : null,
-                }}
-              >
-                {filteredLanguage}
-              </li>
-            </div>
-          ))}
-        </ul>
+            ))}
+          </ul>
+        ) : (
+          <LanguageLoader />
+        )}
       </div>
     </div>
   );
