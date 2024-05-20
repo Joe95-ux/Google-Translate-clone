@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TextBox from "./components/TextBox";
 import Documents from "./components/Documents";
 import Button from "./components/Button";
@@ -31,6 +31,7 @@ const App = () => {
   const [dictionary, setDictionary] = useState([]);
   const [detectedLang, setDetectedLang] = useState("");
   const [translations, setTranslations] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [savedTranslations, setSavedTranslations] = useState([]);
   const [showDelete, setShowDelete] = useState(false);
   const historyModal = useHistory();
@@ -58,31 +59,48 @@ const App = () => {
     },
   };
 
-  const getLanguages = async () => {
+  const getLanguages = useCallback(async () => {
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/languages`
       );
       if (response.data) {
         setLanguages(response.data);
+        setIsFetching(false);
       }
       
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error("An error occurred while fetching languages. Please try again later."); 
+      toast.error("An error occurred while fetching languages. Refetching data...");
       
     }
-  };
+  }, []) 
 
   useEffect(() => {
-    getLanguages();
+    getLanguages(); // Initial fetch attempt
+
+    // Polling mechanism: retry every 5 seconds
+    const intervalId = setInterval(() => {
+      if (isFetching) {
+        getLanguages();
+      }
+    }, 5000); 
+
+    return () => clearInterval(intervalId); 
+  }, [getLanguages, isFetching]);
+
+  useEffect(() => {
     const data = localStorage.getItem("translations");
     const parsedData = JSON.parse(data) || [];
-    if (parsedData) {
+    if (parsedData.length > 0) {
+      console.log('Setting translations from localStorage:', parsedData);
       setTranslations(parsedData);
     }
     const saved = JSON.parse(localStorage.getItem("savedTranslations")) || [];
-    setSavedTranslations(saved);
+    if (saved.length > 0) {
+      console.log('Setting saved translations from localStorage:', saved);
+      setSavedTranslations(saved);
+    }
   }, []);
 
   useEffect(() => {

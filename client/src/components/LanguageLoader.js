@@ -19,7 +19,7 @@ const LanguageLoader = () => {
             repeatType: "loop",
           }}
           style={{
-            width: "250px",
+            width: "25%",
             height: "26px",
             margin: "5px",
             borderRadius: "5px",
