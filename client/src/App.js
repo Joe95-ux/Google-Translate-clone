@@ -37,6 +37,7 @@ const App = () => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
   const shareModal = useShareModal();
+  const [smallScreenWidth, setSmallScreenWidth] = useState(window.innerWidth);
 
   const [otherInputLangs, setOtherInputLangs] = useState([
     "Detect language",
@@ -59,6 +60,18 @@ const App = () => {
     },
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      setSmallScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const getLanguages = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -68,13 +81,13 @@ const App = () => {
         setLanguages(response.data);
         setIsFetching(false);
       }
-      
     } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error("An error occurred while fetching languages. Refetching data...");
-      
+      console.error("Error fetching data:", error);
+      toast.error(
+        "An error occurred while fetching languages. Refetching data..."
+      );
     }
-  }, []) 
+  }, []);
 
   useEffect(() => {
     getLanguages(); // Initial fetch attempt
@@ -84,21 +97,21 @@ const App = () => {
       if (isFetching) {
         getLanguages();
       }
-    }, 5000); 
+    }, 5000);
 
-    return () => clearInterval(intervalId); 
+    return () => clearInterval(intervalId);
   }, [getLanguages, isFetching]);
 
   useEffect(() => {
     const data = localStorage.getItem("translations");
     const parsedData = JSON.parse(data) || [];
     if (parsedData.length > 0) {
-      console.log('Setting translations from localStorage:', parsedData);
+      console.log("Setting translations from localStorage:", parsedData);
       setTranslations(parsedData);
     }
     const saved = JSON.parse(localStorage.getItem("savedTranslations")) || [];
     if (saved.length > 0) {
-      console.log('Setting saved translations from localStorage:', saved);
+      console.log("Setting saved translations from localStorage:", saved);
       setSavedTranslations(saved);
     }
   }, []);
@@ -131,13 +144,12 @@ const App = () => {
                 : [...prevLangs.slice(0, -1), inputLanguage];
             });
           }
-          
         } catch (error) {
-          console.error('Error fetching data:', error);
-          toast.error("An error occurred while detecting the language. Please try again later.");
-          
+          console.error("Error fetching data:", error);
+          toast.error(
+            "An error occurred while detecting the language. Please try again later."
+          );
         }
-        
       };
 
       detectLanguage();
@@ -326,7 +338,9 @@ const App = () => {
       return response.data.url;
     } catch (error) {
       console.error("Error:", error);
-      toast.error("An error occured while synthesizing speech. Please try again")
+      toast.error(
+        "An error occured while synthesizing speech. Please try again"
+      );
     }
   };
 
@@ -350,7 +364,7 @@ const App = () => {
       <Header activeType={activeType} setActiveType={setActiveType} />
       <div className="app">
         {!showModal && (
-          <div style={{ width: "100%", height:"100%" }}>
+          <div style={{ width: "100%", height: "100%" }}>
             <div className="compose-box">
               <ComposeHeader
                 setShowModal={setShowModal}
@@ -387,28 +401,33 @@ const App = () => {
                       text={textToTranslate}
                       setDic={setDictionary}
                     />
-                    <TextBox
-                      variant="output"
-                      setShowModal={setShowModal}
-                      selectedLanguage={outputLanguage}
-                      setTextToTranslate={setTextToTranslate}
-                      translatedText={
-                        isLoading ? "Translating..." : translatedText
-                      }
-                      showCopy={showCopy}
-                      setShowCopy={setShowCopy}
-                      showDelete={showDelete}
-                      setShowDelete={setShowDelete}
-                      onTranslate={translate}
-                      detectLanguage={detectedLang}
-                      synthesizeSpeech={synthesizeSpeech}
-                      text={translatedText}
-                    />
-                    <div className="button-container">
-                      {textToTranslate !== "" && (
-                        <Button disable={isLoading} translate={translate} />
-                      )}
-                    </div>
+                    {(smallScreenWidth > 600 || translatedText) && (
+                      <TextBox
+                        variant="output"
+                        setShowModal={setShowModal}
+                        selectedLanguage={outputLanguage}
+                        setTextToTranslate={setTextToTranslate}
+                        translatedText={
+                          isLoading ? "Translating..." : translatedText
+                        }
+                        showCopy={showCopy}
+                        setShowCopy={setShowCopy}
+                        showDelete={showDelete}
+                        setShowDelete={setShowDelete}
+                        onTranslate={translate}
+                        detectLanguage={detectedLang}
+                        synthesizeSpeech={synthesizeSpeech}
+                        text={translatedText}
+                      />
+                    )}
+
+                    {(smallScreenWidth > 600 || translatedText) && (
+                      <div className="button-container">
+                        {textToTranslate !== "" && (
+                          <Button disable={isLoading} translate={translate} />
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
                 {activeType === "Documents" && (
