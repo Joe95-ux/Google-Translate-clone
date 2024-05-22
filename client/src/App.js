@@ -364,7 +364,7 @@ const App = () => {
       <Header activeType={activeType} setActiveType={setActiveType} />
       <div className="app">
         {!showModal && (
-          <div style={{ width: "100%", height: "100%" }}>
+          <div style={{ width: "100%", height: activeType === "Documents" ? "100%" : "" }}>
             <div className="compose-box">
               <ComposeHeader
                 setShowModal={setShowModal}
@@ -421,7 +421,7 @@ const App = () => {
                       />
                     )}
 
-                    {(smallScreenWidth > 600 || translatedText) && (
+                    {(smallScreenWidth > 600 || translatedText || textToTranslate) && (
                       <div className="button-container">
                         {textToTranslate !== "" && (
                           <Button disable={isLoading} translate={translate} />
