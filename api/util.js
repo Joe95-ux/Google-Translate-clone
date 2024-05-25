@@ -21,7 +21,7 @@ export const lanOptions = {
 
 export async function getLanguageShort(language) {
   let lan;
-  if (language === "Detect language") {
+  if (language === "Detect language" || language === "" || language === null || language === "unknown") {
     lan = "Automatic";
   } else if (language.includes("Detected")) {
     lan = language.split(" - ")[0];
