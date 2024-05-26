@@ -364,7 +364,7 @@ const App = () => {
       <Header activeType={activeType} setActiveType={setActiveType} />
       <div className="app">
         {!showModal && (
-          <div style={{ width: "100%", height: activeType === "Documents" ? "100%" : "" }}>
+          <div style={{ width: "100%", height: activeType === "Text" ? "100%" : "" }}>
             <div className="compose-box">
               <ComposeHeader
                 setShowModal={setShowModal}

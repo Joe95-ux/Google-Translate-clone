@@ -6,6 +6,7 @@ import { PassThrough } from 'stream';
 import pdf from 'pdfjs';
 import mammoth from 'mammoth';
 import htmlDocx from 'html-docx-js';
+import pdf2html from 'pdf2html';
 
 export const headers = {
   "content-type": "application/x-www-form-urlencoded",
@@ -95,15 +96,15 @@ export async function generateTranslatedPdf(translatedText) {
 // Convert .docx to HTML
 export async function convertDocxToHTML(docxFilePath) {
   try {
-    const { value } = await mammoth.convertToHtml({ path: docxFilePath });
+    const { value } = await mammoth.convertToHtml({ path: docxFilePath, includeDefaultStyleMap: true });
     return value;
-} catch (error) {
+  } catch (error) {
     throw new Error(`Error converting .docx to HTML: ${error.message}`);
-}
+  }
 }
 
 // Convert .pdf to HTML
-export async function convertPdfToHTML(pdfFilePath) {
+export async function converttPdfToHTML(pdfFilePath) {
   try {
       // Use pdf.js or other library to extract text and convert to HTML
       // Example implementation
@@ -115,6 +116,18 @@ export async function convertPdfToHTML(pdfFilePath) {
   } catch (error) {
       throw new Error(`Error converting .pdf to HTML: ${error.message}`);
   }
+}
+
+export async function convertPdfToHTML(pdfFilePath) {
+  return new Promise((resolve, reject) => {
+    pdf2html.pdf2html(pdfFilePath, (err, html) => {
+      if (err) {
+        reject(`Conversion error: ${err}`);
+      } else {
+        resolve(html);
+      }
+    });
+  });
 }
 
 // Convert .pptx to HTML
@@ -130,6 +143,7 @@ export async function convertXlsxToHTML(xlsxFilePath) {
 
 
 // Convert HTML to .docx
+
 export async function convertHTMLToDocx(htmlContent) {
   try {
     const blob = htmlDocx.asBlob(htmlContent);
