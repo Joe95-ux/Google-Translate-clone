@@ -14,6 +14,7 @@ import { translateText } from "./controllers/translateText.js";
 import {
   translateDoc,
   lanOptions,
+  headers,
   generateTranslatedPdf,
   convertDocxToHTML,
   convertHTMLToDocx,
