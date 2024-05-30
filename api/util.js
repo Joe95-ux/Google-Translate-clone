@@ -3,10 +3,9 @@ import dotenv from "dotenv";
 import axios from "axios";
 import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
-import pdf from 'pdfjs';
+import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import htmlDocx from 'html-docx-js';
-import pdf2html from 'pdf2html';
 
 export const headers = {
   "content-type": "application/x-www-form-urlencoded",
@@ -104,30 +103,16 @@ export async function convertDocxToHTML(docxFilePath) {
 }
 
 // Convert .pdf to HTML
-export async function converttPdfToHTML(pdfFilePath) {
-  try {
-      // Use pdf.js or other library to extract text and convert to HTML
-      // Example implementation
-      const pdfData = await pdf.readFile(pdfFilePath);
-      const text = pdfData.getTextContent();
-      // Convert text to HTML
-      const htmlContent = text.map(item => `<p>${item.str}</p>`).join('');
-      return htmlContent;
-  } catch (error) {
-      throw new Error(`Error converting .pdf to HTML: ${error.message}`);
-  }
-}
-
 export async function convertPdfToHTML(pdfFilePath) {
-  return new Promise((resolve, reject) => {
-    pdf2html.pdf2html(pdfFilePath, (err, html) => {
-      if (err) {
-        reject(`Conversion error: ${err}`);
-      } else {
-        resolve(html);
-      }
-    });
-  });
+  try {
+    const buffer = await fsPromises.readFile(pdfFilePath);
+    const data = await pdf(buffer);
+    // Convert extracted text to HTML. Here, we simply wrap text in <p> tags
+    const htmlContent = data.text.split('\n').map(line => `<p>${line}</p>`).join('');
+    return htmlContent;
+  } catch (error) {
+    throw new Error(`Error converting .pdf to HTML: ${error.message}`);
+  }
 }
 
 // Convert .pptx to HTML
@@ -155,31 +140,52 @@ export async function convertHTMLToDocx(htmlContent) {
 }
 
 // Convert HTML to .pdf
+// export async function convertHTMLToPdf(htmlContent) {
+//   try {
+//     return new Promise((resolve, reject) => {
+//       const buffers = [];
+//       const doc = new PDFDocument();
+      
+//       // Collect PDF content into buffers array
+//       doc.on('data', buffers.push.bind(buffers));
+//       doc.on('end', () => {
+//         const pdfData = Buffer.concat(buffers);
+//         resolve(pdfData);
+//       });
+
+//       // Write HTML content to PDF document
+//       doc.text(htmlContent);
+
+//       // End the document
+//       doc.end();
+//     });
+//   } catch (error) {
+//     throw new Error(`Error converting HTML to .pdf: ${error.message}`);
+//   }
+// }
+
+
+// Convert HTML to .pptx
+
 export async function convertHTMLToPdf(htmlContent) {
   try {
     return new Promise((resolve, reject) => {
       const buffers = [];
       const doc = new PDFDocument();
       
-      // Collect PDF content into buffers array
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => {
         const pdfData = Buffer.concat(buffers);
         resolve(pdfData);
       });
 
-      // Write HTML content to PDF document
       doc.text(htmlContent);
-
-      // End the document
       doc.end();
     });
   } catch (error) {
     throw new Error(`Error converting HTML to .pdf: ${error.message}`);
   }
 }
-
-// Convert HTML to .pptx
 export async function convertHTMLToPptx(htmlContent) {
   // Implementation using pptxgenjs or other library
 }

@@ -93,6 +93,69 @@ app.get("/languages", async (req, res) => {
 
 //translate Doc
 
+// app.post("/translate-document", upload.single("file"), async (req, res) => {
+//   try {
+//     const { fromLanguage, toLanguage } = req.body;
+//     const file = req.file;
+//     const filePath = file.path;
+//     const fileExtension = path.extname(file.originalname).toLowerCase();
+
+//     let htmlContent = "";
+//     switch (fileExtension) {
+//       case '.pdf':
+//         htmlContent = await convertPdfToHTML(filePath);
+//         break;
+//       case '.docx':
+//         htmlContent = await convertDocxToHTML(filePath);
+//         break;
+//       case '.pptx':
+//         htmlContent = await convertPptxToHTML(filePath);
+//         break;
+//       case '.xlsx':
+//         htmlContent = await convertXlsxToHTML(filePath);
+//         break;
+//       default:
+//         return res.status(400).send('Unsupported file type');
+//     }
+
+//     const translatedHtml = await translateDoc(htmlContent, fromLanguage, toLanguage);
+
+//     let translatedDocument;
+//     let fileName;
+//     let contentType;
+//     switch (fileExtension) {
+//       case '.docx':
+//         translatedDocument = await convertHTMLToDocx(translatedHtml);
+//         fileName = 'translated.docx';
+//         contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+//         break;
+//       case '.pdf':
+//         translatedDocument = await convertHTMLToPdf(translatedHtml);
+//         fileName = 'translated.pdf';
+//         contentType = 'application/pdf';
+//         break;
+//       case '.pptx':
+//         translatedDocument = await convertHTMLToPptx(translatedHtml);
+//         fileName = 'translated.pptx';
+//         contentType = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+//         break;
+//       case '.xlsx':
+//         translatedDocument = await convertHTMLToXlsx(translatedHtml);
+//         fileName = 'translated.xlsx';
+//         contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+//         break;
+//     }
+
+//     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+//     res.setHeader('Content-Type', contentType);
+//     res.send(translatedDocument);
+
+//   } catch (error) {
+//     console.error('Error translating document:', error);
+//     res.status(500).send('An error occurred while translating the document.');
+//   }
+// });
+
 app.post("/translate-document", upload.single("file"), async (req, res) => {
   try {
     let { fromLanguage, toLanguage } = req.body;
@@ -149,56 +212,56 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
 //translate text
 app.get("/translation", translateText);
 
-// app.get('/detect-language', async (req, res) => {
-//   const {textToTranslate} = req.query;
-//   const encodedParams = new URLSearchParams();
-//   encodedParams.set('text', textToTranslate);
-//   const options = {
-//     method: 'POST',
-//     url: 'https://google-translate113.p.rapidapi.com/api/v1/translator/detect-language',
-//     headers:headers,
-//     data: encodedParams
-//   }
+app.get('/detect-language', async (req, res) => {
+  const {textToTranslate} = req.query;
+  const encodedParams = new URLSearchParams();
+  encodedParams.set('text', textToTranslate);
+  const options = {
+    method: 'POST',
+    url: 'https://google-translate113.p.rapidapi.com/api/v1/translator/detect-language',
+    headers:headers,
+    data: encodedParams
+  }
 
-//   try {
-//     const response = await axios.request(options);
-//     res.status(200).json(response.data.source_lang);
-//   } catch (err) {
-//     console.log(err)
-//     res.status(500).json({ message: err })
-//   }
-// })
+  try {
+    const response = await axios.request(options);
+    res.status(200).json(response.data.source_lang);
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({ message: err })
+  }
+})
 
 // open ai requests
 
-app.get("/detect-language", async (req, res) => {
-  try {
-    const { textToTranslate } = req.query;
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a language detector. Once a text is provided, detect the language and send only the language as response; for example English.",
-        },
-        {
-          role: "user",
-          content: textToTranslate,
-        },
-      ],
-      temperature: 1,
-      max_tokens: 256,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
-    });
-    res.status(200).json(response.choices[0].message.content);
-  } catch (error) {
-    console.error("error", error);
-    res.status(500).json({ error: error.message });
-  }
-});
+// app.get("/detect-language", async (req, res) => {
+//   try {
+//     const { textToTranslate } = req.query;
+//     const response = await openai.chat.completions.create({
+//       model: "gpt-4o",
+//       messages: [
+//         {
+//           role: "system",
+//           content:
+//             "You are a language detector. Once a text is provided, detect the language and send only the language as response; for example English.",
+//         },
+//         {
+//           role: "user",
+//           content: textToTranslate,
+//         },
+//       ],
+//       temperature: 1,
+//       max_tokens: 256,
+//       top_p: 1,
+//       frequency_penalty: 0,
+//       presence_penalty: 0,
+//     });
+//     res.status(200).json(response.choices[0].message.content);
+//   } catch (error) {
+//     console.error("error", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 app.post("/synthesize-speech", async (req, res) => {
   const { input } = req.body;
