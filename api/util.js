@@ -6,6 +6,7 @@ import { PassThrough } from 'stream';
 import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import htmlDocx from 'html-docx-js';
+import { Document, Packer, Paragraph, TextRun} from "docx";
 
 export const headers = {
   "content-type": "application/x-www-form-urlencoded",
@@ -71,7 +72,7 @@ export const translateDoc = async (
 };
 
 
-
+// generate pdf from text
 export async function generateTranslatedPdf(translatedText) {
   return new Promise((resolve, reject) => {
     // Create a writable stream using pdfkit
@@ -89,6 +90,34 @@ export async function generateTranslatedPdf(translatedText) {
     // Resolve the promise with the readable stream
     resolve(stream);
   });
+}
+
+// generate word doc from text
+
+export async function generateWordDocument(text) {
+  try {
+    // Create a new Document
+    const doc = new Document();
+
+    // Add text to the document
+    const paragraph = new Paragraph({
+      children: [
+        new TextRun(text),
+      ],
+    });
+
+    doc.addSection({
+      children: [paragraph],
+    });
+
+    // Generate the Word document buffer
+    const buffer = await Packer.toBuffer(doc);
+
+    return buffer;
+  } catch (error) {
+    console.error('Error generating document:', error);
+    throw error;
+  }
 }
 
 

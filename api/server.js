@@ -16,6 +16,7 @@ import {
   lanOptions,
   headers,
   generateTranslatedPdf,
+  generateWordDocument,
   convertDocxToHTML,
   convertHTMLToDocx,
   convertHTMLToPdf,
@@ -157,6 +158,59 @@ app.get("/languages", async (req, res) => {
 //   }
 // });
 
+// app.post("/translate-document", upload.single("file"), async (req, res) => {
+//   try {
+//     let { fromLanguage, toLanguage } = req.body;
+
+//     const file = req.file;
+//     const filePath = file.path;
+
+//     const extractTextFromDocx = async (filePath) => {
+//       const buffer = await fsPromises.readFile(filePath);
+//       const { value } = await extractRawText({ buffer });
+//       return value;
+//     };
+
+//     const extractTextFromPdf = async (filePath) => {
+//       const buffer = await fsPromises.readFile(filePath);
+//       const data = await pdf(buffer);
+//       return data.text;
+//     };
+
+//     // Extract text based on file type
+//     let extractedText = "";
+//     const fileExtension = path.extname(file.originalname).toLowerCase();
+//     if (fileExtension === ".pdf") {
+//       extractedText = await extractTextFromPdf(filePath);
+//     } else if (fileExtension === ".docx") {
+//       extractedText = await extractTextFromDocx(filePath);
+//     } else if (fileExtension === ".pptx") {
+//       // Extract text from PPTX (you may need a library like pptx-extractor)
+//     } else if (fileExtension === ".xlsx") {
+//       // Extract text from XLSX (you may need a library like xlsx)
+//     }
+
+//     // Translate the extracted text
+//     const translatedText = await translateDoc(
+//       extractedText,
+//       fromLanguage,
+//       toLanguage
+//     );
+
+//     // Generate a translated PDF document
+//     const translatedPdfDoc = await generateTranslatedPdf(translatedText);
+
+//     // Set response headers for PDF download
+//     res.setHeader('Content-Type', 'application/pdf');
+
+//     // Pipe the PDF stream to the response
+//     translatedPdfDoc.pipe(res);
+//   } catch (error) {
+//     console.error('Error translating document:', error);
+//     res.status(500).send('An error occurred while translating the document.');
+//   }
+// });
+
 app.post("/translate-document", upload.single("file"), async (req, res) => {
   try {
     let { fromLanguage, toLanguage } = req.body;
@@ -183,27 +237,31 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
       extractedText = await extractTextFromPdf(filePath);
     } else if (fileExtension === ".docx") {
       extractedText = await extractTextFromDocx(filePath);
-    } else if (fileExtension === ".pptx") {
-      // Extract text from PPTX (you may need a library like pptx-extractor)
-    } else if (fileExtension === ".xlsx") {
-      // Extract text from XLSX (you may need a library like xlsx)
+    } else {
+      return res.status(400).send('Unsupported file type');
     }
 
     // Translate the extracted text
-    const translatedText = await translateDoc(
-      extractedText,
-      fromLanguage,
-      toLanguage
-    );
+    const translatedText = await translateDoc(extractedText, fromLanguage, toLanguage);
 
-    // Generate a translated PDF document
-    const translatedPdfDoc = await generateTranslatedPdf(translatedText);
+    // Generate the translated document based on the original file type
+    let translatedDocument;
+    let contentType;
+    if (fileExtension === ".pdf") {
+      translatedDocument = await generateTranslatedPdf(translatedText);
+      contentType = 'application/pdf';
+    } else if (fileExtension === ".docx") {
+      translatedDocument = await generateWordDocument(translatedText);
+      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    } else {
+      return res.status(400).send('Unsupported file type');
+    }
 
-    // Set response headers for PDF download
-    res.setHeader('Content-Type', 'application/pdf');
+    // Set response headers for document download
+    res.setHeader('Content-Disposition', `attachment; filename=translated${fileExtension}`);
+    res.setHeader('Content-Type', contentType);
+    res.send(translatedDocument);
 
-    // Pipe the PDF stream to the response
-    translatedPdfDoc.pipe(res);
   } catch (error) {
     console.error('Error translating document:', error);
     res.status(500).send('An error occurred while translating the document.');
