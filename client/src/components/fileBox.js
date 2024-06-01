@@ -13,9 +13,8 @@ const FileBox = ({
   translateDoc,
   loading,
 }) => {
-
   const openTranslatedFile = () => {
-    window.open(filePath, '_blank');
+    window.open(filePath, "_blank");
   };
   return (
     <div className="filebox-wrapper">
@@ -53,12 +52,19 @@ const FileBox = ({
               style={{ marginRight: "1rem" }}
             >
               <FiDownload size={18} style={{ marginRight: "12px" }} />{" "}
-              <a href={filePath} download="translated_document.pdf">Download translation</a>
+              <a href={filePath} download={fileName}>
+                Download translation
+              </a>
             </button>
-            <button onClick={openTranslatedFile} className="translate-doc-btn">
-              <MdOutlineOpenInNew size={18} style={{ marginRight: "12px" }} />
-              <span>Open translation</span>
-            </button>
+            {fileName.includes(".pdf") && (
+              <button
+                onClick={openTranslatedFile}
+                className="translate-doc-btn"
+              >
+                <MdOutlineOpenInNew size={18} style={{ marginRight: "12px" }} />
+                <span>Open translation</span>
+              </button>
+            )}
           </>
         )}
       </div>

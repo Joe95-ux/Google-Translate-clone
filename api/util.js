@@ -1,12 +1,25 @@
 dotenv.config();
 import dotenv from "dotenv";
 import axios from "axios";
-import PDFDocument from 'pdfkit';
-import { PassThrough } from 'stream';
-import pdf from 'pdf-parse';
-import mammoth from 'mammoth';
-import htmlDocx from 'html-docx-js';
-import { Document, Packer, Paragraph, TextRun} from "docx";
+import PDFDocument from "pdfkit";
+import { PassThrough } from "stream";
+import pdf from "pdf-parse";
+import fs from "fs";
+import path from "path";
+import mammoth from "mammoth";
+import htmlDocx from "html-docx-js";
+import htmlToDocx from "html-to-docx";
+import { exec } from "child_process";
+import html_to_pdf from "html-pdf-node";
+import { promisify } from "util";
+const readdir = promisify(fs.readdir);
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+import { Document, Packer, Paragraph, TabStopPosition, TextRun } from "docx";
+import ConvertAPI from "convertapi";
+const convertapi = new ConvertAPI(process.env.CONVERT_API_SECRET, {
+  conversionTimeout: 60,
+});
 
 export const headers = {
   "content-type": "application/x-www-form-urlencoded",
@@ -22,14 +35,19 @@ export const lanOptions = {
 
 export async function getLanguageShort(language) {
   let lan;
-  if (language === "Detect language" || language === "" || language === null || language === "unknown") {
+  if (
+    language === "Detect language" ||
+    language === "" ||
+    language === null ||
+    language === "unknown"
+  ) {
     lan = "Automatic";
   } else if (language.includes("Detected")) {
     lan = language.split(" - ")[0];
   } else {
     lan = language;
   }
-  
+
   try {
     const response = await axios.request(lanOptions);
     const data = response.data;
@@ -56,13 +74,13 @@ export const translateDoc = async (
     data: new URLSearchParams({
       from: fromLang,
       to: toLang,
-      text: textToTranslate,
+      html: textToTranslate,
     }),
   };
 
   try {
     const response = await axios.request(
-      "https://google-translate113.p.rapidapi.com/api/v1/translator/text",
+      "https://google-translate113.p.rapidapi.com/api/v1/translator/html",
       options
     );
     return response.data.trans;
@@ -71,13 +89,12 @@ export const translateDoc = async (
   }
 };
 
-
 // generate pdf from text
 export async function generateTranslatedPdf(translatedText) {
   return new Promise((resolve, reject) => {
     // Create a writable stream using pdfkit
     const doc = new PDFDocument();
-    
+
     // Create a writable stream to capture the PDF content
     const stream = doc.pipe(new PassThrough());
 
@@ -94,37 +111,51 @@ export async function generateTranslatedPdf(translatedText) {
 
 // generate word doc from text
 
-export async function generateWordDocument(text) {
+export const generateWordDocuments = async (text) => {
   try {
-    // Create a new Document
-    const doc = new Document();
-
-    // Add text to the document
-    const paragraph = new Paragraph({
-      children: [
-        new TextRun(text),
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [new TextRun(text)],
+            }),
+          ],
+        },
       ],
     });
 
-    doc.addSection({
-      children: [paragraph],
-    });
-
-    // Generate the Word document buffer
-    const buffer = await Packer.toBuffer(doc);
-
-    return buffer;
+    const stream = new PassThrough();
+    Packer.toStream(doc).pipe(stream);
+    return stream;
   } catch (error) {
-    console.error('Error generating document:', error);
+    console.error("Error generating document:", error);
     throw error;
   }
-}
+};
 
+export const generateWordDocument = async (htmlContent) => {
+  try {
+    const docxBuffer = await htmlToDocx(htmlContent);
+
+    const stream = new PassThrough();
+    stream.end(docxBuffer);
+
+    return stream;
+  } catch (error) {
+    console.error("Error generating document:", error);
+    throw error;
+  }
+};
 
 // Convert .docx to HTML
 export async function convertDocxToHTML(docxFilePath) {
   try {
-    const { value } = await mammoth.convertToHtml({ path: docxFilePath, includeDefaultStyleMap: true });
+    const { value } = await mammoth.convertToHtml({
+      path: docxFilePath,
+      includeDefaultStyleMap: true,
+    });
     return value;
   } catch (error) {
     throw new Error(`Error converting .docx to HTML: ${error.message}`);
@@ -132,17 +163,79 @@ export async function convertDocxToHTML(docxFilePath) {
 }
 
 // Convert .pdf to HTML
-export async function convertPdfToHTML(pdfFilePath) {
+export const convertPdfToHTMLs = async (pdfFilePath) => {
+  return new Promise((resolve, reject) => {
+    const htmlDir = path.dirname(pdfFilePath);
+    const baseName = path.basename(pdfFilePath, ".pdf");
+
+    exec(`pdftohtml -s -c ${pdfFilePath}`, async (error, stdout, stderr) => {
+      if (error) {
+        console.error("Error converting PDF to HTML:", stderr);
+        return reject(error);
+      }
+
+      try {
+        const files = await fs.promises.readdir(htmlDir);
+        const htmlFile = files.find(
+          (file) => file.startsWith(baseName) && file.endsWith(".html")
+        );
+
+        if (!htmlFile) {
+          throw new Error("Converted HTML file not found");
+        }
+
+        const htmlFilePath = path.join(htmlDir, htmlFile);
+        let htmlContent = await fs.promises.readFile(htmlFilePath, "utf8");
+
+        // Update image source paths to use relative paths
+        const updatedHtmlContent = htmlContent.replace(
+          /src="(.*?)"/g,
+          (match, p1) => {
+            const imageName = path.basename(p1);
+            return `src="./${imageName}"`;
+          }
+        );
+
+        // Write the updated HTML content back to the HTML file
+        await fs.promises.writeFile(htmlFilePath, updatedHtmlContent, "utf8");
+
+        resolve(updatedHtmlContent);
+      } catch (err) {
+        console.error("Error reading directory or HTML file:", err);
+        reject(err);
+      }
+    });
+  });
+};
+
+export const convertPdfToHTML = async (pdfFilePath) => {
+  const htmlDir = path.dirname(pdfFilePath);
+  const baseName = path.basename(pdfFilePath, ".pdf");
   try {
-    const buffer = await fsPromises.readFile(pdfFilePath);
-    const data = await pdf(buffer);
-    // Convert extracted text to HTML. Here, we simply wrap text in <p> tags
-    const htmlContent = data.text.split('\n').map(line => `<p>${line}</p>`).join('');
+    const result = await convertapi.convert(
+      "html",
+      { File: pdfFilePath },
+      "pdf"
+    );
+    const docs = await result.saveFiles(htmlDir);
+    console.log("Files saved: " + docs);
+    const files = await fs.promises.readdir(htmlDir);
+    const htmlFile = files.find(
+      (file) => file.startsWith(baseName) && file.endsWith(".html")
+    );
+
+    if (!htmlFile) {
+      throw new Error("Converted HTML file not found");
+    }
+    const htmlFilePath = path.join(htmlDir, htmlFile);
+    let htmlContent = await fs.promises.readFile(htmlFilePath, "utf8");
+
     return htmlContent;
   } catch (error) {
-    throw new Error(`Error converting .pdf to HTML: ${error.message}`);
+    console.log("Error", error);
   }
-}
+};
+
 
 // Convert .pptx to HTML
 export async function convertPptxToHTML(pptxFilePath) {
@@ -153,8 +246,6 @@ export async function convertPptxToHTML(pptxFilePath) {
 export async function convertXlsxToHTML(xlsxFilePath) {
   // Implementation using xlsx-populate or other library
 }
-
-
 
 // Convert HTML to .docx
 
@@ -169,52 +260,46 @@ export async function convertHTMLToDocx(htmlContent) {
 }
 
 // Convert HTML to .pdf
+export const convertHTMLToPdf = async (htmlContent) => {
+  try {
+    const file = { content: htmlContent };
+    const options = {
+      format: "A4",
+      path: "output.pdf",
+    };
+    const pdfBuffer = await html_to_pdf.generatePdf(file, options);
+
+    const stream = new PassThrough();
+    stream.end(pdfBuffer);
+
+    return stream;
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    throw error;
+  }
+};
+
+// Convert HTML to .pptx
+
 // export async function convertHTMLToPdf(htmlContent) {
 //   try {
 //     return new Promise((resolve, reject) => {
 //       const buffers = [];
 //       const doc = new PDFDocument();
-      
-//       // Collect PDF content into buffers array
+
 //       doc.on('data', buffers.push.bind(buffers));
 //       doc.on('end', () => {
 //         const pdfData = Buffer.concat(buffers);
 //         resolve(pdfData);
 //       });
 
-//       // Write HTML content to PDF document
 //       doc.text(htmlContent);
-
-//       // End the document
 //       doc.end();
 //     });
 //   } catch (error) {
 //     throw new Error(`Error converting HTML to .pdf: ${error.message}`);
 //   }
 // }
-
-
-// Convert HTML to .pptx
-
-export async function convertHTMLToPdf(htmlContent) {
-  try {
-    return new Promise((resolve, reject) => {
-      const buffers = [];
-      const doc = new PDFDocument();
-      
-      doc.on('data', buffers.push.bind(buffers));
-      doc.on('end', () => {
-        const pdfData = Buffer.concat(buffers);
-        resolve(pdfData);
-      });
-
-      doc.text(htmlContent);
-      doc.end();
-    });
-  } catch (error) {
-    throw new Error(`Error converting HTML to .pdf: ${error.message}`);
-  }
-}
 export async function convertHTMLToPptx(htmlContent) {
   // Implementation using pptxgenjs or other library
 }

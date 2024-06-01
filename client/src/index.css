@@ -79,6 +79,7 @@ h3, h4, p{
   display: flex;
   height: 100%;
   position: relative;
+  min-height: 270px;
 }
 
 
@@ -200,6 +201,7 @@ a{
   width: 640px;
   max-width: 100%;
   margin: auto;
+  padding: 0 1rem;
   display: var(--display-flex);
   flex-direction: var(--flex-column);
 }

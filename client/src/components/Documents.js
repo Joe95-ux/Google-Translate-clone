@@ -49,22 +49,31 @@ const Documents = ({ fromLanguage, toLanguage }) => {
   const translateDoc = async () => {
     setLoading(true);
     try {
-
       const response = await axios.post(
         `${process.env.REACT_APP_API_ENDPOINT}/translate-document`,
         formData, {
           responseType: 'blob', // Receive binary data
         }
       );
-      const downloadUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+  
+      // Determine the content type from the response headers
+      const contentType = response.headers['content-type'];
+  
+      // Create a Blob object with the appropriate MIME type
+      const blob = new Blob([response.data], { type: contentType });
+  
+      // Create a download URL
+      const downloadUrl = window.URL.createObjectURL(blob);
+  
       setTranslatedDocument(downloadUrl);
       setLoading(false);
     } catch (error) {
       console.error("Error translating document:", error);
-      toast.error("An erro occured while translating the document. Please try agin later.")
+      toast.error("An error occurred while translating the document. Please try again later.");
       setLoading(false);
     }
   };
+  
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
