@@ -12,6 +12,7 @@ import htmlToDocx from "html-to-docx";
 import { exec } from "child_process";
 import html_to_pdf from "html-pdf-node";
 import { promisify } from "util";
+import {JSDOM} from "jsdom";
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -230,7 +231,13 @@ export const convertPdfToHTML = async (pdfFilePath) => {
     const htmlFilePath = path.join(htmlDir, htmlFile);
     let htmlContent = await fs.promises.readFile(htmlFilePath, "utf8");
 
-    return htmlContent;
+    const dom = new JSDOM(htmlContent);
+    const { document } = dom.window;
+
+    // Extract the content inside the body tag
+    const bodyContent = document.body.innerHTML;
+
+    return {document, bodyContent, type:"pdf"};
   } catch (error) {
     console.log("Error", error);
   }
