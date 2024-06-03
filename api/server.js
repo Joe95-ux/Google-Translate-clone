@@ -169,7 +169,8 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
     const extractTextFromDocx = async (filePath) => {
       try {
         const { value} = await mammoth.convertToHtml({ path: filePath });
-        return value;
+        const translatedHtml = await translateDoc(value, fromLanguage, toLanguage);
+        return translatedHtml;
       } catch (error) {
         console.error('Error extracting text from DOCX:', error);
         throw error;
@@ -186,15 +187,15 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
     let extractedText = "";
     const fileExtension = path.extname(file.originalname).toLowerCase();
     if (fileExtension === ".pdf") {
-      extractedText = await convertPdfToHTML(filePath);
+      extractedText = await convertPdfToHTML(filePath, fromLanguage, toLanguage);
     } else if (fileExtension.includes(".doc")) {
-      extractedText = await extractTextFromDocx(filePath);
+      extractedText = await extractTextFromDocx(filePath, fromLanguage, toLanguage);
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
     // Translate the extracted text
-    const translatedText = await translateDoc(extractedText, fromLanguage, toLanguage);
+    const translatedText = extractedText;
 
     // Generate the translated document based on the original file type
     let translatedDocument;
