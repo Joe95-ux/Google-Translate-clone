@@ -7,7 +7,6 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { OpenAI } from "openai";
-import mammoth from 'mammoth';
 import pdf from "pdf-parse";
 import { Readable } from "stream";
 import { translateText } from "./controllers/translateText.js";
@@ -17,7 +16,7 @@ import {
   headers,
   generateTranslatedPdf,
   generateWordDocument,
-  convertDocxToHTML,
+  convertDocxToHtml,
   convertHTMLToDocx,
   convertHTMLToPdf,
   convertPdfToHTML,
@@ -166,30 +165,13 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
     const file = req.file;
     const filePath = file.path;
 
-    const extractTextFromDocx = async (filePath) => {
-      try {
-        const { value} = await mammoth.convertToHtml({ path: filePath });
-        const translatedHtml = await translateDoc(value, fromLanguage, toLanguage);
-        return translatedHtml;
-      } catch (error) {
-        console.error('Error extracting text from DOCX:', error);
-        throw error;
-      }
-    };
-
-    const extractTextFromPdf = async (filePath) => {
-      const buffer = await fsPromises.readFile(filePath);
-      const data = await pdf(buffer);
-      return data.text;
-    };
-
     // Extract text based on file type
     let extractedText = "";
     const fileExtension = path.extname(file.originalname).toLowerCase();
     if (fileExtension === ".pdf") {
       extractedText = await convertPdfToHTML(filePath, fromLanguage, toLanguage);
     } else if (fileExtension.includes(".doc")) {
-      extractedText = await extractTextFromDocx(filePath, fromLanguage, toLanguage);
+      extractedText = await convertDocxToHtml(filePath, fromLanguage, toLanguage);
     } else {
       return res.status(400).send('Unsupported file type');
     }

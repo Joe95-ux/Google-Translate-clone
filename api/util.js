@@ -11,6 +11,7 @@ import htmlDocx from "html-docx-js";
 import htmlToDocx from "html-to-docx";
 import { exec } from "child_process";
 import html_to_pdf from "html-pdf-node";
+import puppeteer from "puppeteer";
 import { promisify } from "util";
 import { JSDOM } from "jsdom";
 const readdir = promisify(fs.readdir);
@@ -193,6 +194,22 @@ const processPage = async (pageContent, fromLanguage, toLanguage) => {
   return dom.serialize();
 };
 
+export const convertDocxToHtml = async (filePath, fromLanguage, toLanguage) => {
+  try {
+    const options = {
+      convertUnderline: mammoth.underline.element("em")
+    };
+    const { value} = await mammoth.convertToHtml({ path: filePath }, options);
+    const html = await processPage(value, fromLanguage, toLanguage);
+    
+
+    return html;
+  } catch (error) {
+    console.error('Error extracting text from DOCX:', error);
+    throw error;
+  }
+};
+
 // Function to process the entire HTML document
 const processHTML = async (htmlFilePath, fromLanguage, toLanguage) => {
   try {
@@ -224,7 +241,7 @@ export const convertPdfToHTML = async (
     const htmlDir = path.dirname(pdfFilePath);
     const baseName = path.basename(pdfFilePath, ".pdf");
 
-    exec(`pdftohtml -s -c ${pdfFilePath}`, async (error, stdout, stderr) => {
+    exec(`pdftohtml -s -c -zoom 1.5 -nomerge -wbt 2 ${pdfFilePath}`, async (error, stdout, stderr) => {
       if (error) {
         console.error("Error converting PDF to HTML:", stderr);
         return reject(error);
@@ -350,7 +367,7 @@ export async function convertHTMLToDocx(htmlContent) {
 }
 
 // Convert HTML to .pdf
-export const convertHTMLToPdf = async (htmlContent) => {
+export const convertHTMLToPdfs = async (htmlContent) => {
   try {
     const file = { content: htmlContent };
     const options = {
@@ -366,6 +383,39 @@ export const convertHTMLToPdf = async (htmlContent) => {
     return stream;
   } catch (error) {
     console.error("Error generating PDF:", error);
+    throw error;
+  }
+};
+
+export const convertHTMLToPdf = async (htmlContent) => {
+  try {
+    
+    // Launch a headless browser
+    const browser = await puppeteer.launch();
+
+    // Create a new page
+    const page = await browser.newPage();
+
+    // Set the HTML content and global style to the page
+    await page.setContent(htmlContent, { waitUntil: 'load' });
+
+    // Generate the PDF from the page content
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      preferCSSPageSize: false,
+      scale:1
+    });
+
+    // Close the browser
+    await browser.close();
+
+    // Convert PDF buffer to stream
+    const stream = new PassThrough();
+    stream.end(pdfBuffer);
+
+    return stream;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
     throw error;
   }
 };
