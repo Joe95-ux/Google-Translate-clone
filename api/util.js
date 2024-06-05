@@ -137,163 +137,163 @@ export const generateWordDocuments = async (text) => {
   }
 };
 
-export const generateWordDocument = async (htmlContent) => {
-  try {
-    const docxBuffer = await htmlToDocx(htmlContent);
-
-    const stream = new PassThrough();
-    stream.end(docxBuffer);
-
-    return stream;
-  } catch (error) {
-    console.error("Error generating document:", error);
-    throw error;
-  }
-};
-
-// Convert .docx to HTML
-export async function convertDocxToHTML(docxFilePath) {
-  try {
-    const { value } = await mammoth.convertToHtml({
-      path: docxFilePath,
-      includeDefaultStyleMap: true,
-    });
-    return value;
-  } catch (error) {
-    throw new Error(`Error converting .docx to HTML: ${error.message}`);
-  }
-}
-
 // start of page processing functions
 // Function to process each page individually
-const processPage = async (pageContent, fromLanguage, toLanguage) => {
+const processPage = async (pageContent, fromLanguage, toLanguage, type) => {
   const dom = new JSDOM(pageContent);
   const document = dom.window.document;
 
-  const styleTags = document.querySelectorAll('style');
+  const styleTags = document.querySelectorAll("style");
+  if (styleTags.length) {
+    // For each style tag, process the next div
+    for (const styleTag of styleTags) {
+      const nextDiv = styleTag.nextElementSibling;
+      if (nextDiv && nextDiv.tagName === "DIV") {
+        const divContent = nextDiv.outerHTML;
 
-  // For each style tag, process the next div
-  for (const styleTag of styleTags) {
-    const nextDiv = styleTag.nextElementSibling;
-    if (nextDiv && nextDiv.tagName === 'DIV') {
-      const divContent = nextDiv.outerHTML;
+        // Translate the div content
+        const translatedContent = await translateDoc(
+          divContent,
+          fromLanguage,
+          toLanguage
+        );
 
-      // Translate the div content
-      const translatedContent = await translateDoc(divContent, fromLanguage, toLanguage);
+        // Create a new div to hold the translated content
+        const newDiv = document.createElement("div");
+        newDiv.innerHTML = translatedContent;
 
-      // Create a new div to hold the translated content
-      const newDiv = document.createElement('div');
-      newDiv.innerHTML = translatedContent;
-
-      // Replace the old div with the new translated div
-      nextDiv.replaceWith(newDiv);
+        // Replace the old div with the new translated div
+        nextDiv.replaceWith(newDiv);
+      }
     }
-  }
 
-  // Return the updated page content
-  return dom.serialize();
-};
-
-export const convertDocxToHtml = async (filePath, fromLanguage, toLanguage) => {
-  try {
-    const options = {
-      convertUnderline: mammoth.underline.element("em")
-    };
-    const { value} = await mammoth.convertToHtml({ path: filePath }, options);
-    const html = await processPage(value, fromLanguage, toLanguage);
-    
-
-    return html;
-  } catch (error) {
-    console.error('Error extracting text from DOCX:', error);
-    throw error;
+    // Return the updated page content
+    return dom.serialize();
+  } else {
+    // Translate the div content
+    const translatedContent = await translateDoc(
+      pageContent,
+      fromLanguage,
+      toLanguage
+    );
+    return translatedContent;
   }
 };
 
 // Function to process the entire HTML document
-const processHTML = async (htmlFilePath, fromLanguage, toLanguage) => {
+const processHTML = async (htmlFilePath, fromLanguage, toLanguage, type) => {
   try {
     // Read the HTML file
-    const htmlContent = await fs.promises.readFile(htmlFilePath, 'utf8');
+    const htmlContent = await fs.promises.readFile(htmlFilePath, "utf8");
 
     // Process each page individually
-    const processedPages = await processPage(htmlContent, fromLanguage, toLanguage);
+    const processedPages = await processPage(
+      htmlContent,
+      fromLanguage,
+      toLanguage,
+      type
+    );
 
     // Write the updated HTML content back to the file or return it
-    await fs.promises.writeFile(htmlFilePath, processedPages, 'utf8');
+    await fs.promises.writeFile(htmlFilePath, processedPages, "utf8");
 
     return processedPages;
   } catch (error) {
-    console.error('Error processing HTML:', error);
+    console.error("Error processing HTML:", error);
     throw error;
   }
 };
 
 // end of page processing functions
 
-// Convert .pdf to HTML
-export const convertPdfToHTML = async (
+// Convert .docx to HTML
+
+export const convertDocxToHtmlz = async (
+  filePath,
+  fromLanguage,
+  toLanguage
+) => {
+  try {
+    const options = {
+      convertUnderline: mammoth.underline.element("em"),
+      includeDefaultStyleMap: true,
+    };
+    const { value } = await mammoth.convertToHtml({ path: filePath }, options);
+    const html = await processPage(value, fromLanguage, toLanguage);
+
+    return html;
+  } catch (error) {
+    console.error("Error extracting text from DOCX:", error);
+    throw error;
+  }
+};
+
+export const convertDocxToHtml = async (
   pdfFilePath,
   fromLanguage,
   toLanguage
 ) => {
-  return new Promise((resolve, reject) => {
-    const htmlDir = path.dirname(pdfFilePath);
-    const baseName = path.basename(pdfFilePath, ".pdf");
+  const htmlDir = path.dirname(pdfFilePath);
+  const baseName = path.basename(pdfFilePath, ".docx");
+  const type = "docx";
+  try {
+    const result = await convertapi.convert(
+      "html",
+      { File: pdfFilePath },
+      "doc"
+    );
+    const docs = await result.saveFiles(htmlDir);
+    console.log("Files saved: " + docs);
+    const files = await fs.promises.readdir(htmlDir);
+    const htmlFile = files.find(
+      (file) => file.startsWith(baseName) && file.endsWith(".html")
+    );
 
-    exec(`pdftohtml -s -c -zoom 1.5 -nomerge -wbt 2 ${pdfFilePath}`, async (error, stdout, stderr) => {
-      if (error) {
-        console.error("Error converting PDF to HTML:", stderr);
-        return reject(error);
-      }
+    if (!htmlFile) {
+      throw new Error("Converted HTML file not found");
+    }
+    const htmlFilePath = path.join(htmlDir, htmlFile);
+    const updatedHtmlContent = await processHTML(
+      htmlFilePath,
+      fromLanguage,
+      toLanguage,
+      type
+    );
 
-      try {
-        const files = await fs.promises.readdir(htmlDir);
-        const htmlFile = files.find(
-          (file) => file.startsWith(baseName) && file.endsWith(".html")
-        );
-
-        if (!htmlFile) {
-          throw new Error("Converted HTML file not found");
-        }
-
-        const htmlFilePath = path.join(htmlDir, htmlFile);
-        // Process the entire HTML file to handle multiple pages
-        const updatedHtmlContent = await processHTML(htmlFilePath, fromLanguage, toLanguage);
-
-        // Ensure all images are converted to base64
-        const dom = new JSDOM(updatedHtmlContent);
-        const { document } = dom.window;
-
-        const imgElements = document.querySelectorAll("img");
-        for (const imgElement of imgElements) {
-          const src = imgElement.getAttribute("src");
-          if (src) {
-            const imagePath = path.resolve(htmlDir, src);
-            try {
-              const imageData = await fs.promises.readFile(imagePath, {
-                encoding: "base64",
-              });
-              imgElement.setAttribute("src", `data:image/png;base64,${imageData}`);
-            } catch (error) {
-              console.error("Error reading image file:", error);
-            }
-          }
-        }
-
-        // Serialize and save the final updated HTML content
-        const finalHtmlContent = dom.serialize();
-        await fs.promises.writeFile(htmlFilePath, finalHtmlContent, "utf8");
-
-        resolve(finalHtmlContent);
-      } catch (err) {
-        console.error("Error reading directory or HTML file:", err);
-        reject(err);
-      }
-    });
-  });
+    return docs;
+  } catch (error) {
+    console.log("Error", error);
+  }
 };
 
+// Generate word document from html - use this
+
+export const generateWordDocument = async (docFilePath) => {
+  try {
+    const result = await convertapi.convert(
+      "docx",
+      { File: docFilePath[0] },
+      "html"
+    );
+    const fileUrl = result.files[0].url;
+    console.log("Files saved: " + fileUrl);
+
+    // Download the file from the fileUrl
+    const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
+    const docxBuffer = Buffer.from(response.data);
+
+    // Create a readable stream from the downloaded buffer
+    const stream = new PassThrough();
+    stream.end(docxBuffer);
+
+    return stream;
+  } catch (error) {
+    console.log("Error", error);
+    throw error; // Re-throw the error so it can be handled by the caller
+  }
+};
+
+// Convert .pdf to HTML -- defunc
 export const convertPdfToHTMLs = async (
   pdfFilePath,
   fromLanguage,
@@ -301,6 +301,7 @@ export const convertPdfToHTMLs = async (
 ) => {
   const htmlDir = path.dirname(pdfFilePath);
   const baseName = path.basename(pdfFilePath, ".pdf");
+  const type = "pdf";
   try {
     const result = await convertapi.convert(
       "html",
@@ -318,30 +319,90 @@ export const convertPdfToHTMLs = async (
       throw new Error("Converted HTML file not found");
     }
     const htmlFilePath = path.join(htmlDir, htmlFile);
-    let htmlContent = await fs.promises.readFile(htmlFilePath, "utf8");
-
-    const dom = new JSDOM(htmlContent);
-    const { document } = dom.window;
-
-    // Extract the content inside the body tag
-    const bodyContent = document.body.innerHTML;
-    const translatedHtml = await translateDoc(
-      bodyContent,
+    const updatedHtmlContent = await processHTML(
+      htmlFilePath,
       fromLanguage,
-      toLanguage
+      toLanguage,
+      type
     );
 
-    // Replace the body content with the translated content
-    document.body.innerHTML = translatedHtml;
-
-    // Update the HTML content with the modified body content
-    htmlContent = dom.serialize();
-    await fs.promises.writeFile(htmlFilePath, htmlContent, "utf8");
-
-    return htmlContent;
+    return docs;
   } catch (error) {
     console.log("Error", error);
   }
+};
+
+// use
+export const convertPdfToHTML = async (
+  pdfFilePath,
+  fromLanguage,
+  toLanguage
+) => {
+  return new Promise((resolve, reject) => {
+    const htmlDir = path.dirname(pdfFilePath);
+    const baseName = path.basename(pdfFilePath, ".pdf");
+
+    exec(
+      `pdftohtml -s -c -zoom 1.5 -nomerge -wbt 2 ${pdfFilePath}`,
+      async (error, stdout, stderr) => {
+        if (error) {
+          console.error("Error converting PDF to HTML:", stderr);
+          return reject(error);
+        }
+
+        try {
+          const files = await fs.promises.readdir(htmlDir);
+          const htmlFile = files.find(
+            (file) => file.startsWith(baseName) && file.endsWith(".html")
+          );
+
+          if (!htmlFile) {
+            throw new Error("Converted HTML file not found");
+          }
+
+          const htmlFilePath = path.join(htmlDir, htmlFile);
+          // Process the entire HTML file to handle multiple pages
+          const updatedHtmlContent = await processHTML(
+            htmlFilePath,
+            fromLanguage,
+            toLanguage
+          );
+
+          // Ensure all images are converted to base64
+          const dom = new JSDOM(updatedHtmlContent);
+          const { document } = dom.window;
+
+          const imgElements = document.querySelectorAll("img");
+          for (const imgElement of imgElements) {
+            const src = imgElement.getAttribute("src");
+            if (src) {
+              const imagePath = path.resolve(htmlDir, src);
+              try {
+                const imageData = await fs.promises.readFile(imagePath, {
+                  encoding: "base64",
+                });
+                imgElement.setAttribute(
+                  "src",
+                  `data:image/png;base64,${imageData}`
+                );
+              } catch (error) {
+                console.error("Error reading image file:", error);
+              }
+            }
+          }
+
+          // Serialize and save the final updated HTML content
+          const finalHtmlContent = dom.serialize();
+          await fs.promises.writeFile(htmlFilePath, finalHtmlContent, "utf8");
+
+          resolve(finalHtmlContent);
+        } catch (err) {
+          console.error("Error reading directory or HTML file:", err);
+          reject(err);
+        }
+      }
+    );
+  });
 };
 
 // Convert .pptx to HTML
@@ -354,7 +415,7 @@ export async function convertXlsxToHTML(xlsxFilePath) {
   // Implementation using xlsx-populate or other library
 }
 
-// Convert HTML to .docx
+// Convert HTML to .docx -- defunc
 
 export async function convertHTMLToDocx(htmlContent) {
   try {
@@ -366,13 +427,12 @@ export async function convertHTMLToDocx(htmlContent) {
   }
 }
 
-// Convert HTML to .pdf
-export const convertHTMLToPdfs = async (htmlContent) => {
+// Convert HTML to .pdf -- defunc
+export const convertHTMLToPdfz = async (htmlContent) => {
   try {
     const file = { content: htmlContent };
     const options = {
       format: "A4",
-      path: "output.pdf",
       margin: { top: "5mm", right: "5mm", bottom: "5mm", left: "0mm" },
     };
     const pdfBuffer = await html_to_pdf.generatePdf(file, options);
@@ -387,9 +447,36 @@ export const convertHTMLToPdfs = async (htmlContent) => {
   }
 };
 
+// convert html to pdf -- defunc
+
+export const convertHTMLToPdfs = async (docFilePath) => {
+  try {
+    const result = await convertapi.convert(
+      "pdf",
+      { File: docFilePath[0] },
+      "html"
+    );
+    const fileUrl = result.files[0].url;
+    console.log("Files saved: " + fileUrl);
+
+    // Download the file from the fileUrl
+    const response = await axios.get(fileUrl, { responseType: "arraybuffer" });
+    const docxBuffer = Buffer.from(response.data);
+
+    // Create a readable stream from the downloaded buffer
+    const stream = new PassThrough();
+    stream.end(docxBuffer);
+
+    return stream;
+  } catch (error) {
+    console.log("Error", error);
+    throw error; // Re-throw the error so it can be handled by the caller
+  }
+};
+
+//convert html to pdf -- in use
 export const convertHTMLToPdf = async (htmlContent) => {
   try {
-    
     // Launch a headless browser
     const browser = await puppeteer.launch();
 
@@ -397,13 +484,13 @@ export const convertHTMLToPdf = async (htmlContent) => {
     const page = await browser.newPage();
 
     // Set the HTML content and global style to the page
-    await page.setContent(htmlContent, { waitUntil: 'load' });
+    await page.setContent(htmlContent, { waitUntil: "load" });
 
     // Generate the PDF from the page content
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      format: "A4",
       preferCSSPageSize: false,
-      scale:1
+      scale: 1,
     });
 
     // Close the browser
@@ -415,7 +502,7 @@ export const convertHTMLToPdf = async (htmlContent) => {
 
     return stream;
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error("Error generating PDF:", error);
     throw error;
   }
 };
