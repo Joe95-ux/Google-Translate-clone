@@ -73,6 +73,16 @@ const Documents = ({ fromLanguage, toLanguage }) => {
       setLoading(false);
     }
   };
+
+  const handleFolderReset = async ()=>{
+    try {
+      await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/clear-uploads`);
+      
+    } catch (error) {
+      console.log({error: error.message})
+      toast.info("Failed to clear upload folder");
+    }
+  }
   
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -88,7 +98,8 @@ const Documents = ({ fromLanguage, toLanguage }) => {
 
   const handleCloseBox = () => {
     setFileName("");
-    setTranslatedDocument("")
+    setTranslatedDocument("");
+    handleFolderReset();
   };
 
   return (

@@ -42,23 +42,28 @@ const openai = new OpenAI({
   apiKey: process.env.OPEN_API_KEY,
 });
 
-const deleteUploadsDirectory = (directory) => {
-  fs.readdir(directory, (err, files) => {
-    if (err) {
-      console.error('Error reading directory:', err);
+const deleteUploadsDirectory = async (directory) => {
+  try {
+    const files = await fs.promises.readdir(directory);
+    if (files.length === 0) {
+      console.log('No files to delete.');
       return;
     }
 
-    files.forEach((file) => {
-      const filePath = path.join(directory, file);
-      fs.unlinkSync(filePath); // Delete file or directory
-    });
-  });
+    await Promise.all(
+      files.map(async (file) => {
+        const filePath = path.join(directory, file);
+        await fs.promises.unlink(filePath); // Delete file or directory
+      })
+    );
+
+    console.log('Files deleted successfully.');
+  } catch (err) {
+    console.error('Error reading or deleting directory:', err);
+  }
 };
 
 
-// delete files in upload directory
-deleteUploadsDirectory("public/uploads/");
 
 // multer config
 const storage = multer.diskStorage({
@@ -74,6 +79,17 @@ const upload = multer({ storage });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/clear-uploads", async (req, res)=>{
+  try {
+    await deleteUploadsDirectory("public/uploads/");
+    res.status(200).json({message:"cleared uploads successfully!"})
+    
+  } catch (error) {
+    res.status(500).json({data:"failed to clear recent uploads"});
+    console.log(error);
+  }
+})
 
 app.get("/languages", async (req, res) => {
   try {
