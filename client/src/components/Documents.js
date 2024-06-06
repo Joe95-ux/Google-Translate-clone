@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { toast } from "sonner";
@@ -45,6 +45,14 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     formData.append("toLanguage", toLanguage);
     setFormData(formData);
   };
+
+  useEffect(() => {
+    // Update formData with new languages
+    const updatedFormData = new FormData(formData);
+    updatedFormData.set("fromLanguage", fromLanguage);
+    updatedFormData.set("toLanguage", toLanguage);
+    setFormData(updatedFormData);
+  }, [formData, fromLanguage, toLanguage]);
 
   const translateDoc = async () => {
     setLoading(true);
@@ -96,10 +104,10 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     return supportedFileTypes.includes(fileExtension);
   };
 
-  const handleCloseBox = () => {
+  const handleCloseBox = async () => {
     setFileName("");
     setTranslatedDocument("");
-    handleFolderReset();
+    await handleFolderReset();
   };
 
   return (

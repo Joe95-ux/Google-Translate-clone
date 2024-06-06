@@ -20,7 +20,7 @@ import axios from "axios";
 
 const App = () => {
   const [showModal, setShowModal] = useState(false);
-  const [languages, setLanguages] = useState(null);
+  const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
   const [inputLanguage, setInputLanguage] = useState("English");
@@ -77,15 +77,17 @@ const App = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/languages`
       );
-      if (response.data) {
-        setLanguages(response.data);
+      const data = await response.data;
+      if (data) {
+        setLanguages(data);
         setIsFetching(false);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error(
-        "An error occurred while fetching languages. Refetching data..."
-      );
+      // toast.error(
+      //   "An error occurred while fetching languages. Refetching data..."
+      // );
+      setIsFetching(true);
     }
   }, []);
 
@@ -380,6 +382,7 @@ const App = () => {
                 translate={translate}
                 translateRef={translateRef}
                 textToTranslate={textToTranslate}
+                tab={activeType}
               />
               <div className="compose-box-inner">
                 {activeType === "Text" && (

@@ -20,6 +20,7 @@ const Modal = ({
   outputLanguage,
   translateRef,
   translate,
+  tab
 }) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
   chosenLanguage = chosenLanguage.includes("Detected")
@@ -88,11 +89,11 @@ const Modal = ({
   };
 
   useEffect(() => {
-    if (translateRef.current) {
+    if (translateRef.current  && tab === "Text") {
       translate();
       translateRef.current = false; // Reset flag
     }
-  }, [outputLanguage, translate, translateRef]);
+  }, [outputLanguage, tab, translate, translateRef]);
 
   const handleChange = (e) => {
     setSearchedLanguage(e.target.value);
@@ -113,7 +114,7 @@ const Modal = ({
         </div>
       </div>
       <div className="option-container">
-        {languages ? (
+        {languages.length > 0 ? (
           <ul>
             {filteredLanguages?.map((filteredLanguage, index) => (
               <div className="list-item" key={index}>

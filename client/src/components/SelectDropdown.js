@@ -14,7 +14,8 @@ const SelectDropdown = ({
   setInputOptions,
   textToTranslate,
   translate,
-  translateRef
+  translateRef,
+  tab
 }) => {
   let langOptions = type === "input" ? inputOptions : outputOptions;
   let chosenLangIndex = langOptions.findIndex(
@@ -66,7 +67,7 @@ const SelectDropdown = ({
 
       }
       
-    } else {
+    } else if (type === "output") {
       setOutputLanguage(lang);
       translateRef.current = true;
       if (lang === inputLanguage) {
@@ -84,11 +85,11 @@ const SelectDropdown = ({
   };
 
   useEffect(() => {
-    if (translateRef.current && textToTranslate !== "") {
+    if (translateRef.current && textToTranslate !== "" && tab === "Text") {
       translate();
       translateRef.current = false; // Reset flag
     }
-  }, [outputLanguage, textToTranslate, translate, translateRef]);
+  }, [outputLanguage, tab, textToTranslate, translate, translateRef]);
   
 
   return (
