@@ -9,7 +9,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
-  const [formData, setFormData] = useState(null);
+  const [formData, setFormData] = useState(new FormData());
   const [translatedDocument, setTranslatedDocument] = useState(null);
 
   const onDrop = async (acceptedFiles) => {
@@ -39,20 +39,21 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     setFileName(file.name);
     setFileSize(file.size);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("fromLanguage", fromLanguage);
-    formData.append("toLanguage", toLanguage);
-    setFormData(formData);
+    const newFormData = new FormData();
+    newFormData.append("file", file);
+    newFormData.append("fromLanguage", fromLanguage);
+    newFormData.append("toLanguage", toLanguage);
+    setFormData(newFormData);
   };
 
   useEffect(() => {
-    // Update formData with new languages
-    const updatedFormData = new FormData(formData);
-    updatedFormData.set("fromLanguage", fromLanguage);
-    updatedFormData.set("toLanguage", toLanguage);
-    setFormData(updatedFormData);
-  }, [formData, fromLanguage, toLanguage]);
+    if (fileName) {
+      // Update formData with new languages
+      formData.set("fromLanguage", fromLanguage);
+      formData.set("toLanguage", toLanguage);
+      setFormData(formData);
+    }
+  }, [fromLanguage, toLanguage, formData, fileName]);
 
   const translateDoc = async () => {
     setLoading(true);

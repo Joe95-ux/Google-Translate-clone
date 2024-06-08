@@ -80,33 +80,39 @@ const upload = multer({ storage });
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+
+app.get("/languages", async (req, res) => {
+  try {
+    const response = await axios.request(lanOptions);
+    if (response.data && Array.isArray(response.data)) {
+      const arrayData = response.data.map((language) => {
+        if (language.language === "Automatic") {
+          return "Detect language";
+        } else {
+          return language.language;
+        }
+      });
+      res.status(200).json(arrayData);
+    } else {
+      throw new Error("Unexpected response format");
+    }
+  } catch (err) {
+    console.error("Error fetching languages:", err.message);
+    res.status(500).json({ message: "Failed to fetch languages" });
+  }
+});
+
+
 app.get("/clear-uploads", async (req, res)=>{
   try {
     await deleteUploadsDirectory("public/uploads/");
     res.status(200).json({message:"cleared uploads successfully!"})
     
   } catch (error) {
-    res.status(500).json({data:"failed to clear recent uploads"});
+    res.status(500).json({message:"failed to clear recent uploads"});
     console.log(error);
   }
 })
-
-app.get("/languages", async (req, res) => {
-  try {
-    const response = await axios.request(lanOptions);
-    const arrayData = response.data.map((language) => {
-      if (language.language === "Automatic") {
-        return "Detect language";
-      } else {
-        return language.language;
-      }
-    });
-    res.status(200).json(arrayData);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: err });
-  }
-});
 
 //translate Doc
 

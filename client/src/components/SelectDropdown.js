@@ -88,6 +88,8 @@ const SelectDropdown = ({
     if (translateRef.current && textToTranslate !== "" && tab === "Text") {
       translate();
       translateRef.current = false; // Reset flag
+    }else{
+      translateRef.current = false;
     }
   }, [outputLanguage, tab, textToTranslate, translate, translateRef]);
   
