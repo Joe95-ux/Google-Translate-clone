@@ -144,40 +144,63 @@ const processPage = async (pageContent, fromLanguage, toLanguage, type) => {
   const document = dom.window.document;
 
   const styleTags = document.querySelectorAll("style");
-  if (styleTags.length) {
-    // For each style tag, process the next div
-    for (const styleTag of styleTags) {
-      const nextDiv = styleTag.nextElementSibling;
-      if (nextDiv && nextDiv.tagName === "DIV") {
-        const divContent = nextDiv.outerHTML;
-
-        // Translate the div content
-        const translatedContent = await translateDoc(
-          divContent,
-          fromLanguage,
-          toLanguage
-        );
-
-        // Create a new div to hold the translated content
-        const newDiv = document.createElement("div");
-        newDiv.innerHTML = translatedContent;
-
-        // Replace the old div with the new translated div
-        nextDiv.replaceWith(newDiv);
+  if(type === "doc"){
+    if (styleTags.length) {
+      // For each style tag, process the next div
+      for (const styleTag of styleTags) {
+        const nextDiv = styleTag.nextElementSibling;
+        if (nextDiv && nextDiv.tagName === "DIV") {
+          const divContent = nextDiv.outerHTML;
+  
+          // Translate the div content
+          const translatedContent = await translateDoc(
+            divContent,
+            fromLanguage,
+            toLanguage
+          );
+  
+          // Create a new div to hold the translated content
+          const newDiv = document.createElement("div");
+          newDiv.innerHTML = translatedContent;
+  
+          // Replace the old div with the new translated div
+          nextDiv.replaceWith(newDiv);
+        }
       }
+  
+      // Return the updated page content
+      return dom.serialize();
+    } else {
+      // Translate the div content
+      const translatedContent = await translateDoc(
+        pageContent,
+        fromLanguage,
+        toLanguage
+      );
+      return translatedContent;
     }
 
-    // Return the updated page content
-    return dom.serialize();
-  } else {
-    // Translate the div content
+  }else if (type === "pdf"){
+    // Extract content inside the div with id="page-container"
+    const pageContainer = document.getElementById('page-container');
+    if (!pageContainer) {
+      throw new Error('No div with id="page-container" found in the HTML.');
+    }
+    
+    const contentToTranslate = pageContainer.innerHTML;
+
+    // Translate the extracted content
     const translatedContent = await translateDoc(
-      pageContent,
+      contentToTranslate,
       fromLanguage,
       toLanguage
     );
-    return translatedContent;
+
+    // Append the translated content back to the original HTML
+    pageContainer.innerHTML = translatedContent;
+    return dom.serialize();
   }
+  
 };
 
 // Function to process the entire HTML document
@@ -333,75 +356,59 @@ export const convertPdfToHTMLs = async (
 };
 
 // use
-export const convertPdfToHTML = async (
-  pdfFilePath,
-  fromLanguage,
-  toLanguage
-) => {
+export const convertPdfToHTML = async (pdfFilePath, fromLanguage, toLanguage) => {
   return new Promise((resolve, reject) => {
     const htmlDir = path.dirname(pdfFilePath);
     const baseName = path.basename(pdfFilePath, ".pdf");
+    const outputFilePath = path.join(htmlDir, `${baseName}.html`);
+    const type = "pdf";
 
-    exec(
-      `pdftohtml -s -c -zoom 1.5 -nomerge -wbt 2 ${pdfFilePath}`,
-      async (error, stdout, stderr) => {
-        if (error) {
-          console.error("Error converting PDF to HTML:", stderr);
-          return reject(error);
-        }
+    exec(`pdf2htmlEX --zoom 1.5 --split-pages 0 --dest-dir ${htmlDir} ${pdfFilePath}`, async (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error converting PDF to HTML: ${stderr}`);
+        return reject(error);
+      }
 
-        try {
-          const files = await fs.promises.readdir(htmlDir);
-          const htmlFile = files.find(
-            (file) => file.startsWith(baseName) && file.endsWith(".html")
-          );
+      try {
+        const htmlFilePath = outputFilePath;
+        const updatedHtmlContent = await processHTML(
+          htmlFilePath,
+          fromLanguage,
+          toLanguage,
+          type
+        );
 
-          if (!htmlFile) {
-            throw new Error("Converted HTML file not found");
-          }
+        const dom = new JSDOM(updatedHtmlContent);
+        const { document } = dom.window;
 
-          const htmlFilePath = path.join(htmlDir, htmlFile);
-          // Process the entire HTML file to handle multiple pages
-          const updatedHtmlContent = await processHTML(
-            htmlFilePath,
-            fromLanguage,
-            toLanguage
-          );
-
-          // Ensure all images are converted to base64
-          const dom = new JSDOM(updatedHtmlContent);
-          const { document } = dom.window;
-
-          const imgElements = document.querySelectorAll("img");
-          for (const imgElement of imgElements) {
-            const src = imgElement.getAttribute("src");
-            if (src) {
-              const imagePath = path.resolve(htmlDir, src);
-              try {
-                const imageData = await fs.promises.readFile(imagePath, {
-                  encoding: "base64",
-                });
-                imgElement.setAttribute(
-                  "src",
-                  `data:image/png;base64,${imageData}`
-                );
-              } catch (error) {
-                console.error("Error reading image file:", error);
-              }
+        const imgElements = document.querySelectorAll("img");
+        for (const imgElement of imgElements) {
+          const src = imgElement.getAttribute("src");
+          if (src) {
+            const imagePath = path.resolve(htmlDir, src);
+            try {
+              const imageData = await fs.promises.readFile(imagePath, {
+                encoding: "base64",
+              });
+              imgElement.setAttribute(
+                "src",
+                `data:image/png;base64,${imageData}`
+              );
+            } catch (error) {
+              console.error("Error reading image file:", error.message);
             }
           }
-
-          // Serialize and save the final updated HTML content
-          const finalHtmlContent = dom.serialize();
-          await fs.promises.writeFile(htmlFilePath, finalHtmlContent, "utf8");
-
-          resolve(finalHtmlContent);
-        } catch (err) {
-          console.error("Error reading directory or HTML file:", err);
-          reject(err);
         }
+
+        const finalHtmlContent = dom.serialize();
+        await fs.promises.writeFile(htmlFilePath, finalHtmlContent, "utf8");
+
+        resolve(finalHtmlContent);
+      } catch (err) {
+        console.error("Error reading directory or HTML file:", err);
+        reject(err);
       }
-    );
+    });
   });
 };
 
