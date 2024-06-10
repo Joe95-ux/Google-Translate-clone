@@ -378,32 +378,32 @@ export const convertPdfToHTML = async (pdfFilePath, fromLanguage, toLanguage) =>
           type
         );
 
-        const dom = new JSDOM(updatedHtmlContent);
-        const { document } = dom.window;
+        // const dom = new JSDOM(updatedHtmlContent);
+        // const { document } = dom.window;
 
-        const imgElements = document.querySelectorAll("img");
-        for (const imgElement of imgElements) {
-          const src = imgElement.getAttribute("src");
-          if (src) {
-            const imagePath = path.resolve(htmlDir, src);
-            try {
-              const imageData = await fs.promises.readFile(imagePath, {
-                encoding: "base64",
-              });
-              imgElement.setAttribute(
-                "src",
-                `data:image/png;base64,${imageData}`
-              );
-            } catch (error) {
-              console.error("Error reading image file:", error.message);
-            }
-          }
-        }
+        // const imgElements = document.querySelectorAll("img");
+        // for (const imgElement of imgElements) {
+        //   const src = imgElement.getAttribute("src");
+        //   if (src) {
+        //     const imagePath = path.resolve(htmlDir, src);
+        //     try {
+        //       const imageData = await fs.promises.readFile(imagePath, {
+        //         encoding: "base64",
+        //       });
+        //       imgElement.setAttribute(
+        //         "src",
+        //         `data:image/png;base64,${imageData}`
+        //       );
+        //     } catch (error) {
+        //       console.error("Error reading image file:", error.message);
+        //     }
+        //   }
+        // }
 
-        const finalHtmlContent = dom.serialize();
-        await fs.promises.writeFile(htmlFilePath, finalHtmlContent, "utf8");
+        // const finalHtmlContent = dom.serialize();
+        await fs.promises.writeFile(htmlFilePath, updatedHtmlContent, "utf8");
 
-        resolve(finalHtmlContent);
+        resolve(updatedHtmlContent);
       } catch (err) {
         console.error("Error reading directory or HTML file:", err);
         reject(err);
