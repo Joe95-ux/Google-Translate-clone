@@ -14,6 +14,7 @@ import html_to_pdf from "html-pdf-node";
 import puppeteer from "puppeteer";
 import { promisify } from "util";
 import { JSDOM } from "jsdom";
+import createDOMPurify from 'dompurify';
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -22,6 +23,9 @@ import ConvertAPI from "convertapi";
 const convertapi = new ConvertAPI(process.env.CONVERT_API_SECRET, {
   conversionTimeout: 60,
 });
+
+const window = (new JSDOM('')).window;
+const DOMPurify = createDOMPurify(window);
 
 export const headers = {
   "content-type": "application/x-www-form-urlencoded",
@@ -144,44 +148,49 @@ const processPage = async (pageContent, fromLanguage, toLanguage, type) => {
   const document = dom.window.document;
 
   const styleTags = document.querySelectorAll("style");
-  if(type === "doc"){
+  if (type === "doc") {
     if (styleTags.length) {
-      // For each style tag, process the next div
       for (const styleTag of styleTags) {
         const nextDiv = styleTag.nextElementSibling;
         if (nextDiv && nextDiv.tagName === "DIV") {
           const divContent = nextDiv.outerHTML;
-  
+
+          // Remove specific spans in div content
+          const cleanedContent = removeSpecificSpans(divContent);
+
+          // Sanitize the cleaned content
+          const sanitizedContent = DOMPurify.sanitize(cleanedContent);
+
           // Translate the div content
           const translatedContent = await translateDoc(
-            divContent,
+            sanitizedContent,
             fromLanguage,
             toLanguage
           );
-  
-          // Create a new div to hold the translated content
+
           const newDiv = document.createElement("div");
           newDiv.innerHTML = translatedContent;
-  
-          // Replace the old div with the new translated div
+
           nextDiv.replaceWith(newDiv);
         }
       }
-  
-      // Return the updated page content
+
       return dom.serialize();
     } else {
-      // Translate the div content
+      const cleanedContent = removeSpecificSpans(pageContent);
+
+      // Sanitize the cleaned content
+      const sanitizedContent = DOMPurify.sanitize(cleanedContent);
+
       const translatedContent = await translateDoc(
-        pageContent,
+        sanitizedContent,
         fromLanguage,
         toLanguage
       );
       return translatedContent;
     }
 
-  }else if (type === "pdf"){
-    // Extract content inside the div with id="page-container"
+  } else if (type === "pdf") {
     const pageContainer = document.getElementById('page-container');
     if (!pageContainer) {
       throw new Error('No div with id="page-container" found in the HTML.');
@@ -189,19 +198,48 @@ const processPage = async (pageContent, fromLanguage, toLanguage, type) => {
     
     const contentToTranslate = pageContainer.innerHTML;
 
+    // Remove specific spans in content
+    const cleanedContent = removeSpecificSpans(contentToTranslate);
+
+    // Sanitize the cleaned content
+    const sanitizedContent = DOMPurify.sanitize(cleanedContent);
+
     // Translate the extracted content
     const translatedContent = await translateDoc(
-      contentToTranslate,
+      sanitizedContent,
       fromLanguage,
       toLanguage
     );
 
     // Append the translated content back to the original HTML
     pageContainer.innerHTML = translatedContent;
+    
+
     return dom.serialize();
   }
-  
+
+  return dom.serialize();
 };
+
+// Helper function to remove spans with specific classes
+const removeSpecificSpans = (content) => {
+  const dom = new JSDOM(content);
+  const document = dom.window.document;
+
+  // Remove spans with class ._._2 and ._._1
+  const spansToRemove = document.querySelectorAll('span._._2');
+  spansToRemove.forEach(span => span.remove());
+
+  // Replace spans with class ._._0 with a single space
+  const spansToReplace = document.querySelectorAll('span._._0');
+  spansToReplace.forEach(span => {
+    const space = document.createTextNode(' ');
+    span.replaceWith(space);
+  });
+
+  return document.body.innerHTML;
+};
+
 
 // Function to process the entire HTML document
 const processHTML = async (htmlFilePath, fromLanguage, toLanguage, type) => {
@@ -363,7 +401,7 @@ export const convertPdfToHTML = async (pdfFilePath, fromLanguage, toLanguage) =>
     const outputFilePath = path.join(htmlDir, `${baseName}.html`);
     const type = "pdf";
 
-    exec(`pdf2htmlEX --zoom 1.5 --split-pages 0 --dest-dir ${htmlDir} ${pdfFilePath}`, async (error, stdout, stderr) => {
+    exec(`pdf2htmlEX --zoom 1.5 --split-pages 0 --heps 5 --space-threshold 0.5 --dest-dir ${htmlDir} ${pdfFilePath}`, async (error, stdout, stderr) => {
       if (error) {
         console.error(`Error converting PDF to HTML: ${stderr}`);
         return reject(error);
