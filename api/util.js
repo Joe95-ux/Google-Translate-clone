@@ -213,13 +213,12 @@ const processPage = async (pageContent, fromLanguage, toLanguage, type) => {
 
     // Append the translated content back to the original HTML
     pageContainer.innerHTML = translatedContent;
-    
-
     return dom.serialize();
   }
 
   return dom.serialize();
 };
+
 
 // Helper function to remove spans with specific classes
 const removeSpecificSpans = (content) => {
