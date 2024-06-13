@@ -365,98 +365,100 @@ const App = () => {
       />
       <Header activeType={activeType} setActiveType={setActiveType} />
       <div className="app">
-        {!showModal && (
-          <div style={{ width: "100%", height: activeType === "Text" ? "100%" : "" }}>
-            <div className="compose-box">
-              <ComposeHeader
-                setShowModal={setShowModal}
-                inputLanguage={inputLanguage}
-                outputLanguage={outputLanguage}
-                handleClick={handleClick}
-                otherInputLangs={otherInputLangs}
-                otherOutputLangs={otherOutputLangs}
-                setInputLanguage={setInputLanguage}
-                setOutputLanguage={setOutputLanguage}
-                setOtherOutputLangs={setOtherOutputLangs}
-                setOtherInputLangs={setOtherInputLangs}
-                translate={translate}
-                translateRef={translateRef}
-                textToTranslate={textToTranslate}
-                tab={activeType}
-              />
-              <div className="compose-box-inner">
-                {activeType === "Text" && (
-                  <>
+        <div
+          style={{ width: "100%", height: activeType === "Text" ? "100%" : "" }}
+        >
+          <div className="compose-box">
+            <ComposeHeader
+              setShowModal={setShowModal}
+              inputLanguage={inputLanguage}
+              outputLanguage={outputLanguage}
+              handleClick={handleClick}
+              otherInputLangs={otherInputLangs}
+              otherOutputLangs={otherOutputLangs}
+              setInputLanguage={setInputLanguage}
+              setOutputLanguage={setOutputLanguage}
+              setOtherOutputLangs={setOtherOutputLangs}
+              setOtherInputLangs={setOtherInputLangs}
+              translate={translate}
+              translateRef={translateRef}
+              textToTranslate={textToTranslate}
+              tab={activeType}
+            />
+            <div className="compose-box-inner">
+              {activeType === "Text" && (
+                <>
+                  <TextBox
+                    variant="input"
+                    setShowModal={setShowModal}
+                    selectedLanguage={inputLanguage}
+                    setTextToTranslate={setTextToTranslate}
+                    textToTranslate={textToTranslate}
+                    setTranslatedText={setTranslatedText}
+                    showDelete={showDelete}
+                    setShowDelete={setShowDelete}
+                    showCopy={showCopy}
+                    setShowCopy={setShowCopy}
+                    onTranslate={translate}
+                    detectLanguage={detectedLang}
+                    synthesizeSpeech={synthesizeSpeech}
+                    text={textToTranslate}
+                    setDic={setDictionary}
+                  />
+                  {(smallScreenWidth > 600 || translatedText) && (
                     <TextBox
-                      variant="input"
+                      variant="output"
                       setShowModal={setShowModal}
-                      selectedLanguage={inputLanguage}
+                      selectedLanguage={outputLanguage}
                       setTextToTranslate={setTextToTranslate}
-                      textToTranslate={textToTranslate}
-                      setTranslatedText={setTranslatedText}
-                      showDelete={showDelete}
-                      setShowDelete={setShowDelete}
+                      translatedText={
+                        isLoading ? "Translating..." : translatedText
+                      }
                       showCopy={showCopy}
                       setShowCopy={setShowCopy}
+                      showDelete={showDelete}
+                      setShowDelete={setShowDelete}
                       onTranslate={translate}
                       detectLanguage={detectedLang}
                       synthesizeSpeech={synthesizeSpeech}
-                      text={textToTranslate}
-                      setDic={setDictionary}
+                      text={translatedText}
                     />
-                    {(smallScreenWidth > 600 || translatedText) && (
-                      <TextBox
-                        variant="output"
-                        setShowModal={setShowModal}
-                        selectedLanguage={outputLanguage}
-                        setTextToTranslate={setTextToTranslate}
-                        translatedText={
-                          isLoading ? "Translating..." : translatedText
-                        }
-                        showCopy={showCopy}
-                        setShowCopy={setShowCopy}
-                        showDelete={showDelete}
-                        setShowDelete={setShowDelete}
-                        onTranslate={translate}
-                        detectLanguage={detectedLang}
-                        synthesizeSpeech={synthesizeSpeech}
-                        text={translatedText}
-                      />
-                    )}
+                  )}
 
-                    {(smallScreenWidth > 600 || translatedText || textToTranslate) && (
-                      <div className="button-container">
-                        {textToTranslate !== "" && (
-                          <Button disable={isLoading} translate={translate} />
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-                {activeType === "Documents" && (
-                  <Documents
-                    fromLanguage={inputLanguage}
-                    toLanguage={outputLanguage}
-                  />
-                )}
-              </div>
-              {shareModal.isOpen && (
-                <ShareModal
-                  fromLanguage={detectedLang || inputLanguage}
-                  to={outputLanguage}
-                  textToTranslate={textToTranslate}
-                  translatedText={translatedText}
+                  {(smallScreenWidth > 600 ||
+                    translatedText ||
+                    textToTranslate) && (
+                    <div className="button-container">
+                      {textToTranslate !== "" && (
+                        <Button disable={isLoading} translate={translate} />
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+              {activeType === "Documents" && (
+                <Documents
+                  fromLanguage={inputLanguage}
+                  toLanguage={outputLanguage}
                 />
               )}
             </div>
-            {dictionary &&
-              textToTranslate &&
-              dictionary.length > 0 &&
-              activeType === "Text" && (
-                <Dictionary dic={dictionary} trans={translatedText} />
-              )}
+            {shareModal.isOpen && (
+              <ShareModal
+                fromLanguage={detectedLang || inputLanguage}
+                to={outputLanguage}
+                textToTranslate={textToTranslate}
+                translatedText={translatedText}
+              />
+            )}
           </div>
-        )}
+          {dictionary &&
+            textToTranslate &&
+            dictionary.length > 0 &&
+            activeType === "Text" && (
+              <Dictionary dic={dictionary} trans={translatedText} />
+            )}
+        </div>
         {showModal && (
           <Modal
             showModal={showModal}
