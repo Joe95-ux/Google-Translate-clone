@@ -19,11 +19,11 @@ const FileBox = ({
   return (
     <div className="filebox-wrapper">
       <div className="filebox-inner">
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", overflow:"hidden" }}>
           <FaFile size={38} />
           <div className="file-stats">
             <div style={{ marginBottom: "0.5rem" }}>
-              <p style={{ fontWeight: "bold" }}>{fileName || "no name"}</p>
+              <p style={{ fontWeight: "bold", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{fileName || "no name"}</p>
             </div>
 
             <p>{Math.ceil(fileSize / 1024) + "kb" || "0kb"}</p>

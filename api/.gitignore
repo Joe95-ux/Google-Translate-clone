@@ -117,3 +117,7 @@ dist
 
 # mp3 files
 *.mp3
+
+
+# uploads directory
+api/public/uploads/

@@ -44,6 +44,7 @@ h3, h4, p{
 .app {
   display: flex;
   min-height: 350px;
+  position: relative;
 }
 
 .container-fluid{
@@ -223,6 +224,7 @@ a{
   line-height: 1.3;
   font-size: 15px;
   margin-left: 1rem;
+  overflow: hidden;
 }
 
 
@@ -315,6 +317,12 @@ textarea::placeholder{
   width: 100%;
   border: 1px solid rgb(100 116 139);
   border-radius: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background-color: rgb(15 23 42);
+  min-height: 300px;
 }
 
 .search-bar {
@@ -390,8 +398,9 @@ input {
 } */
 
 .option-container {
-  height: calc(100vh - 240px);
+  /* height: calc(100vh - 240px); */
   overflow: auto;
+  max-height: 300px;
 }
 
 .option-list ul, .loader-list {
