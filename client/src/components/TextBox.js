@@ -132,11 +132,7 @@ const TextBox = ({
   };
 
   useEffect(() => {
-    if (
-      textToTranslate === "" ||
-      textToTranslate === null ||
-      textToTranslate === undefined
-    ) {
+    if (!textToTranslate) {
       setShowDelete(false);
       setLimit(false);
     } else {

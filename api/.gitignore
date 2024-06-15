@@ -120,4 +120,4 @@ dist
 
 
 # uploads directory
-api/public/uploads/
+public/uploads/
