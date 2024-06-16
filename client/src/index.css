@@ -403,6 +403,16 @@ input {
   max-height: 300px;
 }
 
+@media screen and (max-width: 765px){
+  .option-list{
+    min-height: calc(100vh - 240px);
+  }
+  .option-container{
+    max-height: calc(100vh - 240px);
+    height: calc(100vh - 240px);
+  }
+}
+
 .option-list ul, .loader-list {
   margin: 15px;
   padding: 0;
