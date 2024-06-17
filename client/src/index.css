@@ -322,7 +322,6 @@ textarea::placeholder{
   left: 0;
   z-index: 2;
   background-color: rgb(15 23 42);
-  min-height: 300px;
 }
 
 .search-bar {
@@ -398,19 +397,14 @@ input {
 } */
 
 .option-container {
-  /* height: calc(100vh - 240px); */
   overflow: auto;
-  max-height: 300px;
 }
 
-@media screen and (max-width: 765px){
-  .option-list{
-    min-height: calc(100vh - 240px);
-  }
-  .option-container{
-    max-height: calc(100vh - 240px);
+@media screen and (min-width: 720px){
+  .option-container {
     height: calc(100vh - 240px);
   }
+  
 }
 
 .option-list ul, .loader-list {
