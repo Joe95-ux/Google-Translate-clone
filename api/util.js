@@ -95,7 +95,7 @@ export const translateDoc = async (
   }
 };
 
-// generate pdf from text
+// generate pdf from text (this is not in use)
 export async function generateTranslatedPdf(translatedText) {
   return new Promise((resolve, reject) => {
     // Create a writable stream using pdfkit
@@ -115,7 +115,7 @@ export async function generateTranslatedPdf(translatedText) {
   });
 }
 
-// generate word doc from text
+// generate word doc from text (this is not in use)
 
 export const generateWordDocuments = async (text) => {
   try {
@@ -266,7 +266,7 @@ const processHTML = async (htmlFilePath, fromLanguage, toLanguage, type) => {
 
 // end of page processing functions
 
-// Convert .docx to HTML
+// this is not in use
 
 export const convertDocxToHtmlz = async (
   filePath,
@@ -287,6 +287,8 @@ export const convertDocxToHtmlz = async (
     throw error;
   }
 };
+
+// Convert .docx to HTML
 
 export const convertDocxToHtml = async (
   pdfFilePath,
@@ -392,7 +394,7 @@ export const convertPdfToHTMLs = async (
   }
 };
 
-// use
+// Convert PDF to Html (use this code)
 export const convertPdfToHTML = async (pdfFilePath, fromLanguage, toLanguage) => {
   return new Promise((resolve, reject) => {
     const htmlDir = path.dirname(pdfFilePath);

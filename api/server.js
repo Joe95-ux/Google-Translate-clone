@@ -63,8 +63,6 @@ const deleteUploadsDirectory = async (directory) => {
   }
 };
 
-
-
 // multer config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
