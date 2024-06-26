@@ -356,7 +356,7 @@ export const generateWordDocument = async (docFilePath) => {
 };
 
 // Convert .pdf to HTML -- defunc
-export const convertPdfToHTMLs = async (
+export const convertPdfToHTML = async (
   pdfFilePath,
   fromLanguage,
   toLanguage
@@ -395,7 +395,7 @@ export const convertPdfToHTMLs = async (
 };
 
 // Convert PDF to Html (use this code)
-export const convertPdfToHTML = async (pdfFilePath, fromLanguage, toLanguage) => {
+export const convertPdfToHTMLs = async (pdfFilePath, fromLanguage, toLanguage) => {
   return new Promise((resolve, reject) => {
     const htmlDir = path.dirname(pdfFilePath);
     const baseName = path.basename(pdfFilePath, ".pdf");
