@@ -297,7 +297,7 @@ export const convertDocxToHtml = async (
 ) => {
   const htmlDir = path.dirname(pdfFilePath);
   const baseName = path.basename(pdfFilePath, ".docx");
-  const type = "docx";
+  const type = "doc";
   try {
     const result = await convertapi.convert(
       "html",
