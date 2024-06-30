@@ -16,6 +16,7 @@ import {
   headers,
   generateTranslatedPdf,
   generateWordDocument,
+  generateOCR,
   convertDocxToHtml,
   convertHTMLToDocx,
   convertHTMLToPdf,
@@ -190,6 +191,7 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
     const fileExtension = path.extname(file.originalname).toLowerCase();
     if (fileExtension === ".pdf") {
       extractedText = await convertPdfToHTML(filePath, fromLanguage, toLanguage);
+      const OCR = await generateOCR(filePath);
     } else if (fileExtension.includes(".doc")) {
       extractedText = await convertDocxToHtml(filePath, fromLanguage, toLanguage);
     } else {

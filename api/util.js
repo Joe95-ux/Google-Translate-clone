@@ -15,6 +15,7 @@ import puppeteer from "puppeteer";
 import { promisify } from "util";
 import { JSDOM } from "jsdom";
 import createDOMPurify from 'dompurify';
+import {ServicePrincipalCredentials, PDFServices, MimeType, ExtractPDFParams, ExtractElementType, ExtractPDFJob, ExtractPDFResult, OCRJob, OCRResult, SDKError, ServiceUsageError, ServiceApiError} from "@adobe/pdfservices-node-sdk";
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -582,3 +583,132 @@ export async function convertHTMLToPptx(htmlContent) {
 export async function convertHTMLToXlsx(htmlContent) {
   // Implementation using another library
 }
+
+
+
+
+
+
+// Get the samples from http://www.adobe.com/go/pdftoolsapi_node_sample
+// Run the sample:
+// node src/ocr/ocr-pdf.js
+
+
+export const generateOCR = async (pdfFilePath) => {
+  const pdfDir = path.dirname(pdfFilePath);
+  const baseName = path.basename(pdfFilePath, ".pdf");
+  const newOutputFilePath = path.join(pdfDir, `${baseName}OCR.pdf`);
+  let readStream;
+  try {
+      // Initial setup, create credentials instance
+      const credentials = new ServicePrincipalCredentials({
+          clientId: process.env.PDF_SERVICES_CLIENT_ID,
+          clientSecret: process.env.PDF_SERVICES_CLIENT_SECRET
+      });
+
+      // Creates a PDF Services instance
+      const pdfServices = new PDFServices({credentials});
+
+      // Creates an asset(s) from source file(s) and upload
+      readStream = fs.createReadStream(pdfFilePath);
+      const inputAsset = await pdfServices.upload({
+          readStream,
+          mimeType: MimeType.PDF
+      });
+
+      // Creates a new job instance
+      const job = new OCRJob({inputAsset});
+
+      // Submit the job and get the job result
+      const pollingURL = await pdfServices.submit({job});
+      const pdfServicesResponse = await pdfServices.getJobResult({
+          pollingURL,
+          resultType: OCRResult
+      });
+
+      // Get content from the resulting asset(s)
+      const resultAsset = pdfServicesResponse.result.asset;
+      const streamAsset = await pdfServices.getContent({asset: resultAsset});
+      
+
+      // Creates a write stream and copy stream asset's content to it
+      const outputFilePath = newOutputFilePath;
+      console.log(`Saving asset at ${outputFilePath}`);
+
+      const writeStream = fs.createWriteStream(outputFilePath);
+      streamAsset.readStream.pipe(writeStream);
+  } catch (err) {
+      if (err instanceof SDKError || err instanceof ServiceUsageError || err instanceof ServiceApiError) {
+          console.log("Exception encountered while executing operation", err);
+      } else {
+          console.log("Exception encountered while executing operation", err);
+      }
+  } finally {
+      readStream?.destroy();
+  }
+};
+
+
+// pdf extract pdf service
+
+// Get the samples from 
+// Run the sample:
+// node src/extractpdf/extract-text-table-with-styling-info-from-pdf.js
+
+
+export const pdfExtract = async (pdfFilePath) => {
+  let readStream;
+  const outputDir = path.dirname(pdfFilePath);
+  try {
+      // Initial setup, create credentials instance
+      const credentials = new ServicePrincipalCredentials({
+          clientId: process.env.PDF_SERVICES_CLIENT_ID,
+          clientSecret: process.env.PDF_SERVICES_CLIENT_SECRET
+      });
+
+      // Creates a PDF Services instance
+      const pdfServices = new PDFServices({credentials});
+
+      // Creates an asset(s) from source file(s) and upload
+      readStream = fs.createReadStream(pdfFilePath);
+      const inputAsset = await pdfServices.upload({
+          readStream,
+          mimeType: MimeType.PDF
+      });
+
+      // Create parameters for the job
+      const params = new ExtractPDFParams({
+          elementsToExtract: [ExtractElementType.TEXT, ExtractElementType.TABLES],
+          getStylingInfo: true,
+      });
+
+      // Creates a new job instance
+      const job = new ExtractPDFJob({inputAsset, params});
+
+      // Submit the job and get the job result
+      const pollingURL = await pdfServices.submit({job});
+      const pdfServicesResponse = await pdfServices.getJobResult({
+          pollingURL,
+          resultType: ExtractPDFResult
+      });
+
+      // Get content from the resulting asset(s)
+      const resultAsset = pdfServicesResponse.result.resource;
+      const streamAsset = await pdfServices.getContent({asset: resultAsset});
+
+      // Creates a write stream and copy stream asset's content to it
+      const outputFilePath = outputDir;
+      console.log(`Saving asset at ${outputFilePath}`);
+
+      const writeStream = fs.createWriteStream(outputFilePath);
+      streamAsset.readStream.pipe(writeStream);
+  } catch (err) {
+      if (err instanceof SDKError || err instanceof ServiceUsageError || err instanceof ServiceApiError) {
+          console.log("Exception encountered while executing operation", err);
+      } else {
+          console.log("Exception encountered while executing operation", err);
+      }
+  } finally {
+      readStream?.destroy();
+  }
+};
