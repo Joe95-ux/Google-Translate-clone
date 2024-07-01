@@ -9,7 +9,7 @@ import multer from "multer";
 import { OpenAI } from "openai";
 import pdf from "pdf-parse";
 import { Readable } from "stream";
-import { translateText } from "./controllers/translateText.js";
+import { translateText, getLanguageDisplayNames, getDetectedLanguage } from "./controllers/translateText.js";
 import {
   translateDoc,
   lanOptions,
@@ -79,8 +79,8 @@ const upload = multer({ storage });
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-
-app.get("/languages", async (req, res) => {
+//languages with google translate api: remove "z" to us and delete route under it
+app.get("/languagesz", async (req, res) => {
   try {
     const response = await axios.request(lanOptions);
     if (response.data && Array.isArray(response.data)) {
@@ -100,6 +100,9 @@ app.get("/languages", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch languages" });
   }
 });
+
+// using google cloud translate: delete this to use route with google translate API
+app.get("/languages", getLanguageDisplayNames);
 
 
 app.get("/clear-uploads", async (req, res)=>{
@@ -247,6 +250,9 @@ app.get('/detect-language', async (req, res) => {
     res.status(500).json({ message: err })
   }
 })
+
+// detect language with google cloud translate
+app.get('/detect-language', getDetectedLanguage);
 
 // open ai requests
 
