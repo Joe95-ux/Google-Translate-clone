@@ -9,7 +9,7 @@ import multer from "multer";
 import { OpenAI } from "openai";
 import pdf from "pdf-parse";
 import { Readable } from "stream";
-import { translateText, getLanguageDisplayNames, getDetectedLanguage } from "./controllers/translateText.js";
+import { translateText, getLanguageDisplayNames, getDetectedLanguage, getDocumentTranslation} from "./controllers/translateText.js";
 import {
   translateDoc,
   lanOptions,
@@ -75,6 +75,12 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
+// Set up multer for handling file uploads to cloud
+const cloudUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // limit file size to 10MB
+});
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
@@ -182,7 +188,7 @@ app.get("/clear-uploads", async (req, res)=>{
 // });
 
 
-app.post("/translate-document", upload.single("file"), async (req, res) => {
+app.post("/translate-documentz", upload.single("file"), async (req, res) => {
   try {
     let { fromLanguage, toLanguage } = req.body;
 
@@ -227,6 +233,9 @@ app.post("/translate-document", upload.single("file"), async (req, res) => {
     res.status(500).send('An error occurred while translating the document.');
   }
 });
+
+// translate document with google cloud translate
+app.post('/translate-document', cloudUpload.single('file'), getDocumentTranslation)
 
 //translate text
 app.get("/translation", translateText);

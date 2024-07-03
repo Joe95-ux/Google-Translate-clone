@@ -35,7 +35,7 @@ export async function getLangShort(language) {
     language === null ||
     language === "unknown"
   ) {
-    lan = "English";
+    return "";
   } else if (language.includes("Detected")) {
     lan = language.split(" - ")[0];
   } else {
@@ -77,3 +77,55 @@ export async function detectLanguage(text) {
     console.log(error);
   }
 }
+
+// translate text
+
+async function translateText(text) {
+  // Construct request
+  const request = {
+    parent: `projects/${projectId}/locations/${location}`,
+    contents: [text],
+    mimeType: 'text/plain', // mime types: text/plain, text/html
+    sourceLanguageCode: 'en',
+    targetLanguageCode: 'sr-Latn',
+  };
+
+  // Run request
+  const [response] = await translationClient.translateText(request);
+  console.log(response.glossaryTranslations);
+
+  for (const translation of response.translations) {
+    console.log(`Translation: ${translation.translatedText}`);
+  }
+}
+
+// translateText("The quick brown fox jumped over the white lazy dog");
+
+// translate document
+
+export async function translateDocument(inputUri, mimeType, from, to) {
+  const documentInputConfig = {
+    gcsSource: {
+      inputUri: inputUri,
+    },
+    mimeType: mimeType,
+  };
+  // Construct request
+  const request = {
+    parent: translationClient.locationPath(projectId, location),
+    documentInputConfig: documentInputConfig,
+    sourceLanguageCode: from,
+    targetLanguageCode: to,
+  };
+
+  // Run request
+  const [response] = await translationClient.translateDocument(request);
+  const byteStreams = response.documentTranslation.byteStreamOutputs;
+  const translatedMimeType = response.documentTranslation.mimeType;
+
+  return {
+    byteStreams,
+    translatedMimeType,
+  };
+}
+
