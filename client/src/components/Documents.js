@@ -117,7 +117,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
         <div className="container-fluid">
           <div className="drop-container">
             <div {...getRootProps()} className="drop-area">
-              <input {...getInputProps()} accept=".pdf, .doc, .docx"/>
+              <input {...getInputProps()} accept=".pdf, .doc, .docx, .pptx, .xlsx"/>
               {isDragActive ? (
                 <p>Drop the file here...</p>
               ) : (
@@ -138,7 +138,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
                   id="file-upload"
                   type="file"
                   onChange={handleFileUpload}
-                  accept=".pdf, .doc, .docx"
+                  accept=".pdf, .doc, .docx, .pptx, .xlsx"
                 />
               </div>
               <p>Supported file types: .docx, .pdf, .pptx, .xlsx</p>
