@@ -25,9 +25,14 @@ body {
 }
 
 .nav-items, .types{
+  margin-left:auto;
+}
+.nav-actions, .auth-btns, .nav-items, .types{
   display:flex;
   align-items:center;
-  margin-left:auto;
+}
+.auth-btns{
+  margin-left: 20px;
 }
 .types{
   margin-top: 1.5rem;
@@ -820,7 +825,7 @@ span.lang-style::after{
   .open-history{
     display: flex;
   }
-  .nav-items{
+  .nav-actions{
     display: none;
   }
 }

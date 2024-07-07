@@ -5,8 +5,14 @@ import { MdOutlineTranslate } from "react-icons/md";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
 
-const Header = ({activeType, setActiveType}) => {
+const Header = ({ activeType, setActiveType }) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
 
@@ -16,12 +22,12 @@ const Header = ({activeType, setActiveType}) => {
     },
     activeSaved: {
       color: saveModal.isOpen && "#38BDF8",
-    }
+    },
   };
 
-  const handleType = (text)=>{
+  const handleType = (text) => {
     setActiveType(text);
-  }
+  };
   return (
     <div
       className="nav-wrapper"
@@ -61,39 +67,54 @@ const Header = ({activeType, setActiveType}) => {
           </h2>
         </div>
         <div className="nav-items">
-          <div
-            className="open-history-inner top-btn"
-            style={activeStyles.active}
-            onClick={historyModal.onOpen}
-          >
-            <FaHistory />
-            <h3>History</h3>
+          <div className="nav-actions">
+            <div
+              className="open-history-inner top-btn"
+              style={activeStyles.active}
+              onClick={historyModal.onOpen}
+            >
+              <FaHistory />
+              <h3>History</h3>
+            </div>
+
+            <div
+              className="saved top-btn"
+              style={activeStyles.activeSaved}
+              onClick={saveModal.onOpen}
+            >
+              <IoIosStar />
+              <h3>Saved</h3>
+            </div>
           </div>
 
-          <div
-            className="saved top-btn"
-            style={activeStyles.activeSaved}
-            onClick={saveModal.onOpen}
-          >
-            <IoIosStar />
-            <h3>Saved</h3>
+          <div className="auth-btns">
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
           </div>
         </div>
       </nav>
       <div className="types">
         <div
           className="open-history-inner top-btn"
-          style={{color: activeType === "Text" ? '#38BDF8' : "#f5f5f5" }}
+          style={{ color: activeType === "Text" ? "#38BDF8" : "#f5f5f5" }}
         >
           <MdOutlineTranslate size={22} />
-          <h3 className="textt" onClick={()=>handleType("Text")}>Text</h3>
+          <h3 className="textt" onClick={() => handleType("Text")}>
+            Text
+          </h3>
         </div>
         <div
           className="saved top-btn"
-          style={{color: activeType === "Documents" ? '#38BDF8' : "#f5f5f5" }}
+          style={{ color: activeType === "Documents" ? "#38BDF8" : "#f5f5f5" }}
         >
           <IoDocumentTextOutline size={22} />
-          <h3 className="docs" onClick={()=>handleType('Documents')}>Documents</h3>
+          <h3 className="docs" onClick={() => handleType("Documents")}>
+            Documents
+          </h3>
         </div>
       </div>
     </div>
