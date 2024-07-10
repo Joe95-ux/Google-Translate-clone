@@ -1,13 +1,9 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import {
   ClerkProvider,
-  SignedIn,
-  SignedOut,
-  UserButton,
 } from "@clerk/clerk-react";
 import { Toaster } from "sonner";
 import Footer from "../../components/Footer";
-import { FiLogIn } from "react-icons/fi";
 
 const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
@@ -15,11 +11,11 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
 }
 
-export default function RootLayout() {
+export default function AuthLayout() {
   const navigate = useNavigate();
-  const handleLogoClick = () => {
+  const handleLogoClick = ()=>{
     navigate("/");
-  };
+  }
 
   return (
     <ClerkProvider
@@ -40,7 +36,6 @@ export default function RootLayout() {
               display: "flex",
               justifyContent: "space-between",
               padding: "1rem 0",
-              borderBottom: "1px solid rgb(30 41 59)",
             }}
           >
             <div
@@ -66,21 +61,6 @@ export default function RootLayout() {
               >
                 TranslateIt.io
               </h2>
-            </div>
-            <div className="nav-items">
-              <div className="auth-btns">
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/sign-in" />
-                </SignedIn>
-                <SignedOut>
-                  <Link to="/sign-in">
-                    <div className="auth-btn top-btn">
-                      <FiLogIn/>
-                      <h3>Login</h3>
-                    </div>
-                  </Link>
-                </SignedOut>
-              </div>
             </div>
           </nav>
         </div>

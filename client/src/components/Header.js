@@ -1,6 +1,7 @@
 import React from "react";
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
+import { Link, useNavigate } from "react-router-dom";
 import { MdOutlineTranslate } from "react-icons/md";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
@@ -8,13 +9,14 @@ import { useSaveModal } from "../hooks/useSaveModal";
 import {
   SignedIn,
   SignedOut,
-  SignInButton,
   UserButton,
 } from "@clerk/clerk-react";
+import { FiLogIn } from "react-icons/fi";
 
 const Header = ({ activeType, setActiveType }) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
+  const navigate = useNavigate();
 
   const activeStyles = {
     active: {
@@ -27,6 +29,9 @@ const Header = ({ activeType, setActiveType }) => {
 
   const handleType = (text) => {
     setActiveType(text);
+  };
+  const handleLogoClick = () => {
+    navigate("/");
   };
   return (
     <div
@@ -49,6 +54,7 @@ const Header = ({ activeType, setActiveType }) => {
             justifyContent: "flex-start",
             alignItems: "center",
           }}
+          onClick={handleLogoClick}
         >
           <img
             style={{ width: "40px", height: "40px", objectFit: "contain" }}
@@ -67,7 +73,7 @@ const Header = ({ activeType, setActiveType }) => {
           </h2>
         </div>
         <div className="nav-items">
-          <div className="nav-actions">
+          <div className="nav-actions" style={{ display: "none" }}>
             <div
               className="open-history-inner top-btn"
               style={activeStyles.active}
@@ -88,12 +94,19 @@ const Header = ({ activeType, setActiveType }) => {
           </div>
 
           <div className="auth-btns">
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
             <SignedIn>
-              <UserButton />
+              <UserButton afterSignOutUrl="/sign-in" />
             </SignedIn>
+            <SignedOut>
+              <Link to="/sign-in">
+                <div
+                  className="auth-btn top-btn"
+                >
+                  <FiLogIn />
+                  <h3>Login</h3>
+                </div>
+              </Link>
+            </SignedOut>
           </div>
         </div>
       </nav>
