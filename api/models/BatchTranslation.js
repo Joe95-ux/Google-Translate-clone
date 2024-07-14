@@ -8,8 +8,7 @@ const BatchTranslationSchema = new Schema({
   toLanguage: { type: [String], required: true },  // Array of strings
   input_document_paths: { type: [String], required: true },  // Array of strings
   outputDocumentPaths: { type: [String], required: true },  // Array of strings
-  timestamp: { type: Date, default: Date.now }
-});
+},{ timestamps: true });
 
 const BatchTranslation = mongoose.model('BatchTranslation', BatchTranslationSchema);
 module.exports = BatchTranslation;

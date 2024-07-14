@@ -7,9 +7,8 @@ const DocTranslationSchema = new Schema({
   fromLanguage: { type: String, required: true },
   toLanguage: { type: String, required: true },
   input_document_path: { type: String, required: true },
-  output_document_path: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
-});
+  output_document_path: { type: String, required: true }
+},{ timestamps: true });
 
 const DocTranslation = mongoose.model('DocTranslation', DocTranslationSchema);
 module.exports = DocTranslation;
