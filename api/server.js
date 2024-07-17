@@ -4,6 +4,7 @@ import fs from "fs";
 import { promises as fsPromises } from 'fs';
 import path from "path";
 import express from "express";
+import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
 import { OpenAI } from "openai";
@@ -26,6 +27,7 @@ import {
   convertXlsxToHTML,
   convertHTMLToXlsx,
 } from "./util.js";
+import connectDB from "./db.js"
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
@@ -33,6 +35,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
+
+//MONGODB CONFIG
+connectDB();
+
 const app = express();
 
 app.use(cors());
