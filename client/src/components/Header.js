@@ -101,12 +101,19 @@ const Header = ({ activeType, setActiveType }) => {
               <Link to="/sign-in">
                 <div
                   className="auth-btn top-btn"
+                  style={{border:"none"}}
                 >
-                  <FiLogIn />
                   <h3>Login</h3>
                 </div>
               </Link>
             </SignedOut>
+            <Link to="/sign-up">
+                <div
+                  className="auth-btn top-btn btn-right"
+                >
+                  <h3>Sign Up</h3>
+                </div>
+              </Link>
           </div>
         </div>
       </nav>

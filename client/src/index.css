@@ -868,7 +868,7 @@ span.lang-style::after{
 .open-history-inner h3, .saved h3, .auth-btn h3{
   margin-left: 5px;
 }
-.saved{
+.saved, .btn-right{
   margin-left: 10px;
 }
 
