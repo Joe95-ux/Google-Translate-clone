@@ -7,7 +7,7 @@ import {
 } from "@clerk/clerk-react";
 import { Toaster } from "sonner";
 import Footer from "../../components/Footer";
-import { FiLogIn } from "react-icons/fi";
+import { useAuth } from "@clerk/clerk-react";
 
 const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
@@ -20,6 +20,8 @@ export default function RootLayout() {
   const handleLogoClick = () => {
     navigate("/");
   };
+
+  const { userId, isLoaded } = useAuth();
 
   return (
     <ClerkProvider
@@ -82,11 +84,13 @@ export default function RootLayout() {
                     </div>
                   </Link>
                 </SignedOut>
-                <Link to="/sign-up">
-                  <div className="auth-btn top-btn btn-right">
-                    <h3>Sign Up</h3>
-                  </div>
-                </Link>
+                {isLoaded && !userId && (
+                  <Link to="/sign-up">
+                    <div className="auth-btn top-btn btn-right">
+                      <h3>Sign Up</h3>
+                    </div>
+                  </Link>
+                )}
               </div>
             </div>
           </nav>

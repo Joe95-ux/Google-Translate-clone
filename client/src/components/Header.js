@@ -6,12 +6,7 @@ import { MdOutlineTranslate } from "react-icons/md";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
-import {
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/clerk-react";
-import { FiLogIn } from "react-icons/fi";
+import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
 
 const Header = ({ activeType, setActiveType }) => {
   const historyModal = useHistory();
@@ -33,6 +28,8 @@ const Header = ({ activeType, setActiveType }) => {
   const handleLogoClick = () => {
     navigate("/");
   };
+
+  const {isLoaded, userId} = useAuth();
   return (
     <div
       className="nav-wrapper"
@@ -99,21 +96,18 @@ const Header = ({ activeType, setActiveType }) => {
             </SignedIn>
             <SignedOut>
               <Link to="/sign-in">
-                <div
-                  className="auth-btn top-btn"
-                  style={{border:"none"}}
-                >
+                <div className="auth-btn top-btn" style={{ border: "none" }}>
                   <h3>Login</h3>
                 </div>
               </Link>
             </SignedOut>
-            <Link to="/sign-up">
-                <div
-                  className="auth-btn top-btn btn-right"
-                >
+            {isLoaded && !userId && (
+              <Link to="/sign-up">
+                <div className="auth-btn top-btn btn-right">
                   <h3>Sign Up</h3>
                 </div>
               </Link>
+            )}
           </div>
         </div>
       </nav>
