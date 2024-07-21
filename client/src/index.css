@@ -13,6 +13,7 @@
   --spacing: 12px;
   --main-transition: all 0.3s ease;
   --main-grey: rgb(148 163 184);
+  --light-grey : rgb(203 213 225);
 }
 
 body {
@@ -909,4 +910,32 @@ span.lang-style::after{
   to {
     transform: rotate(360deg);
   }
+}
+
+/* privacy policy pages */
+.privacy-policy{
+  color: rgb(203 213 225);
+  text-align: left;
+}
+.privacy-policy h1{
+  font-size: 1.2rem;
+  color: var(--light-grey);
+  line-height: 1.4;
+  font-weight: 600;
+}
+.privacy-policy h2, .privacy-policy h3, .privacy-policy h1{
+  margin-bottom: 2rem;
+}
+.privacy-policy h2, .privacy-policy h3{
+  font-size: 1.1rem;
+  color: var(--light-grey);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.privacy-policy p{
+  line-height: 1.4;
+  font-size: 0.9rem;
+  color: var(--main-grey);
+  font-weight: normal;
 }
