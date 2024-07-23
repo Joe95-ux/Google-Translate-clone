@@ -28,7 +28,7 @@ body {
 .justify-center{
   display: var(--display-flex);
   justify-content: var(--justify-content);
-  align-content: center;
+  align-items: center;
   flex-direction: column;
 }
 
