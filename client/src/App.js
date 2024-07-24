@@ -4,6 +4,7 @@ import Home from "./scenes/home";
 import Privacy from "./scenes/privacy";
 import Activity from "./scenes/activity";
 import Terms from "./scenes/terms";
+import AboutUs from "./scenes/about-us";
 import Ocr from "./scenes/ocr";
 import HomeLayout from "./scenes/layouts/homeLayout";
 import RootLayout from "./scenes/layouts/rootLayout";
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/ocr" element={<Ocr />} />
             <Route path="/activity" element={<Activity />} />
+            <Route path="/about-us" element={<AboutUs />} />
           </Route>
         </Routes>
       </BrowserRouter>
