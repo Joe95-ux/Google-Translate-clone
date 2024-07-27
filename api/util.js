@@ -554,36 +554,6 @@ export const convertHTMLToPdf = async (htmlContent) => {
   }
 };
 
-// Convert HTML to .pptx
-
-// export async function convertHTMLToPdf(htmlContent) {
-//   try {
-//     return new Promise((resolve, reject) => {
-//       const buffers = [];
-//       const doc = new PDFDocument();
-
-//       doc.on('data', buffers.push.bind(buffers));
-//       doc.on('end', () => {
-//         const pdfData = Buffer.concat(buffers);
-//         resolve(pdfData);
-//       });
-
-//       doc.text(htmlContent);
-//       doc.end();
-//     });
-//   } catch (error) {
-//     throw new Error(`Error converting HTML to .pdf: ${error.message}`);
-//   }
-// }
-export async function convertHTMLToPptx(htmlContent) {
-  // Implementation using pptxgenjs or other library
-}
-
-// Convert HTML to .xlsx
-export async function convertHTMLToXlsx(htmlContent) {
-  // Implementation using another library
-}
-
 
 
 
