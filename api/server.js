@@ -12,22 +12,16 @@ import pdf from "pdf-parse";
 import { Readable } from "stream";
 import { translateText, getLanguageDisplayNames, getDetectedLanguage, getDocumentTranslation} from "./controllers/translateText.js";
 import {
-  translateDoc,
   lanOptions,
   headers,
-  generateTranslatedPdf,
   generateWordDocument,
   generateOCR,
   convertDocxToHtml,
-  convertHTMLToDocx,
   convertHTMLToPdf,
   convertPdfToHTML,
-  convertHTMLToPptx,
-  convertPptxToHTML,
-  convertXlsxToHTML,
-  convertHTMLToXlsx,
 } from "./util.js";
-import connectDB from "./db.js"
+import connectDB from "./db.js";
+import logger from "./logger.js";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
@@ -381,4 +375,4 @@ app.get("/speech_:timestamp.mp3", (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log("Server running on port " + PORT));
+app.listen(PORT, () => { logger.info("Server running on port " + PORT)});

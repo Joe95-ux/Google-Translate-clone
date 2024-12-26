@@ -135,35 +135,35 @@ export async function translateDocument(inputUri, mimeType, from, to) {
 
 // const glossaryId = 'your-glossary-display-name'
 
-async function createGlossary() {
-  // Construct glossary
-  const glossary = {
-    languageCodesSet: {
-      languageCodes: ['en', 'es'],
-    },
-    inputConfig: {
-      gcsSource: {
-        inputUri: 'gs://cloud-samples-data/translation/glossary.csv',
-      },
-    },
-    name: `projects/${projectId}/locations/${location}/glossaries/${glossaryId}`,
-  };
+// async function createGlossary() {
+//   // Construct glossary
+//   const glossary = {
+//     languageCodesSet: {
+//       languageCodes: ['en', 'es'],
+//     },
+//     inputConfig: {
+//       gcsSource: {
+//         inputUri: 'gs://cloud-samples-data/translation/glossary.csv',
+//       },
+//     },
+//     name: `projects/${projectId}/locations/${location}/glossaries/${glossaryId}`,
+//   };
 
-  // Construct request
-  const request = {
-    parent: `projects/${projectId}/locations/${location}`,
-    glossary: glossary,
-  };
+//   // Construct request
+//   const request = {
+//     parent: `projects/${projectId}/locations/${location}`,
+//     glossary: glossary,
+//   };
 
-  // Create glossary using a long-running operation
-  const [operation] = await translationClient.createGlossary(request);
+//   // Create glossary using a long-running operation
+//   const [operation] = await translationClient.createGlossary(request);
 
-  // Wait for the operation to complete
-  await operation.promise();
+//   // Wait for the operation to complete
+//   await operation.promise();
 
-  console.log('Created glossary:');
-  console.log(`InputUri ${request.glossary.inputConfig.gcsSource.inputUri}`);
-}
+//   console.log('Created glossary:');
+//   console.log(`InputUri ${request.glossary.inputConfig.gcsSource.inputUri}`);
+// }
 
-createGlossary();
+// createGlossary();
 
