@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./scenes/home";
 import Privacy from "./scenes/privacy";
 import Activity from "./scenes/activity";
@@ -30,6 +30,7 @@ const App = () => {
             <Route path="/ocr" element={<Ocr />} />
             <Route path="/activity" element={<Activity />} />
             <Route path="/about-us" element={<AboutUs />} />
+            <Route path="*" element={<Navigate to='/' replace/>}/>
           </Route>
         </Routes>
       </BrowserRouter>
