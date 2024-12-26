@@ -261,7 +261,7 @@ app.get('/detect-language', async (req, res) => {
 })
 
 // detect language with google cloud translate
-app.get('/detect-language', getDetectedLanguage);
+// app.get('/detect-language', getDetectedLanguage);
 
 // open ai requests
 
@@ -374,5 +374,12 @@ app.get("/speech_:timestamp.mp3", (req, res) => {
     },
   });
 });
+
+if(process.env.NODE_ENV === "production"){
+  app.use(express.static(path.join(__dirname, "/client/dist")));
+  app.get("*", (req, res)=>{
+    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+  })
+}
 
 app.listen(PORT, () => { logger.info("Server running on port " + PORT)});
