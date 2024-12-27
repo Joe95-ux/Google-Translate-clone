@@ -43,7 +43,9 @@ const Modal = ({
         setOutputLanguage(newOutputLang);
         setOtherOutputLangs((prevLangs) => {
           if (!prevLangs.includes(newOutputLang)) {
-            return [...prevLangs.slice(0, -1), newOutputLang];
+            return prevLangs.map((lang, index) => 
+              index === 1 ? newOutputLang : lang
+            );
           }
           return prevLangs;
         });
@@ -68,7 +70,9 @@ const Modal = ({
         setInputLanguage(newInputLang);
         setOtherInputLangs((prevLangs) => {
           if (!prevLangs.includes(newInputLang)) {
-            return [...prevLangs.slice(0, -1), newInputLang];
+            return prevLangs.map((lang, index) => 
+              index === 1 ? newInputLang : lang
+            );
           }
           return prevLangs;
         });
@@ -79,9 +83,13 @@ const Modal = ({
     setOtherLangs((prevLangs) => {
       let langs = [...prevLangs];
       if (language !== "Detect language" && !langs.includes(language)) {
-        langs.splice(langs.length - 1, 1, language);
+        // Replace second element if it exists
+        if (langs.length > 1) {
+          langs[1] = language;
+        } else {
+          langs.push(language); // Fallback if the array is too short
+        }
       }
-
       return langs;
     });
 
