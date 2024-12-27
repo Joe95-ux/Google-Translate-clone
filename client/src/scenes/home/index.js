@@ -16,6 +16,7 @@ import ShareModal from "../../components/ShareModal";
 import { useSaveModal } from "../../hooks/useSaveModal";
 import { useShareModal } from "../../hooks/useShareModal";
 import { Toaster, toast } from "sonner";
+import { usePersistentState } from "../../hooks/usePersistentState";
 import axios from "axios";
 
 const Home = () => {
@@ -23,11 +24,11 @@ const Home = () => {
   const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
-  const [inputLanguage, setInputLanguage] = useState("English");
-  const [outputLanguage, setOutputLanguage] = useState("French");
+  const [inputLanguage, setInputLanguage] = usePersistentState("inputLanguage", "English");
+  const [outputLanguage, setOutputLanguage] = usePersistentState("outputLanguage","French");
   const [activeType, setActiveType] = useState("Text");
-  const [textToTranslate, setTextToTranslate] = useState("");
-  const [translatedText, setTranslatedText] = useState("");
+  const [textToTranslate, setTextToTranslate] = usePersistentState("textToTranslate","");
+  const [translatedText, setTranslatedText] = usePersistentState("translatedText","");
   const [dictionary, setDictionary] = useState([]);
   const [detectedLang, setDetectedLang] = useState("");
   const [translations, setTranslations] = useState([]);
@@ -156,7 +157,7 @@ const Home = () => {
 
       detectLanguage();
     }
-  }, [detectedLang, inputLanguage, textToTranslate]);
+  }, [detectedLang, inputLanguage, setInputLanguage, textToTranslate]);
 
   useEffect(() => {
     if (textToTranslate === "" || textToTranslate === null) {
@@ -173,7 +174,7 @@ const Home = () => {
       });
       setInputLanguage("Detect language");
     }
-  }, [textToTranslate]);
+  }, [setInputLanguage, textToTranslate]);
 
   const translate = async (
     timestamp = null,
@@ -363,7 +364,7 @@ const Home = () => {
         savedTranslations={savedTranslations}
         setSavedTranslations={setSavedTranslations}
       />
-      <Header activeType={activeType} setActiveType={setActiveType} />
+      <Header activeType={activeType} setActiveType={setActiveType} inputLanguage={inputLanguage} otherInputLangs={otherInputLangs} setInputLanguage={setInputLanguage} outputLanguage={outputLanguage}/>
       <div className="app">
         <div
           style={{ width: "100%", height: activeType === "Text" ? "100%" : "" }}

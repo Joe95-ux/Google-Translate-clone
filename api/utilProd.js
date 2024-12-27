@@ -68,8 +68,10 @@ export async function detectLanguage(text) {
 
     let languageCode = response.languages[0].languageCode;
     let language;
-    if(languageCode){
-      const languageObj = languages.filter(lang=>lang.languageCode === languageCode);
+    if (languageCode) {
+      const languageObj = languages.filter(
+        (lang) => lang.languageCode === languageCode
+      );
       language = languageObj[0].displayName;
     }
     return language;
@@ -85,9 +87,9 @@ async function translateText(text) {
   const request = {
     parent: `projects/${projectId}/locations/${location}`,
     contents: [text],
-    mimeType: 'text/plain', // mime types: text/plain, text/html
-    sourceLanguageCode: 'en',
-    targetLanguageCode: 'sr-Latn',
+    mimeType: "text/plain", // mime types: text/plain, text/html
+    sourceLanguageCode: "en",
+    targetLanguageCode: "sr-Latn",
   };
 
   // Run request
@@ -119,17 +121,19 @@ export async function translateDocument(inputUri, mimeType, from, to) {
   };
 
   // Run request
-  const [response] = await translationClient.translateDocument(request);
-  const byteStreams = response.documentTranslation.byteStreamOutputs;
-  const translatedMimeType = response.documentTranslation.mimeType;
+  try {
+    const [response] = await translationClient.translateDocument(request);
+    const byteStreams = response.documentTranslation.byteStreamOutputs;
+    const translatedMimeType = response.documentTranslation.mimeType;
 
-  return {
-    byteStreams,
-    translatedMimeType,
-  };
+    return {
+      byteStreams,
+      translatedMimeType,
+    };
+  } catch (error) {
+
+  }
 }
-
-
 
 // Create Glossary
 
@@ -166,4 +170,3 @@ export async function translateDocument(inputUri, mimeType, from, to) {
 // }
 
 // createGlossary();
-

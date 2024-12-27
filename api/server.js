@@ -240,28 +240,29 @@ app.post('/translate-document', cloudUpload.single('file'), getDocumentTranslati
 //translate text
 app.get("/translation", translateText);
 
-app.get('/detect-language', async (req, res) => {
-  const {textToTranslate} = req.query;
-  const encodedParams = new URLSearchParams();
-  encodedParams.set('text', textToTranslate);
-  const options = {
-    method: 'POST',
-    url: 'https://google-translate113.p.rapidapi.com/api/v1/translator/detect-language',
-    headers:headers,
-    data: encodedParams
-  }
+// app.get('/detect-language', async (req, res) => {
+//   const {textToTranslate} = req.query;
+//   const encodedParams = new URLSearchParams();
+//   encodedParams.set('text', textToTranslate);
+//   const options = {
+//     method: 'POST',
+//     url: 'https://google-translate113.p.rapidapi.com/api/v1/translator/detect-language',
+//     headers:headers,
+//     data: encodedParams
+//   }
 
-  try {
-    const response = await axios.request(options);
-    res.status(200).json(response.data.source_lang);
-  } catch (err) {
-    console.log(err)
-    res.status(500).json({ message: err })
-  }
-})
+//   try {
+//     const response = await axios.request(options);
+//     res.status(200).json(response.data.source_lang);
+//   } catch (err) {
+//     console.log(err)
+//     res.status(500).json({ message: err })
+//   }
+// })
 
-// detect language with google cloud translate
-// app.get('/detect-language', getDetectedLanguage);
+//detect language with google cloud translate
+
+app.get('/detect-language', getDetectedLanguage);
 
 // open ai requests
 
@@ -374,11 +375,11 @@ app.get("/speech_:timestamp.mp3", (req, res) => {
     },
   });
 });
-
+const __newdir = path.resolve();
 if(process.env.NODE_ENV === "production"){
-  app.use(express.static(path.join(__dirname, "/client/dist")));
+  app.use(express.static(path.join(__newdir, "/client/build")));
   app.get("*", (req, res)=>{
-    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
+    res.sendFile(path.resolve(__newdir, "client", "build", "index.html"));
   })
 }
 

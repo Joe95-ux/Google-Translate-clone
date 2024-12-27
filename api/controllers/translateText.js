@@ -119,6 +119,6 @@ export const getDocumentTranslation = async (req, res) => {
     res.end();
   } catch (error) {
     console.error(error);
-    res.status(500).send('Failed to upload file.');
+    res.status(500).send(`Failed to translate file. ${error.message}`);
   }
 };

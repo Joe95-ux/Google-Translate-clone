@@ -8,7 +8,7 @@ import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
 import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
 
-const Header = ({ activeType, setActiveType }) => {
+const Header = ({ activeType, setActiveType, inputLanguage, otherInputLangs, setInputLanguage, outputLanguage }) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
   const navigate = useNavigate();
@@ -24,6 +24,12 @@ const Header = ({ activeType, setActiveType }) => {
 
   const handleType = (text) => {
     setActiveType(text);
+    const inputLanguages = otherInputLangs;
+    if(text === "Documents"){
+      if(inputLanguage.includes("Detect")){
+        setInputLanguage((prev)=>inputLanguages.find((lang)=> lang !== prev && lang !== outputLanguage));
+      }
+    }
   };
   const handleLogoClick = () => {
     navigate("/");
