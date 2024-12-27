@@ -73,6 +73,7 @@ const SelectDropdown = ({
       if (lang === inputLanguage) {
         const newInputLang = inputOptions.find(lange => lange !== lang && lange !== "Detect language");
         setInputLanguage(newInputLang);
+        localStorage.setItem("inputLanguage", newInputLang)
         setInputOptions(prevLangs => {
           if (!prevLangs.includes(newInputLang)) {
             return [...prevLangs.slice(0, -1), newInputLang];

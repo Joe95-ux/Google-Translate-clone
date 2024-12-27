@@ -7,6 +7,7 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
 import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
+import { toast } from "sonner";
 
 const Header = ({ activeType, setActiveType, inputLanguage, otherInputLangs, setInputLanguage, outputLanguage }) => {
   const historyModal = useHistory();
@@ -24,10 +25,19 @@ const Header = ({ activeType, setActiveType, inputLanguage, otherInputLangs, set
 
   const handleType = (text) => {
     setActiveType(text);
-    const inputLanguages = otherInputLangs;
-    if(text === "Documents"){
-      if(inputLanguage.includes("Detect")){
-        setInputLanguage((prev)=>inputLanguages.find((lang)=> lang !== prev && lang !== outputLanguage));
+    
+    if (text === "Documents") {
+      // Ensure inputLanguage exists and is a string
+      if (typeof inputLanguage === "string" && inputLanguage.includes("Detect")) {
+        const newInputLanguage = otherInputLangs.find(
+          (lang) => lang !== inputLanguage && lang !== outputLanguage
+        );
+  
+        if (newInputLanguage) {
+          setInputLanguage(newInputLanguage);
+        } else {
+          toast.warning("No valid input language found");
+        }
       }
     }
   };
@@ -98,7 +108,7 @@ const Header = ({ activeType, setActiveType, inputLanguage, otherInputLangs, set
 
           <div className="auth-btns">
             <SignedIn>
-              <UserButton afterSignOutUrl="/sign-in" />
+              <UserButton />
             </SignedIn>
             <SignedOut>
               <Link to="/sign-in">

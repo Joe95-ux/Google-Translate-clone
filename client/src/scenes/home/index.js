@@ -16,19 +16,32 @@ import ShareModal from "../../components/ShareModal";
 import { useSaveModal } from "../../hooks/useSaveModal";
 import { useShareModal } from "../../hooks/useShareModal";
 import { Toaster, toast } from "sonner";
-import { usePersistentState } from "../../hooks/usePersistentState";
 import axios from "axios";
+import {usePersistentState} from "../../hooks/usePersistentState";
+import { usePersistentArray } from "../../hooks/usePersistentArray";
 
 const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
-  const [inputLanguage, setInputLanguage] = usePersistentState("inputLanguage", "English");
-  const [outputLanguage, setOutputLanguage] = usePersistentState("outputLanguage","French");
+  const [otherInputLangs, setOtherInputLangs] = usePersistentArray("otherInputLangs", [
+    "Detect language",
+    "French",
+    "English",
+    "Spanish",
+  ]);
+  const [otherOutputLangs, setOtherOutputLangs] = usePersistentArray("otherOutputLangs", [
+    "English",
+    "Spanish",
+    "French",
+  ]);
+  
+  const [inputLanguage, setInputLanguage] = usePersistentState("inputLanguage","");
+  const [outputLanguage, setOutputLanguage] = usePersistentState("outputLanguage","");
   const [activeType, setActiveType] = useState("Text");
   const [textToTranslate, setTextToTranslate] = usePersistentState("textToTranslate","");
-  const [translatedText, setTranslatedText] = usePersistentState("translatedText","");
+  const [translatedText, setTranslatedText] = usePersistentState("translatedText", "");
   const [dictionary, setDictionary] = useState([]);
   const [detectedLang, setDetectedLang] = useState("");
   const [translations, setTranslations] = useState([]);
@@ -40,16 +53,6 @@ const Home = () => {
   const shareModal = useShareModal();
   const [smallScreenWidth, setSmallScreenWidth] = useState(window.innerWidth);
 
-  const [otherInputLangs, setOtherInputLangs] = useState([
-    "Detect language",
-    "French",
-    "English",
-  ]);
-  const [otherOutputLangs, setOtherOutputLangs] = useState([
-    "English",
-    "Spanish",
-    "French",
-  ]);
   const translateRef = useRef(false);
 
   const activeStyles = {
@@ -60,6 +63,19 @@ const Home = () => {
       color: saveModal.isOpen && "#38BDF8",
     },
   };
+
+  //initialize input and output langs
+  useEffect(() => {
+    if (!inputLanguage) {
+      const initialInputLang = "Detect language";
+      setInputLanguage(initialInputLang);
+    }
+  
+    if (!outputLanguage) {
+      const initialOutputLang = otherOutputLangs.find((lang) => lang !== inputLanguage) || "English";
+      setOutputLanguage(initialOutputLang);
+    }
+  }, [inputLanguage, outputLanguage, otherInputLangs, otherOutputLangs, setInputLanguage, setOutputLanguage]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -157,7 +173,7 @@ const Home = () => {
 
       detectLanguage();
     }
-  }, [detectedLang, inputLanguage, setInputLanguage, textToTranslate]);
+  }, [detectedLang, inputLanguage, setInputLanguage, setOtherInputLangs, textToTranslate]);
 
   useEffect(() => {
     if (textToTranslate === "" || textToTranslate === null) {
@@ -172,9 +188,9 @@ const Home = () => {
 
         return updatedOptions;
       });
-      setInputLanguage("Detect language");
+      setInputLanguage((prev) => prev);
     }
-  }, [setInputLanguage, textToTranslate]);
+  }, [setInputLanguage, setOtherInputLangs, textToTranslate]);
 
   const translate = async (
     timestamp = null,
