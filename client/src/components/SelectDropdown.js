@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 
 const SelectDropdown = ({
   type,
@@ -15,7 +15,7 @@ const SelectDropdown = ({
   textToTranslate,
   translate,
   translateRef,
-  tab
+  tab,
 }) => {
   let langOptions = type === "input" ? inputOptions : outputOptions;
   let chosenLangIndex = langOptions.findIndex(
@@ -24,6 +24,8 @@ const SelectDropdown = ({
   let singleLang = langOptions[chosenLangIndex];
 
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -41,9 +43,9 @@ const SelectDropdown = ({
     if (type === "input") {
       setInputLanguage(lang);
       if (lang === outputLanguage) {
-        const newOutputLang = outputOptions.find(lange => lange !== lang);
+        const newOutputLang = outputOptions.find((lange) => lange !== lang);
         setOutputLanguage(newOutputLang);
-        setOutputOptions(prevLangs => {
+        setOutputOptions((prevLangs) => {
           if (!prevLangs.includes(newOutputLang)) {
             return [...prevLangs.slice(0, -1), newOutputLang];
           }
@@ -51,37 +53,35 @@ const SelectDropdown = ({
         });
       }
 
-      if(!lang.includes("Detected")){
-        setInputOptions(prevLangs => {
-          const updatedOptions = prevLangs.map(language => {
-            if(language.includes("Detected")){
+      if (!lang.includes("Detected")) {
+        setInputOptions((prevLangs) => {
+          const updatedOptions = prevLangs.map((language) => {
+            if (language.includes("Detected")) {
               return "Detect language";
-            }else{
-              return language
+            } else {
+              return language;
             }
-          })
+          });
 
           return updatedOptions;
-          
-        })
-
+        });
       }
-      
     } else if (type === "output") {
       setOutputLanguage(lang);
       translateRef.current = true;
       if (lang === inputLanguage) {
-        const newInputLang = inputOptions.find(lange => lange !== lang && lange !== "Detect language");
+        const newInputLang = inputOptions.find(
+          (lange) => lange !== lang && lange !== "Detect language"
+        );
         setInputLanguage(newInputLang);
-        localStorage.setItem("inputLanguage", newInputLang)
-        setInputOptions(prevLangs => {
+        localStorage.setItem("inputLanguage", newInputLang);
+        setInputOptions((prevLangs) => {
           if (!prevLangs.includes(newInputLang)) {
             return [...prevLangs.slice(0, -1), newInputLang];
           }
           return prevLangs;
         });
       }
-      
     }
   };
 
@@ -89,11 +89,36 @@ const SelectDropdown = ({
     if (translateRef.current && textToTranslate !== "" && tab === "Text") {
       translate();
       translateRef.current = false; // Reset flag
-    }else{
+    } else {
       translateRef.current = false;
     }
   }, [outputLanguage, tab, textToTranslate, translate, translateRef]);
-  
+
+  // handle behavior of smookscreen
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+
+    const handleScroll = () => {
+      if (!scrollContainer) return;
+
+      const isAtEnd = 
+        scrollContainer.scrollWidth - scrollContainer.scrollLeft <= scrollContainer.clientWidth + 1;
+
+      if (isAtEnd) {
+        scrollContainer.parentElement.classList.add('no-scroll');
+      } else {
+        scrollContainer.parentElement.classList.remove('no-scroll');
+      }
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check on mount
+
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
 
   return (
     <div
@@ -101,33 +126,38 @@ const SelectDropdown = ({
       style={{ justifyContent: type === "output" ? "flex-end" : "flex-start" }}
     >
       {/* <input value={selectedLanguage} /> */}
-      <div className="lang-nav">
-        {screenWidth < 765 ? (
-          <span
-            className={
-              singleLang === selectedLanguage
-                ? "lang-style lang-option"
-                : "lang-option"
-            }
-          >
-            {singleLang}
-          </span>
-        ) : (
-          langOptions?.map((lang, index) => (
-            <span
-              key={index}
+      <div className="lang-nav-wrapper">
+        <div className="lang-nav" ref={scrollContainerRef}>
+          {screenWidth < 765 ? (
+            <div
               className={
-                lang === selectedLanguage
+                singleLang === selectedLanguage
                   ? "lang-style lang-option"
                   : "lang-option"
               }
-              onClick={() => handleLangSet(lang)}
             >
-              {lang.includes("Detected") && !lang.includes(selectedLanguage) ? "Detect language" : lang }
-            </span>
-          ))
-        )}
+              {singleLang}
+            </div>
+          ) : (
+            langOptions?.map((lang, index) => (
+              <div
+                key={index}
+                className={
+                  lang === selectedLanguage
+                    ? "lang-style lang-option"
+                    : "lang-option"
+                }
+                onClick={() => handleLangSet(lang)}
+              >
+                {lang.includes("Detected") && !lang.includes(selectedLanguage)
+                  ? "Detect language"
+                  : lang}
+              </div>
+            ))
+          )}
+        </div>
       </div>
+
       <div className="down-arrow" onClick={() => setShowModal(type)}>
         <svg
           focusable="false"
