@@ -10,7 +10,7 @@ import multer from "multer";
 import { OpenAI } from "openai";
 import pdf from "pdf-parse";
 import { Readable } from "stream";
-import { translateText, getLanguageDisplayNames, getDetectedLanguage, getDocumentTranslation} from "./controllers/translateText.js";
+import { translateText, translateTextWithGoogle, getLanguageDisplayNames, getDetectedLanguage, getDocumentTranslation} from "./controllers/translateText.js";
 import {
   lanOptions,
   headers,
@@ -238,7 +238,7 @@ app.post("/translate-documentz", upload.single("file"), async (req, res) => {
 app.post('/translate-document', cloudUpload.single('file'), getDocumentTranslation)
 
 //translate text
-app.get("/translation", translateText);
+app.get("/translation", translateTextWithGoogle);
 
 // app.get('/detect-language', async (req, res) => {
 //   const {textToTranslate} = req.query;

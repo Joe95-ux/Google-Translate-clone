@@ -39,7 +39,7 @@ const SelectDropdown = ({
     };
   }, []);
 
-  const handleLangSet = (lang) => {
+  const handleLangSet = (lang, index) => {
     if (type === "input") {
       setInputLanguage(lang);
       if (lang === outputLanguage) {
@@ -83,6 +83,17 @@ const SelectDropdown = ({
         });
       }
     }
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const item = scrollContainer.children[index];
+    if (item) {
+      item.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
   };
 
   useEffect(() => {
@@ -119,6 +130,7 @@ const SelectDropdown = ({
     };
   }, []);
 
+ 
 
   return (
     <div
@@ -147,7 +159,7 @@ const SelectDropdown = ({
                     ? "lang-style lang-option"
                     : "lang-option"
                 }
-                onClick={() => handleLangSet(lang)}
+                onClick={() => handleLangSet(lang, index)}
               >
                 {lang.includes("Detected") && !lang.includes(selectedLanguage)
                   ? "Detect language"

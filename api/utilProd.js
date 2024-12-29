@@ -47,7 +47,7 @@ export async function getLangShort(language) {
     const filteredLan = data.filter(
       (languageObj) => languageObj.displayName === lan
     );
-    return filteredLan[0].languageCode;
+    return filteredLan[0]?.languageCode || 'undefined';
   } catch (error) {
     console.log(error);
   }
@@ -82,23 +82,24 @@ export async function detectLanguage(text) {
 
 // translate text
 
-async function translateText(text) {
+export async function translateTextFxn(text, fromLang, toLang) {
   // Construct request
   const request = {
     parent: `projects/${projectId}/locations/${location}`,
     contents: [text],
     mimeType: "text/plain", // mime types: text/plain, text/html
-    sourceLanguageCode: "en",
-    targetLanguageCode: "sr-Latn",
+    sourceLanguageCode: fromLang,
+    targetLanguageCode: toLang,
   };
 
   // Run request
   const [response] = await translationClient.translateText(request);
-  console.log(response.glossaryTranslations);
+  // console.log(response.glossaryTranslations);
 
-  for (const translation of response.translations) {
-    console.log(`Translation: ${translation.translatedText}`);
-  }
+  // for (const translation of response.translations) {
+  //   console.log(`Translation: ${translation.translatedText}`);
+  // }
+  return response.translations[0].translatedText;
 }
 
 // translateText("The quick brown fox jumped over the white lazy dog");

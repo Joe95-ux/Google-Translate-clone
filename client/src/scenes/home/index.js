@@ -147,7 +147,7 @@ const Home = () => {
             `${process.env.REACT_APP_API_ENDPOINT}/detect-language`,
             { params: { textToTranslate } }
           );
-          const detectedLanguage = response.data + " - Detected";
+          const detectedLanguage = activeType === "Text" ? response.data + " - Detected" : "Detect language";
           setDetectedLang(response.data);
           if (inputLanguage === "Detect language") {
             setInputLanguage(detectedLanguage);
@@ -173,10 +173,37 @@ const Home = () => {
 
       detectLanguage();
     }
-  }, [detectedLang, inputLanguage, setInputLanguage, setOtherInputLangs, textToTranslate]);
+  }, [activeType, detectedLang, inputLanguage, setInputLanguage, setOtherInputLangs, textToTranslate]);
+
+  // change Detected Language on Documents
+  useEffect(()=>{
+    setOtherInputLangs((prevLangs)=>{
+      if(activeType === "Documents" && inputLanguage.includes("Detected")){
+        setInputLanguage("Detect language");
+        return prevLangs.map((lang)=>{
+          if(lang.includes("Detected")){
+            return "Detect language";
+          }else{
+            return lang
+          }
+        })
+      }
+      return prevLangs
+
+    })
+    
+
+  }, [activeType, inputLanguage, setInputLanguage, setOtherInputLangs])
 
   useEffect(() => {
     if (textToTranslate === "" || textToTranslate === null) {
+      setInputLanguage((prev) => {
+        if(prev.includes("Detected")){
+          return "Detect language"
+        }else{
+          return prev
+        }
+      });
       setOtherInputLangs((prevLangs) => {
         const updatedOptions = prevLangs.map((language) => {
           if (language.includes("Detected")) {
@@ -188,7 +215,7 @@ const Home = () => {
 
         return updatedOptions;
       });
-      setInputLanguage((prev) => prev);
+      
     }
   }, [setInputLanguage, setOtherInputLangs, textToTranslate]);
 
@@ -212,8 +239,9 @@ const Home = () => {
             params: data,
           }
         );
-
-        setTranslatedText(response.data.trans);
+        console.log(response.data)
+        // response.data.trans
+        setTranslatedText(response.data);
         setDictionary(response.data.dict || []);
         setShowCopy(true);
         setIsLoading(false);

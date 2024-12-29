@@ -1,5 +1,5 @@
 import { getLanguageShort, headers } from "../util.js";
-import {getSupportedLanguages, getLangShort, detectLanguage, translateDocument} from "../utilProd.js";
+import {getSupportedLanguages, getLangShort, detectLanguage, translateDocument, translateTextFxn} from "../utilProd.js";
 import axios from "axios";
 import mime from "mime-types";
 import { Writable } from 'stream';
@@ -9,8 +9,8 @@ const storage = new Storage();
 
 export const translateText = async (req, res) => {
   const { text, outputLang, inputLang } = req.query;
-  const fromLang = await getLanguageShort(inputLang);
-  const toLang = await getLanguageShort(outputLang);
+  const fromLang = await getLangShort(inputLang);
+  const toLang = await getLangShort(outputLang);
   const options = {
     method: "POST",
     headers: headers,
@@ -32,6 +32,21 @@ export const translateText = async (req, res) => {
     res.status(500).json({ message: err });
   }
 };
+
+//translate text with google cloud translate
+export const translateTextWithGoogle = async (req, res) => {
+  const { text, outputLang, inputLang } = req.query;
+  const fromLang = await getLangShort(inputLang);
+  const toLang = await getLangShort(outputLang);
+  try {
+    const response = await translateTextFxn(text, fromLang, toLang);
+    res.status(200).json(response);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: err });
+  }
+};
+
 
 // language display Name
 export const getLanguageDisplayNames = async (req, res)=>{

@@ -109,7 +109,7 @@ const TextBox = ({
     setDic([]);
     setShowDelete(false);
     setShowCopy(false);
-    adjustTextareaHeight();
+    adjustTextareaHeight(inputBoxRef.current);
   };
 
   useEffect(() => {
@@ -256,7 +256,7 @@ const TextBox = ({
             value={variant === "input" ? textToTranslate : translatedText}
           />
 
-          {variant === "input" && showDelete && (
+          {variant === "input" && textToTranslate && (
             <div
               className="delete"
               onClick={handleClick}
@@ -421,7 +421,7 @@ const TextBox = ({
           </div>
         )}
 
-        {variant === "output" && showCopy && (
+        {variant === "output" && translatedText && (
           <div className="textarea-actions">
             <div className="left-actions">
               <>

@@ -1,4 +1,3 @@
-import React from "react";
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,9 +6,15 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
 import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
-import { toast } from "sonner";
 
-const Header = ({ activeType, setActiveType, inputLanguage, otherInputLangs, setInputLanguage, outputLanguage }) => {
+const Header = ({
+  activeType,
+  setActiveType,
+  inputLanguage,
+  otherInputLangs,
+  setInputLanguage,
+  outputLanguage,
+}) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
   const navigate = useNavigate();
@@ -25,27 +30,13 @@ const Header = ({ activeType, setActiveType, inputLanguage, otherInputLangs, set
 
   const handleType = (text) => {
     setActiveType(text);
-    
-    if (text === "Documents") {
-      // Ensure inputLanguage exists and is a string
-      if (typeof inputLanguage === "string" && inputLanguage.includes("Detect")) {
-        const newInputLanguage = otherInputLangs.find(
-          (lang) => lang !== inputLanguage && lang !== outputLanguage
-        );
-  
-        if (newInputLanguage) {
-          setInputLanguage(newInputLanguage);
-        } else {
-          toast.warning("No valid input language found");
-        }
-      }
-    }
   };
+
   const handleLogoClick = () => {
     navigate("/");
   };
 
-  const {isLoaded, userId} = useAuth();
+  const { isLoaded, userId } = useAuth();
   return (
     <div
       className="nav-wrapper"
@@ -66,6 +57,7 @@ const Header = ({ activeType, setActiveType, inputLanguage, otherInputLangs, set
             display: "flex",
             justifyContent: "flex-start",
             alignItems: "center",
+            cursor: "pointer",
           }}
           onClick={handleLogoClick}
         >
