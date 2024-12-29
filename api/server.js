@@ -8,7 +8,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
 import { OpenAI } from "openai";
-import pdf from "pdf-parse";
 import { Readable } from "stream";
 import { translateText, translateTextWithGoogle, getLanguageDisplayNames, getDetectedLanguage, getDocumentTranslation} from "./controllers/translateText.js";
 import {
