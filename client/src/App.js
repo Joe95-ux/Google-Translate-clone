@@ -9,8 +9,8 @@ import Ocr from "./scenes/ocr";
 import HomeLayout from "./scenes/layouts/homeLayout";
 import RootLayout from "./scenes/layouts/rootLayout";
 import AuthLayout from "./scenes/layouts/authLayout"; 
-import SignInPage from "./scenes/auth/sign-in";
-import SignUpPage from "./scenes/auth/sign-up";
+import SignInPage from "./scenes/auth/sign-in/[[...index]]";
+import SignUpPage from "./scenes/auth/sign-up/[[...index]]";
 
 const App = () => {
   return (
