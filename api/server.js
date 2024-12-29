@@ -375,11 +375,19 @@ app.get("/speech_:timestamp.mp3", (req, res) => {
   });
 });
 const __newdir = path.resolve();
-if(process.env.NODE_ENV === "production"){
+if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__newdir, "/client/build")));
-  app.get("*", (req, res)=>{
+
+  // Serve API routes first
+  app.use("/api", (req, res, next) => {
+    next(); // Continue to API routes
+  });
+
+  // Catch-all route for React app
+  app.get("*", (req, res) => {
     res.sendFile(path.resolve(__newdir, "client", "build", "index.html"));
-  })
+  });
 }
+
 
 app.listen(PORT, () => { logger.info("Server running on port " + PORT)});
