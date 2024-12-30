@@ -375,27 +375,16 @@ app.get("/speech_:timestamp.mp3", (req, res) => {
   });
 });
 const __newdir = path.resolve();
+
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__newdir, "/client/build")));
 
-  // Catch-all for backend routes to prevent React from hijacking them
-  const backendRoutes = [
-    "/synthesize-speech",
-    "/clear-uploads",
-    "/languages",
-    "/languagesz",
-    "/translate-document",
-    "/translate-documentz",
-    "/detect-language",
-    "/translation",
-    "/speech_:timestamp.mp3"
-  ];
-
-  backendRoutes.forEach((route) => {
-    app.use(route, (req, res, next) => next());
+  // Serve API routes first
+  app.use("/api/*", (req, res, next) => {
+    next(); // Continue to API routes
   });
 
-  // Catch-all for React frontend
+  // Catch-all route for React app
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__newdir, "client", "build", "index.html"));
   });
