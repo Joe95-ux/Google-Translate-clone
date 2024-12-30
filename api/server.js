@@ -1,4 +1,4 @@
-const PORT = 4000 || 8080;
+const PORT = process.env.PORT || 4000;
 import axios from "axios";
 import fs from "fs";
 import { promises as fsPromises } from 'fs';
