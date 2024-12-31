@@ -36,14 +36,17 @@ export const translateText = async (req, res) => {
 //translate text with google cloud translate
 export const translateTextWithGoogle = async (req, res) => {
   const { text, outputLang, inputLang } = req.query;
-  const fromLang = await getLangShort(inputLang);
-  const toLang = await getLangShort(outputLang);
+  let fromLang = await getLangShort(inputLang);
+  let toLang = await getLangShort(outputLang);
+  if(fromLang === toLang){
+    fromLang = "";
+  }
   try {
     const response = await translateTextFxn(text, fromLang, toLang);
     res.status(200).json(response);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: err });
+    res.status(500).json({ message: err.message });
   }
 };
 

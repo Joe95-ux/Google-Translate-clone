@@ -16,8 +16,11 @@ const ComposeHeader = ({
   translate,
   translateRef,
   textToTranslate,
-  tab
+  tab,
 }) => {
+  const disabled =
+    inputLanguage.includes("Detect language") ||
+    inputLanguage.includes(outputLanguage);
 
   return (
     <div className="compose-box-header">
@@ -38,7 +41,14 @@ const ComposeHeader = ({
         textToTranslate={textToTranslate}
         tab={tab}
       />
-      <div className={inputLanguage.includes("Detect language") ? "arrow-container disabled-arrow" : "arrow-container"} onClick={handleClick}>
+      <div
+        className={
+          disabled ? "arrow-container disabled-arrow" : "arrow-container"
+        }
+        onClick={!disabled ? handleClick : undefined}
+        aria-disabled={disabled}
+        role="button"
+      >
         <Arrows />
       </div>
       <SelectDropdown

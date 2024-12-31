@@ -228,10 +228,13 @@ const Home = () => {
 
   const translate = async (
     timestamp = null,
-    text = textToTranslate,
-    outputLang = outputLanguage,
-    inputLang = inputLanguage
+    text,
+    outputLang,
+    inputLang
   ) => {
+    text = text || textToTranslate;
+    outputLang = outputLang || outputLanguage;
+    inputLang = inputLang || inputLanguage;
     const data = {
       text,
       outputLang,
@@ -246,10 +249,10 @@ const Home = () => {
             params: data,
           }
         );
-        console.log(response.data)
         // response.data.trans
         setTranslatedText(response.data);
-        setDictionary(response.data.dict || []);
+        //response.data?.dict || (for old model)
+        setDictionary([]);
         setShowCopy(true);
         setIsLoading(false);
         if (!timestamp) {
@@ -259,7 +262,7 @@ const Home = () => {
             from: inputLang.includes("Detected")
               ? inputLang.split(" - ")[0]
               : inputLang,
-            translation: response.data.trans,
+            translation: response.data,
             timestamp: new Date().toLocaleString(),
             saved: false,
           });
