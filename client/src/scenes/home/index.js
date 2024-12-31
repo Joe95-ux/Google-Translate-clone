@@ -129,34 +129,20 @@ const Home = () => {
   }, [getLanguages, isFetching]);
 
   useEffect(() => {
-    try {
-      const data = localStorage.getItem("translations");
-      const parsedData = data ? JSON.parse(data) : [];
-      if (Array.isArray(parsedData) && parsedData.length > 0) {
-        console.log("Setting translations from localStorage:", parsedData);
-        setTranslations(parsedData);
-      }
-  
-      const saved = localStorage.getItem("savedTranslations");
-      const parsedSaved = saved ? JSON.parse(saved) : [];
-      if (Array.isArray(parsedSaved) && parsedSaved.length > 0) {
-        console.log("Setting saved translations from localStorage:", parsedSaved);
-        setSavedTranslations(parsedSaved);
-      }
-    } catch (error) {
-      console.error("Failed to load data from localStorage:", error);
+    const data = localStorage.getItem("translations");
+    const parsedData = JSON.parse(data) || [];
+    if (parsedData.length > 0) {
+      console.log("Setting translations from localStorage:", parsedData);
+      setTranslations(parsedData);
     }
-  }, []);
 
-  useEffect(() => {
-    localStorage.setItem("translations", JSON.stringify(translations));
-  }, [translations]);
-  
-  useEffect(() => {
-    localStorage.setItem("savedTranslations", JSON.stringify(savedTranslations));
-  }, [savedTranslations]);
-  
-  
+    const saved = JSON.parse(localStorage.getItem("savedTranslations")) || [];
+    if (saved.length > 0) {
+      console.log("Setting saved translations from localStorage:", saved);
+      setSavedTranslations(saved);
+    }
+}, []);
+
 
   useEffect(() => {
     if (
@@ -243,7 +229,7 @@ const Home = () => {
   }, [setInputLanguage, setOtherInputLangs, textToTranslate]);
 
   const translate = async (
-    timestamp = null,
+    timestamp = "",
     text,
     outputLang,
     inputLang
@@ -271,7 +257,7 @@ const Home = () => {
         setDictionary([]);
         setShowCopy(true);
         setIsLoading(false);
-        if (!timestamp) {
+        if (timestamp === "" || timestamp === undefined || timestamp === null) {
           saveTranslation({
             text: text,
             to: outputLang,
@@ -300,6 +286,14 @@ const Home = () => {
       return translationData;
     });
   };
+
+  useEffect(() => {
+    localStorage.setItem("translations", JSON.stringify(translations));
+  }, [translations]);
+  
+  useEffect(() => {
+    localStorage.setItem("savedTranslations", JSON.stringify(savedTranslations));
+  }, [savedTranslations]);
   
 
   const handleClick = () => {

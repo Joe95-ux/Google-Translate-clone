@@ -4,6 +4,7 @@ import { ThreeCircles } from "react-loader-spinner";
 
 const Button = ({ disable, translate }) => {
   // const icon = '➟';
+  const timestamp = "";
 
   return (
     <div title={!disable && "Click to Translate"} style={{ display: "flex" }}>
@@ -17,7 +18,7 @@ const Button = ({ disable, translate }) => {
           style={{ cursor: "default" }}
         />
       ) : (
-        <IoEnter size={30} onClick={translate} style={{ cursor: "pointer" }} />
+        <IoEnter size={30} onClick={()=>translate(timestamp)} style={{ cursor: "pointer" }} />
       )}
     </div>
   );
