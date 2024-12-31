@@ -129,24 +129,40 @@ const Home = () => {
   }, [getLanguages, isFetching]);
 
   useEffect(() => {
-    const data = localStorage.getItem("translations");
-    const parsedData = JSON.parse(data) || [];
-    if (parsedData.length > 0) {
-      console.log("Setting translations from localStorage:", parsedData);
-      setTranslations(parsedData);
-    }
-    const saved = JSON.parse(localStorage.getItem("savedTranslations")) || [];
-    if (saved.length > 0) {
-      console.log("Setting saved translations from localStorage:", saved);
-      setSavedTranslations(saved);
+    try {
+      const data = localStorage.getItem("translations");
+      const parsedData = data ? JSON.parse(data) : [];
+      if (Array.isArray(parsedData) && parsedData.length > 0) {
+        console.log("Setting translations from localStorage:", parsedData);
+        setTranslations(parsedData);
+      }
+  
+      const saved = localStorage.getItem("savedTranslations");
+      const parsedSaved = saved ? JSON.parse(saved) : [];
+      if (Array.isArray(parsedSaved) && parsedSaved.length > 0) {
+        console.log("Setting saved translations from localStorage:", parsedSaved);
+        setSavedTranslations(parsedSaved);
+      }
+    } catch (error) {
+      console.error("Failed to load data from localStorage:", error);
     }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("translations", JSON.stringify(translations));
+  }, [translations]);
+  
+  useEffect(() => {
+    localStorage.setItem("savedTranslations", JSON.stringify(savedTranslations));
+  }, [savedTranslations]);
+  
+  
 
   useEffect(() => {
     if (
       textToTranslate !== "" &&
       textToTranslate !== null &&
-      !inputLanguage.includes("Detected")
+      !inputLanguage.includes("Detected") && activeType === "Text"
     ) {
       const detectLanguage = async () => {
         try {
@@ -278,10 +294,13 @@ const Home = () => {
   };
 
   const saveTranslation = (translation) => {
-    let translationData = [translation, ...translations];
-    setTranslations(translationData);
-    localStorage.setItem("translations", JSON.stringify(translationData));
+    setTranslations((prevTranslations) => {
+      const translationData = [translation, ...prevTranslations];
+      localStorage.setItem("translations", JSON.stringify(translationData));
+      return translationData;
+    });
   };
+  
 
   const handleClick = () => {
     // Check if inputLanguage is not "Detect language"
