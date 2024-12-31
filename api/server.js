@@ -379,11 +379,6 @@ const __newdir = path.resolve();
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__newdir, "/client/build")));
 
-  // Serve API routes first
-  app.use("/api/*", (req, res, next) => {
-    next(); // Continue to API routes
-  });
-
   // Catch-all route for React app
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__newdir, "client", "build", "index.html"));
