@@ -6,6 +6,12 @@ import { IoCloudUploadSharp } from "react-icons/io5";
 import FileBox from "./fileBox";
 
 const Documents = ({ fromLanguage, toLanguage }) => {
+  let apiUrl;
+  if (process.env.NODE_ENV === 'development') {
+    apiUrl="http://localhost:4000/"
+  } else if (process.env.NODE_ENV === 'production') {
+    apiUrl="/";
+  }
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
@@ -59,7 +65,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_ENDPOINT}/translate-document`,
+        `${apiUrl}translate-document`,
         formData, {
           responseType: 'blob', // Receive binary data
         }
@@ -85,7 +91,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
 
   const handleFolderReset = async ()=>{
     try {
-      await axios.get(`${process.env.REACT_APP_API_ENDPOINT}/clear-uploads`);
+      await axios.get(`${apiUrl}clear-uploads`);
       
     } catch (error) {
       console.log({error: error.message})

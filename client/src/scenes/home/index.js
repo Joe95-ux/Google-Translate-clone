@@ -64,6 +64,13 @@ const Home = () => {
     },
   };
 
+  let apiUrl;
+  if (process.env.NODE_ENV === 'development') {
+    apiUrl="http://localhost:4000/"
+  } else if (process.env.NODE_ENV === 'production') {
+    apiUrl="/";
+  }
+
   //initialize input and output langs
   useEffect(() => {
     if (!inputLanguage) {
@@ -92,7 +99,7 @@ const Home = () => {
   const getLanguages = useCallback(async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_ENDPOINT}/languages`
+        `${apiUrl}languages`
       );
       const data = await response.data;
       if (data) {
@@ -106,7 +113,7 @@ const Home = () => {
       // );
       setIsFetching(true);
     }
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     getLanguages(); // Initial fetch attempt
@@ -144,7 +151,7 @@ const Home = () => {
       const detectLanguage = async () => {
         try {
           const response = await axios.get(
-            `${process.env.REACT_APP_API_ENDPOINT}/detect-language`,
+            `${apiUrl}detect-language`,
             { params: { textToTranslate } }
           );
           const detectedLanguage = activeType === "Text" ? response.data + " - Detected" : "Detect language";
@@ -173,7 +180,7 @@ const Home = () => {
 
       detectLanguage();
     }
-  }, [activeType, detectedLang, inputLanguage, setInputLanguage, setOtherInputLangs, textToTranslate]);
+  }, [activeType, apiUrl, detectedLang, inputLanguage, setInputLanguage, setOtherInputLangs, textToTranslate]);
 
   // change Detected Language on Documents
   useEffect(()=>{
@@ -234,7 +241,7 @@ const Home = () => {
     try {
       if (text !== "" && text !== null) {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_ENDPOINT}/translation`,
+          `${apiUrl}translation`,
           {
             params: data,
           }
@@ -376,7 +383,7 @@ const Home = () => {
   const synthesizeSpeech = async (text) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_ENDPOINT}/synthesize-speech`,
+        `${apiUrl}synthesize-speech`,
         {
           input: text,
         }
