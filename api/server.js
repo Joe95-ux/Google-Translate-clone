@@ -34,9 +34,10 @@ import { deleteTemporaryFiles, ensureTempDirectory } from "./lib.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const __rootDir = path.resolve();
 
 const isProduction = process.env.NODE_ENV === "production";
-const TMP_DIR = isProduction ? os.tmpdir() : path.resolve(__dirname, "public", "temp");
+const TMP_DIR = isProduction ? os.tmpdir() : path.resolve(__rootDir, "public", "temp");
 
 dotenv.config();
 

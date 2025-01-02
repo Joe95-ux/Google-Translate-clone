@@ -5,6 +5,7 @@ import path from "path";
 import os from 'os';
 
 // Determine the temporary directory based on the environment
+const __dirname = path.resolve();
 const isProduction = process.env.NODE_ENV === "production";
 const TMP_DIR = isProduction ? os.tmpdir() : path.resolve(__dirname, "public", "temp");
 
