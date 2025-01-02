@@ -1,8 +1,8 @@
 dotenv.config();
 import dotenv from "dotenv";
-const fs = require("fs").promises;
-const path = require("path");
-const os = require("os");
+import fs from "fs";
+import path from "path";
+import os from ('os');
 
 // Determine the temporary directory based on the environment
 const isProduction = process.env.NODE_ENV === "production";
@@ -12,7 +12,7 @@ const TMP_DIR = isProduction ? os.tmpdir() : path.resolve(__dirname, "public", "
 export async function ensureTempDirectory() {
   if (!isProduction) {
     try {
-      await fs.mkdir(TMP_DIR, { recursive: true });
+      await fs.promises.mkdir(TMP_DIR, { recursive: true });
       console.log(`Temporary directory ensured at: ${TMP_DIR}`);
     } catch (error) {
       console.error(`Failed to create temp directory at ${TMP_DIR}:`, error);
@@ -24,7 +24,7 @@ export async function ensureTempDirectory() {
 async function writeTemporaryFile(fileName, data) {
   await ensureTempDirectory(); // Ensure directory exists in development
   const tmpFilePath = path.join(TMP_DIR, fileName);
-  await fs.writeFile(tmpFilePath, data);
+  await fs.promises.writeFile(tmpFilePath, data);
   console.log(`File written at: ${tmpFilePath}`);
 }
 
@@ -34,7 +34,7 @@ export async function deleteTemporaryFiles(directory) {
     // Ensure the directory exists
     await ensureTempDirectory();
 
-    const directoryExists = await fs
+    const directoryExists = await fs.promises
       .access(TMP_DIR, fs.constants.F_OK)
       .then(() => true)
       .catch(() => false);
@@ -45,14 +45,14 @@ export async function deleteTemporaryFiles(directory) {
       );
       return;
     }
-    const entries = await fs.readdir(directory);
+    const entries = await fs.promises.readdir(directory);
 
     for (const entry of entries) {
       const entryPath = path.resolve(directory, entry);
-      const stats = await fs.stat(entryPath);
+      const stats = await fs.promises.stat(entryPath);
 
       if (stats.isFile() && entry.startsWith("speech")) {
-        await fs.unlink(entryPath);
+        await fs.promises.unlink(entryPath);
         console.log(`Deleted: ${entryPath}`);
       }
     }

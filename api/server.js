@@ -28,7 +28,7 @@ import {
 import connectDB from "./db.js";
 import logger from "./logger.js";
 import { fileURLToPath } from "url";
-const os = require('os');
+import os from ('os');
 import dotenv from "dotenv";
 import { deleteTemporaryFiles, ensureTempDirectory } from "./lib.js";
 
