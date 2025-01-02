@@ -1,7 +1,7 @@
 const PORT = process.env.PORT || 4000;
 import axios from "axios";
 import fs from "fs";
-import { promises as fsPromises } from 'fs';
+import { promises as fsPromises } from "fs";
 import path from "path";
 import express from "express";
 import mongoose from "mongoose";
@@ -9,7 +9,13 @@ import cors from "cors";
 import multer from "multer";
 import { OpenAI } from "openai";
 import { Readable } from "stream";
-import { translateText, translateTextWithGoogle, getLanguageDisplayNames, getDetectedLanguage, getDocumentTranslation} from "./controllers/translateText.js";
+import {
+  translateText,
+  translateTextWithGoogle,
+  getLanguageDisplayNames,
+  getDetectedLanguage,
+  getDocumentTranslation,
+} from "./controllers/translateText.js";
 import {
   lanOptions,
   headers,
@@ -22,10 +28,15 @@ import {
 import connectDB from "./db.js";
 import logger from "./logger.js";
 import { fileURLToPath } from "url";
+const os = require('os');
 import dotenv from "dotenv";
+import { deleteTemporaryFiles, ensureTempDirectory } from "./lib.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const isProduction = process.env.NODE_ENV === "production";
+const TMP_DIR = isProduction ? os.tmpdir() : path.resolve(__dirname, "public", "temp");
 
 dotenv.config();
 
@@ -46,7 +57,7 @@ const deleteUploadsDirectory = async (directory) => {
   try {
     const files = await fs.promises.readdir(directory);
     if (files.length === 0) {
-      console.log('No files to delete.');
+      console.log("No files to delete.");
       return;
     }
 
@@ -57,9 +68,9 @@ const deleteUploadsDirectory = async (directory) => {
       })
     );
 
-    console.log('Files deleted successfully.');
+    console.log("Files deleted successfully.");
   } catch (err) {
-    console.error('Error reading or deleting directory:', err);
+    console.error("Error reading or deleting directory:", err);
   }
 };
 
@@ -109,17 +120,15 @@ app.get("/languagesz", async (req, res) => {
 // using google cloud translate: delete this to use route with google translate API
 app.get("/languages", getLanguageDisplayNames);
 
-
-app.get("/clear-uploads", async (req, res)=>{
+app.get("/clear-uploads", async (req, res) => {
   try {
     await deleteUploadsDirectory("public/uploads/");
-    res.status(200).json({message:"cleared uploads successfully!"})
-    
+    res.status(200).json({ message: "cleared uploads successfully!" });
   } catch (error) {
-    res.status(500).json({message:"failed to clear recent uploads"});
+    res.status(500).json({ message: "failed to clear recent uploads" });
     console.log(error);
   }
-})
+});
 
 //translate Doc
 
@@ -186,7 +195,6 @@ app.get("/clear-uploads", async (req, res)=>{
 //   }
 // });
 
-
 app.post("/translate-documentz", upload.single("file"), async (req, res) => {
   try {
     let { fromLanguage, toLanguage } = req.body;
@@ -198,12 +206,20 @@ app.post("/translate-documentz", upload.single("file"), async (req, res) => {
     let extractedText = "";
     const fileExtension = path.extname(file.originalname).toLowerCase();
     if (fileExtension === ".pdf") {
-      extractedText = await convertPdfToHTML(filePath, fromLanguage, toLanguage);
+      extractedText = await convertPdfToHTML(
+        filePath,
+        fromLanguage,
+        toLanguage
+      );
       const OCR = await generateOCR(filePath);
     } else if (fileExtension.includes(".doc")) {
-      extractedText = await convertDocxToHtml(filePath, fromLanguage, toLanguage);
+      extractedText = await convertDocxToHtml(
+        filePath,
+        fromLanguage,
+        toLanguage
+      );
     } else {
-      return res.status(400).send('Unsupported file type');
+      return res.status(400).send("Unsupported file type");
     }
 
     // Translate the extracted text
@@ -214,27 +230,34 @@ app.post("/translate-documentz", upload.single("file"), async (req, res) => {
     let contentType;
     if (fileExtension === ".pdf") {
       translatedDocument = await convertHTMLToPdf(translatedText);
-      contentType = 'application/pdf';
+      contentType = "application/pdf";
     } else if (fileExtension.includes(".doc")) {
       translatedDocument = await generateWordDocument(translatedText);
-      contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      contentType =
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     } else {
-      return res.status(400).send('Unsupported file type');
+      return res.status(400).send("Unsupported file type");
     }
 
     // Set response headers for document download
-    res.setHeader('Content-Disposition', `attachment; filename=translated${fileExtension}`);
-    res.setHeader('Content-Type', contentType);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=translated${fileExtension}`
+    );
+    res.setHeader("Content-Type", contentType);
     translatedDocument.pipe(res);
-
   } catch (error) {
-    console.error('Error translating document:', error);
-    res.status(500).send('An error occurred while translating the document.');
+    console.error("Error translating document:", error);
+    res.status(500).send("An error occurred while translating the document.");
   }
 });
 
 // translate document with google cloud translate
-app.post('/translate-document', cloudUpload.single('file'), getDocumentTranslation)
+app.post(
+  "/translate-document",
+  cloudUpload.single("file"),
+  getDocumentTranslation
+);
 
 //translate text
 app.get("/translation", translateTextWithGoogle);
@@ -261,7 +284,7 @@ app.get("/translation", translateTextWithGoogle);
 
 //detect language with google cloud translate
 
-app.get('/detect-language', getDetectedLanguage);
+app.get("/detect-language", getDetectedLanguage);
 
 // open ai requests
 
@@ -306,19 +329,21 @@ app.post("/synthesize-speech", async (req, res) => {
       input,
     });
 
-    // Write the audio data to a temporary file
-    const directory = path.resolve(__dirname, "public");
-
-    // Delete all existing files in the directory
-    await deleteFilesInDirectory(directory);
+    // Ensure the temp directory exists
+    await ensureTempDirectory();
+    
+    // Clean up old temp files
+    await deleteTemporaryFiles(TMP_DIR);
 
     // Modify the filename to include the timestamp
-    const audioFilePath = path.resolve(directory, `speech_${timestamp}.mp3`);
+    const audioFilePath = path.resolve(TMP_DIR, `speech_${timestamp}.mp3`);
     const buffer = Buffer.from(await mp3.arrayBuffer());
     await fs.promises.writeFile(audioFilePath, buffer);
 
     // Send the URL of the generated audio file in the response
-    const audioURL = process.env.NODE_ENV === "production"? "/":"http://localhost:4000/" 
+    const audioURL =
+      isProduction ? "/temp/" : "http://localhost:4000/temp/";
+
     res.json({ url: `${audioURL}speech_${timestamp}.mp3` });
   } catch (error) {
     console.error("Error:", error);
@@ -326,45 +351,10 @@ app.post("/synthesize-speech", async (req, res) => {
   }
 });
 
-// Function to delete all files in a directory
-async function deleteFilesInDirectory(directory) {
-  try {
-    // Check if the directory exists
-    const directoryExists = await fs.promises.access(directory, fs.constants.F_OK)
-      .then(() => true)
-      .catch(() => false);
-
-    if (!directoryExists) {
-      console.error(`Directory ${directory} does not exist or is not accessible.`);
-      return;
-    }
-
-    // Read the files in the directory
-    const entries = await fs.promises.readdir(directory);
-
-    // Iterate over the entries and delete files starting with 'speech:'
-    for (const entry of entries) {
-      const entryPath = path.resolve(directory, entry);
-      const stats = await fs.promises.stat(entryPath);
-
-      // Check if the entry is a file and starts with 'speech:'
-      if (stats.isFile() && entry.startsWith('speech')) {
-        await fs.promises.unlink(entryPath);
-      }
-    }
-  } catch (error) {
-    console.error('Error deleting files in directory:', error);
-  }
-}
-
 
 app.get("/speech_:timestamp.mp3", (req, res) => {
   const { timestamp } = req.params;
-  const audioFilePath = path.resolve(
-    __dirname,
-    "public",
-    `speech_${timestamp}.mp3`
-  );
+  const audioFilePath = path.resolve(TMP_DIR, `speech_${timestamp}.mp3`);
 
   // Send the file to the client
   res.sendFile(audioFilePath, {
@@ -386,5 +376,6 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-
-app.listen(PORT, () => { logger.info("Server running on port " + PORT)});
+app.listen(PORT, () => {
+  logger.info("Server running on port " + PORT);
+});
