@@ -28,7 +28,7 @@ import {
 import connectDB from "./db.js";
 import logger from "./logger.js";
 import { fileURLToPath } from "url";
-import os from 'os';
+import os from "os";
 import dotenv from "dotenv";
 import { deleteTemporaryFiles, ensureTempDirectory } from "./lib.js";
 
@@ -37,7 +37,9 @@ const __dirname = path.dirname(__filename);
 const __rootDir = path.resolve();
 
 const isProduction = process.env.NODE_ENV === "production";
-const TMP_DIR = isProduction ? os.tmpdir() : path.resolve(__rootDir, "public", "temp");
+const TMP_DIR = isProduction
+  ? os.tmpdir()
+  : path.resolve(__rootDir, "public", "temp");
 
 dotenv.config();
 
@@ -47,6 +49,19 @@ connectDB();
 const app = express();
 
 app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use(
+  "/temp",
+  express.static(path.resolve(__rootDir, "public", "temp"), {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".mp3")) {
+        res.setHeader("Content-Type", "audio/mpeg");
+      }
+    },
+  })
+);
 
 //openai config
 
@@ -92,9 +107,6 @@ const cloudUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // limit file size to 10MB
 });
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
 
 //languages with google translate api: remove "z" to us and delete route under it
 app.get("/languagesz", async (req, res) => {
@@ -332,7 +344,7 @@ app.post("/synthesize-speech", async (req, res) => {
 
     // Ensure the temp directory exists
     await ensureTempDirectory();
-    
+
     // Clean up old temp files
     await deleteTemporaryFiles(TMP_DIR);
 
@@ -342,8 +354,7 @@ app.post("/synthesize-speech", async (req, res) => {
     await fs.promises.writeFile(audioFilePath, buffer);
 
     // Send the URL of the generated audio file in the response
-    const audioURL =
-      isProduction ? "/temp/" : "http://localhost:4000/temp/";
+    const audioURL = isProduction ? `/speech/` : "http://localhost:4000/temp/";
 
     res.json({ url: `${audioURL}speech_${timestamp}.mp3` });
   } catch (error) {
@@ -351,7 +362,6 @@ app.post("/synthesize-speech", async (req, res) => {
     res.status(500).json({ error: "Failed to synthesize speech" });
   }
 });
-
 
 app.get("/speech_:timestamp.mp3", (req, res) => {
   const { timestamp } = req.params;
@@ -366,6 +376,20 @@ app.get("/speech_:timestamp.mp3", (req, res) => {
     },
   });
 });
+app.get("/speech/:file", (req, res) => {
+  const { file } = req.params;
+  const filePath = path.resolve(TMP_DIR, file);
+
+  fs.promises.access(filePath, fs.constants.F_OK)
+    .then(() => {
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.sendFile(filePath);
+    })
+    .catch(() => {
+      res.status(404).json({ error: "File not found" });
+    });
+});
+
 const __newdir = path.resolve();
 
 if (process.env.NODE_ENV === "production") {
