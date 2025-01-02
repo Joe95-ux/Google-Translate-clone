@@ -2,7 +2,7 @@ dotenv.config();
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import os from ('os');
+import os from 'os';
 
 // Determine the temporary directory based on the environment
 const isProduction = process.env.NODE_ENV === "production";
