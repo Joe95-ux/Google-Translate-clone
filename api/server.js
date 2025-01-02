@@ -318,7 +318,8 @@ app.post("/synthesize-speech", async (req, res) => {
     await fs.promises.writeFile(audioFilePath, buffer);
 
     // Send the URL of the generated audio file in the response
-    res.json({ url: `http://localhost:4000/speech_${timestamp}.mp3` });
+    const audioURL = process.env.NODE_ENV === "production"? "/":"http://localhost:4000/" 
+    res.json({ url: `${audioURL}speech_${timestamp}.mp3` });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Failed to synthesize speech" });
