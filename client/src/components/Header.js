@@ -2,7 +2,7 @@ import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { MdOutlineTranslate } from "react-icons/md";
-import { IoDocumentTextOutline } from "react-icons/io5";
+import { IoDocumentTextOutline, IoImageOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
 import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
@@ -136,6 +136,15 @@ const Header = ({
           <IoDocumentTextOutline size={22} />
           <h3 className="docs" onClick={() => handleType("Documents")}>
             Documents
+          </h3>
+        </div>
+        <div
+          className="saved top-btn"
+          style={{ color: activeType === "Images" ? "#38BDF8" : "#f5f5f5" }}
+        >
+          <IoImageOutline size={22} />
+          <h3 className="images" onClick={() => handleType("Images")}>
+            Images
           </h3>
         </div>
       </div>
