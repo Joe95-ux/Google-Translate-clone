@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import TextBox from "../../components/TextBox";
 import Documents from "../../components/Documents";
+import Images from "../../components/Images";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import History from "../../components/History";
@@ -17,7 +18,7 @@ import { useSaveModal } from "../../hooks/useSaveModal";
 import { useShareModal } from "../../hooks/useShareModal";
 import { Toaster, toast } from "sonner";
 import axios from "axios";
-import {usePersistentState} from "../../hooks/usePersistentState";
+import { usePersistentState } from "../../hooks/usePersistentState";
 import { usePersistentArray } from "../../hooks/usePersistentArray";
 
 const Home = () => {
@@ -25,23 +26,32 @@ const Home = () => {
   const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
-  const [otherInputLangs, setOtherInputLangs] = usePersistentArray("otherInputLangs", [
-    "Detect language",
-    "French",
-    "English",
-    "Spanish",
-  ]);
-  const [otherOutputLangs, setOtherOutputLangs] = usePersistentArray("otherOutputLangs", [
-    "English",
-    "Spanish",
-    "French",
-  ]);
-  
-  const [inputLanguage, setInputLanguage] = usePersistentState("inputLanguage","");
-  const [outputLanguage, setOutputLanguage] = usePersistentState("outputLanguage","");
+  const [otherInputLangs, setOtherInputLangs] = usePersistentArray(
+    "otherInputLangs",
+    ["Detect language", "French", "English", "Spanish"]
+  );
+  const [otherOutputLangs, setOtherOutputLangs] = usePersistentArray(
+    "otherOutputLangs",
+    ["English", "Spanish", "French"]
+  );
+
+  const [inputLanguage, setInputLanguage] = usePersistentState(
+    "inputLanguage",
+    ""
+  );
+  const [outputLanguage, setOutputLanguage] = usePersistentState(
+    "outputLanguage",
+    ""
+  );
   const [activeType, setActiveType] = useState("Text");
-  const [textToTranslate, setTextToTranslate] = usePersistentState("textToTranslate","");
-  const [translatedText, setTranslatedText] = usePersistentState("translatedText", "");
+  const [textToTranslate, setTextToTranslate] = usePersistentState(
+    "textToTranslate",
+    ""
+  );
+  const [translatedText, setTranslatedText] = usePersistentState(
+    "translatedText",
+    ""
+  );
   const [dictionary, setDictionary] = useState([]);
   const [detectedLang, setDetectedLang] = useState("");
   const [translations, setTranslations] = useState([]);
@@ -65,10 +75,10 @@ const Home = () => {
   };
 
   let apiUrl;
-  if (process.env.NODE_ENV === 'development') {
-    apiUrl="http://localhost:4000/"
-  } else if (process.env.NODE_ENV === 'production') {
-    apiUrl="/";
+  if (process.env.NODE_ENV === "development") {
+    apiUrl = "http://localhost:4000/";
+  } else if (process.env.NODE_ENV === "production") {
+    apiUrl = "/";
   }
 
   //initialize input and output langs
@@ -77,12 +87,20 @@ const Home = () => {
       const initialInputLang = "Detect language";
       setInputLanguage(initialInputLang);
     }
-  
+
     if (!outputLanguage) {
-      const initialOutputLang = otherOutputLangs.find((lang) => lang !== inputLanguage) || "English";
+      const initialOutputLang =
+        otherOutputLangs.find((lang) => lang !== inputLanguage) || "English";
       setOutputLanguage(initialOutputLang);
     }
-  }, [inputLanguage, outputLanguage, otherInputLangs, otherOutputLangs, setInputLanguage, setOutputLanguage]);
+  }, [
+    inputLanguage,
+    outputLanguage,
+    otherInputLangs,
+    otherOutputLangs,
+    setInputLanguage,
+    setOutputLanguage,
+  ]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -98,9 +116,7 @@ const Home = () => {
 
   const getLanguages = useCallback(async () => {
     try {
-      const response = await axios.get(
-        `${apiUrl}languages`
-      );
+      const response = await axios.get(`${apiUrl}languages`);
       const data = await response.data;
       if (data) {
         setLanguages(data);
@@ -141,22 +157,24 @@ const Home = () => {
       console.log("Setting saved translations from localStorage:", saved);
       setSavedTranslations(saved);
     }
-}, []);
-
+  }, []);
 
   useEffect(() => {
     if (
       textToTranslate !== "" &&
       textToTranslate !== null &&
-      !inputLanguage.includes("Detected") && activeType === "Text"
+      !inputLanguage.includes("Detected") &&
+      activeType === "Text"
     ) {
       const detectLanguage = async () => {
         try {
-          const response = await axios.get(
-            `${apiUrl}detect-language`,
-            { params: { textToTranslate } }
-          );
-          const detectedLanguage = activeType === "Text" ? response.data + " - Detected" : "Detect language";
+          const response = await axios.get(`${apiUrl}detect-language`, {
+            params: { textToTranslate },
+          });
+          const detectedLanguage =
+            activeType === "Text"
+              ? response.data + " - Detected"
+              : "Detect language";
           setDetectedLang(response.data);
           if (inputLanguage === "Detect language") {
             setInputLanguage(detectedLanguage);
@@ -182,35 +200,43 @@ const Home = () => {
 
       detectLanguage();
     }
-  }, [activeType, apiUrl, detectedLang, inputLanguage, setInputLanguage, setOtherInputLangs, textToTranslate]);
+  }, [
+    activeType,
+    apiUrl,
+    detectedLang,
+    inputLanguage,
+    setInputLanguage,
+    setOtherInputLangs,
+    textToTranslate,
+  ]);
 
   // change Detected Language on Documents
-  useEffect(()=>{
-    setOtherInputLangs((prevLangs)=>{
-      if(activeType === "Documents" && inputLanguage.includes("Detected")){
+  useEffect(() => {
+    setOtherInputLangs((prevLangs) => {
+      if (
+        activeType === "Documents" ||
+        (activeType === "Images" && inputLanguage.includes("Detected"))
+      ) {
         setInputLanguage("Detect language");
-        return prevLangs.map((lang)=>{
-          if(lang.includes("Detected")){
+        return prevLangs.map((lang) => {
+          if (lang.includes("Detected")) {
             return "Detect language";
-          }else{
-            return lang
+          } else {
+            return lang;
           }
-        })
+        });
       }
-      return prevLangs
-
-    })
-    
-
-  }, [activeType, inputLanguage, setInputLanguage, setOtherInputLangs])
+      return prevLangs;
+    });
+  }, [activeType, inputLanguage, setInputLanguage, setOtherInputLangs]);
 
   useEffect(() => {
     if (textToTranslate === "" || textToTranslate === null) {
       setInputLanguage((prev) => {
-        if(prev.includes("Detected")){
-          return "Detect language"
-        }else{
-          return prev
+        if (prev.includes("Detected")) {
+          return "Detect language";
+        } else {
+          return prev;
         }
       });
       setOtherInputLangs((prevLangs) => {
@@ -224,16 +250,10 @@ const Home = () => {
 
         return updatedOptions;
       });
-      
     }
   }, [setInputLanguage, setOtherInputLangs, textToTranslate]);
 
-  const translate = async (
-    timestamp = "",
-    text,
-    outputLang,
-    inputLang
-  ) => {
+  const translate = async (timestamp = "", text, outputLang, inputLang) => {
     text = text || textToTranslate;
     outputLang = outputLang || outputLanguage;
     inputLang = inputLang || inputLanguage;
@@ -245,12 +265,9 @@ const Home = () => {
     setIsLoading(true);
     try {
       if (text !== "" && text !== null) {
-        const response = await axios.get(
-          `${apiUrl}translation`,
-          {
-            params: data,
-          }
-        );
+        const response = await axios.get(`${apiUrl}translation`, {
+          params: data,
+        });
         // response.data.trans
         setTranslatedText(response.data);
         //response.data?.dict || (for old model)
@@ -290,11 +307,13 @@ const Home = () => {
   useEffect(() => {
     localStorage.setItem("translations", JSON.stringify(translations));
   }, [translations]);
-  
+
   useEffect(() => {
-    localStorage.setItem("savedTranslations", JSON.stringify(savedTranslations));
+    localStorage.setItem(
+      "savedTranslations",
+      JSON.stringify(savedTranslations)
+    );
   }, [savedTranslations]);
-  
 
   const handleClick = () => {
     // Check if inputLanguage is not "Detect language"
@@ -398,12 +417,9 @@ const Home = () => {
 
   const synthesizeSpeech = async (text) => {
     try {
-      const response = await axios.post(
-        `${apiUrl}synthesize-speech`,
-        {
-          input: text,
-        }
-      );
+      const response = await axios.post(`${apiUrl}synthesize-speech`, {
+        input: text,
+      });
       console.log(response.data.url);
       return response.data.url;
     } catch (error) {
@@ -431,7 +447,14 @@ const Home = () => {
         savedTranslations={savedTranslations}
         setSavedTranslations={setSavedTranslations}
       />
-      <Header activeType={activeType} setActiveType={setActiveType} inputLanguage={inputLanguage} otherInputLangs={otherInputLangs} setInputLanguage={setInputLanguage} outputLanguage={outputLanguage}/>
+      <Header
+        activeType={activeType}
+        setActiveType={setActiveType}
+        inputLanguage={inputLanguage}
+        otherInputLangs={otherInputLangs}
+        setInputLanguage={setInputLanguage}
+        outputLanguage={outputLanguage}
+      />
       <div className="app">
         <div
           style={{ width: "100%", height: activeType === "Text" ? "100%" : "" }}
@@ -506,6 +529,13 @@ const Home = () => {
               )}
               {activeType === "Documents" && (
                 <Documents
+                  fromLanguage={inputLanguage}
+                  toLanguage={outputLanguage}
+                />
+              )}
+
+              {activeType === "Images" && (
+                <Images
                   fromLanguage={inputLanguage}
                   toLanguage={outputLanguage}
                 />

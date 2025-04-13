@@ -4,13 +4,14 @@ import axios from "axios";
 import { toast } from "sonner";
 import { IoCloudUploadSharp } from "react-icons/io5";
 import FileBox from "./fileBox";
+import { Clipboard } from "lucide-react";
 
-const Documents = ({ fromLanguage, toLanguage }) => {
+const Images = ({ fromLanguage, toLanguage }) => {
   let apiUrl;
-  if (process.env.NODE_ENV === 'development') {
-    apiUrl="http://localhost:4000/"
-  } else if (process.env.NODE_ENV === 'production') {
-    apiUrl="/";
+  if (process.env.NODE_ENV === "development") {
+    apiUrl = "http://localhost:4000/";
+  } else if (process.env.NODE_ENV === "production") {
+    apiUrl = "/";
   }
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -26,6 +27,28 @@ const Documents = ({ fromLanguage, toLanguage }) => {
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     handleData(file);
+  };
+
+  const handleClipBoardEvent = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      
+      for (const clipboardItem of clipboardItems) {
+        for (const type of clipboardItem.types) {
+          if (type.startsWith('image/')) {
+            const blob = await clipboardItem.getType(type);
+            const file = new File([blob], 'pasted-image.png', { type: blob.type });
+            handleData(file);
+            return;
+          }
+        }
+      }
+      
+      toast('Clipboard empty or no image found');
+    } catch (error) {
+      console.error('Error reading clipboard:', error);
+      toast('Clipboard empty or access denied');
+    }
   };
 
   const handleData = (file) => {
@@ -66,39 +89,40 @@ const Documents = ({ fromLanguage, toLanguage }) => {
     try {
       const response = await axios.post(
         `${apiUrl}translate-document`,
-        formData, {
-          responseType: 'blob', // Receive binary data
+        formData,
+        {
+          responseType: "blob", // Receive binary data
         }
       );
-  
+
       // Determine the content type from the response headers
-      const contentType = response.headers['content-type'];
-  
+      const contentType = response.headers["content-type"];
+
       // Create a Blob object with the appropriate MIME type
       const blob = new Blob([response.data], { type: contentType });
-  
+
       // Create a download URL
       const downloadUrl = window.URL.createObjectURL(blob);
-  
+
       setTranslatedDocument(downloadUrl);
       setLoading(false);
     } catch (error) {
       console.error("Error translating document:", error);
-      toast.error("An error occurred while translating the document. Please try again later.");
+      toast.error(
+        "An error occurred while translating the document. Please try again later."
+      );
       setLoading(false);
     }
   };
 
-  const handleFolderReset = async ()=>{
+  const handleFolderReset = async () => {
     try {
       await axios.get(`${apiUrl}clear-uploads`);
-      
     } catch (error) {
-      console.log({error: error.message})
+      console.log({ error: error.message });
       toast.info("Failed to clear upload folder");
     }
-  }
-  
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
@@ -123,7 +147,10 @@ const Documents = ({ fromLanguage, toLanguage }) => {
         <div className="container-fluid">
           <div className="drop-container">
             <div {...getRootProps()} className="drop-area">
-              <input {...getInputProps()} accept=".pdf, .doc, .docx, PPT, .pptx, XLS, .xlsx"/>
+              <input
+                {...getInputProps()}
+                accept=".pdf, .doc, .docx, PPT, .pptx, XLS, .xlsx"
+              />
               {isDragActive ? (
                 <p>Drop the file here...</p>
               ) : (
@@ -136,6 +163,28 @@ const Documents = ({ fromLanguage, toLanguage }) => {
           <div className="browse-container">
             <div className="browse-inner">
               <h4>Or Choose a file</h4>
+              <div className="container-flex">
+                <div className="file-box">
+                  <label for="file-upload" class="custom-file-upload">
+                    Browse your files
+                  </label>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    onChange={handleFileUpload}
+                    accept=".jpg, .jpeg, .png, .webp"
+                  />
+                </div>
+                <div className="file-box">
+                  <Clipboard size={20} style={{ marginRight: "10px" }} />
+                  <button
+                    class="paste-clipboard"
+                    onClick={handleClipBoardEvent}
+                  >
+                    Paste from clipboard
+                  </button>
+                </div>
+              </div>
               <div className="file-box">
                 <label for="file-upload" class="custom-file-upload">
                   Browse your files
@@ -144,10 +193,10 @@ const Documents = ({ fromLanguage, toLanguage }) => {
                   id="file-upload"
                   type="file"
                   onChange={handleFileUpload}
-                  accept=".jpg, .jpeg, .png"
+                  accept=".jpg, .jpeg, .png, .webp"
                 />
               </div>
-              <p>Supported file types: .jpg, .jpeg, .png</p>
+              <p>Supported file types: .jpg, .jpeg, .png, .webp</p>
             </div>
           </div>
         </div>
@@ -167,4 +216,4 @@ const Documents = ({ fromLanguage, toLanguage }) => {
   );
 };
 
-export default Documents;
+export default Images;

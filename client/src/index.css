@@ -115,9 +115,8 @@ input[type="file"] {
 }
 
 /* document upload styles */
-.custom-file-upload, .translate-doc-btn {
+.custom-file-upload, .translate-doc-btn, .paste-clipboard{
   border-radius: 5px;
-  background-color: #1967D2;
   color: #f5f5f5;
   font-size: 1rem;
   font-weight: 500;
@@ -125,7 +124,16 @@ input[type="file"] {
   cursor: pointer;
   letter-spacing: .25px;
   line-height: 20px;
+}
+
+.custom-file-upload, .translate-doc-btn{
+  background-color: #1967D2;
   border: none;
+}
+
+.paste-clipboard{
+  background-color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 a{
@@ -133,7 +141,7 @@ a{
   color: #f5f5f5;
 }
 
-.custom-file-upload{
+.custom-file-upload, .paste-clipboard{
   width: 280px;
   padding: 10px 24px;
 }
@@ -894,6 +902,11 @@ div.lang-style::after{
   .nav-actions{
     display: none;
   }
+}
+.container-flex{
+  display: var(--display-flex);
+  flex-direction: var(--flex-column);
+  gap: 8px;
 }
 
 
