@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 export default function RootLayout() {
   return (
     <div className="wrapper">
-      <Toaster />
+      <Toaster richColors closeButton position="top-right" />
 
       <main className="justify-center">
         <Outlet />

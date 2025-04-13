@@ -11,7 +11,7 @@ export default function AuthLayout() {
 
   return (
     <div className="wrapper">
-        <Toaster />
+        <Toaster richColors closeButton position="top-right" />
         <div
           className="nav-wrapper"
           style={{

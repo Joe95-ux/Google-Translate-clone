@@ -31,6 +31,10 @@ const Images = ({ fromLanguage, toLanguage }) => {
 
   const handleClipBoardEvent = async () => {
     try {
+      if (!navigator.clipboard || !navigator.clipboard.read) {
+        toast.error("Clipboard access not supported in this browser.");
+        return;
+      }
       const clipboardItems = await navigator.clipboard.read();
 
       for (const clipboardItem of clipboardItems) {
@@ -46,7 +50,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
         }
       }
 
-      toast("Clipboard empty or no image found");
+      toast("Can't find content copied to clipboard");
     } catch (error) {
       console.error("Error reading clipboard:", error);
       toast("Clipboard empty or access denied");

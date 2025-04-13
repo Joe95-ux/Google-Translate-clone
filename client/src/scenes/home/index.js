@@ -432,7 +432,7 @@ const Home = () => {
 
   return (
     <div className="wrapper">
-      <Toaster />
+      <Toaster richColors closeButton position="top-right" />
       <History
         translations={translations}
         setTranslations={setTranslations}
