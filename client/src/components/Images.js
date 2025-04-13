@@ -32,22 +32,24 @@ const Images = ({ fromLanguage, toLanguage }) => {
   const handleClipBoardEvent = async () => {
     try {
       const clipboardItems = await navigator.clipboard.read();
-      
+
       for (const clipboardItem of clipboardItems) {
         for (const type of clipboardItem.types) {
-          if (type.startsWith('image/')) {
+          if (type.startsWith("image/")) {
             const blob = await clipboardItem.getType(type);
-            const file = new File([blob], 'pasted-image.png', { type: blob.type });
+            const file = new File([blob], "pasted-image.png", {
+              type: blob.type,
+            });
             handleData(file);
             return;
           }
         }
       }
-      
-      toast('Clipboard empty or no image found');
+
+      toast("Clipboard empty or no image found");
     } catch (error) {
-      console.error('Error reading clipboard:', error);
-      toast('Clipboard empty or access denied');
+      console.error("Error reading clipboard:", error);
+      toast("Clipboard empty or access denied");
     }
   };
 
@@ -164,7 +166,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
             <div className="browse-inner">
               <h4>Or Choose a file</h4>
               <div className="container-flex">
-                <div className="file-box">
+                <div>
                   <label for="file-upload" class="custom-file-upload">
                     Browse your files
                   </label>
@@ -175,26 +177,10 @@ const Images = ({ fromLanguage, toLanguage }) => {
                     accept=".jpg, .jpeg, .png, .webp"
                   />
                 </div>
-                <div className="file-box">
-                  <Clipboard size={20} style={{ marginRight: "10px" }} />
-                  <button
-                    class="paste-clipboard"
-                    onClick={handleClipBoardEvent}
-                  >
-                    Paste from clipboard
-                  </button>
-                </div>
-              </div>
-              <div className="file-box">
-                <label for="file-upload" class="custom-file-upload">
-                  Browse your files
-                </label>
-                <input
-                  id="file-upload"
-                  type="file"
-                  onChange={handleFileUpload}
-                  accept=".jpg, .jpeg, .png, .webp"
-                />
+                <button class="paste-clipboard" onClick={handleClipBoardEvent}>
+                  <Clipboard size={16} style={{ marginRight: "8px" }} />
+                  <span>Paste from clipboard</span>
+                </button>
               </div>
               <p>Supported file types: .jpg, .jpeg, .png, .webp</p>
             </div>
