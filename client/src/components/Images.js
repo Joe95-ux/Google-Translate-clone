@@ -31,6 +31,8 @@ const Images = ({ fromLanguage, toLanguage }) => {
 
   const handleClipBoardEvent = async () => {
     try {
+      const SUPPORTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
       if (!navigator.clipboard || !navigator.clipboard.read) {
         toast.error("Clipboard access not supported in this browser.");
         return;
@@ -39,21 +41,23 @@ const Images = ({ fromLanguage, toLanguage }) => {
 
       for (const clipboardItem of clipboardItems) {
         for (const type of clipboardItem.types) {
-          if (type.startsWith("image/")) {
+          if (SUPPORTED_TYPES.includes(type)) {
             const blob = await clipboardItem.getType(type);
-            const file = new File([blob], "pasted-image.png", {
-              type: blob.type,
-            });
+            const file = new File(
+              [blob],
+              "pasted-image." + type.split("/")[1],
+              { type: blob.type }
+            );
             handleData(file);
             return;
           }
         }
       }
 
-      toast("Can't find content copied to clipboard");
+      toast.warning("Can't find content copied to clipboard");
     } catch (error) {
       console.error("Error reading clipboard:", error);
-      toast("Clipboard empty or access denied");
+      toast.error("Unable to access clipboard. Please try again");
     }
   };
 
