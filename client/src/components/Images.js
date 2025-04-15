@@ -54,7 +54,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
         }
       }
 
-      toast.warning("Can't find content copied to clipboard");
+      toast.warning("Can't translate this file format");
     } catch (error) {
       console.error("Error reading clipboard:", error);
       toast.error("Unable to access clipboard. Please try again");

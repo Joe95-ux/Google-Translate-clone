@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 
 export const usePersistentState = (key, initialValue)=> {
+  
   const [value, setValue] = useState(() => {
-    return localStorage.getItem(key) || initialValue;
+    if(typeof window !== "undefined"){
+      const storedValue = localStorage.getItem(key);
+      return storedValue !== null ? storedValue : initialValue;
+    }
+    return initialValue;
   });
 
   useEffect(() => {

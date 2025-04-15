@@ -28,8 +28,8 @@ const Header = ({
     },
   };
 
-  const handleType = (text) => {
-    setActiveType(text);
+  const handleType = (e) => {
+    setActiveType(e.target.innerText);
   };
 
   const handleLogoClick = () => {
@@ -125,7 +125,7 @@ const Header = ({
           style={{ color: activeType === "Text" ? "#38BDF8" : "#f5f5f5" }}
         >
           <MdOutlineTranslate size={22} />
-          <h3 className="textt" onClick={() => handleType("Text")}>
+          <h3 className="textt" onClick={handleType}>
             Text
           </h3>
         </div>
@@ -134,7 +134,7 @@ const Header = ({
           style={{ color: activeType === "Documents" ? "#38BDF8" : "#f5f5f5" }}
         >
           <IoDocumentTextOutline size={22} />
-          <h3 className="docs" onClick={() => handleType("Documents")}>
+          <h3 className="docs" onClick={handleType}>
             Documents
           </h3>
         </div>
@@ -143,7 +143,7 @@ const Header = ({
           style={{ color: activeType === "Images" ? "#38BDF8" : "#f5f5f5" }}
         >
           <IoImageOutline size={22} />
-          <h3 className="images" onClick={() => handleType("Images")}>
+          <h3 className="images" onClick={handleType}>
             Images
           </h3>
         </div>

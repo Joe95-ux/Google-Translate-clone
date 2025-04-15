@@ -43,7 +43,8 @@ const Home = () => {
     "outputLanguage",
     ""
   );
-  const [activeType, setActiveType] = useState("Text");
+  const [activeType, setActiveType] = usePersistentState('activeType', 'Text');
+  
   const [textToTranslate, setTextToTranslate] = usePersistentState(
     "textToTranslate",
     ""
