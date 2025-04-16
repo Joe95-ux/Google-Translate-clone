@@ -5,8 +5,8 @@ import { MdOutlineTranslate } from "react-icons/md";
 import { IoDocumentTextOutline, IoImageOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
-import {useUser} from  "@clerk/clerk-react";
-import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { toast } from "sonner";
 
 const Header = ({
@@ -19,7 +19,7 @@ const Header = ({
 }) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
-  const {isSignedIn} = useUser();
+  const { isSignedIn } = useUser();
   const navigate = useNavigate();
 
   const activeStyles = {
@@ -32,8 +32,8 @@ const Header = ({
   };
 
   const handleType = (e) => {
-    const selectedType = e.target.innerText
-    if(selectedType === "Images" && !isSignedIn){
+    const selectedType = e.target.innerText;
+    if (selectedType === "Images" && !isSignedIn) {
       toast.error("Please log in to access image translation");
       navigate("/sign-in");
       return;
@@ -44,8 +44,6 @@ const Header = ({
   const handleLogoClick = () => {
     navigate("/");
   };
-
-  const { isLoaded, userId } = useAuth();
   return (
     <div
       className="nav-wrapper"
@@ -118,13 +116,13 @@ const Header = ({
                 </div>
               </Link>
             </SignedOut>
-            {isLoaded && !userId && (
+            <SignedOut>
               <Link to="/sign-up">
                 <div className="auth-btn top-btn btn-right">
                   <h3>Sign Up</h3>
                 </div>
               </Link>
-            )}
+            </SignedOut>
           </div>
         </div>
       </nav>
