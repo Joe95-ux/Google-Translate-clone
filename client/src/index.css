@@ -919,6 +919,7 @@ div.lang-style::after{
   font-weight:600px;
   color: #f1f7feb5;
   overflow: hidden;
+  text-transform: capitalize;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
