@@ -44,7 +44,7 @@ const Home = () => {
     ""
   );
   const [activeType, setActiveType] = usePersistentState('activeType', 'Text');
-  
+
   const [textToTranslate, setTextToTranslate] = usePersistentState(
     "textToTranslate",
     ""
@@ -388,6 +388,7 @@ const Home = () => {
   const handleReTranslate = (from, to, text, translatedText, timestamp) => {
     setInputLanguage(from);
     setOutputLanguage(to);
+    setActiveType((prev)=> (prev === "Text" ? prev : "Text"));
     // set otherInputLangs
     setOtherInputLangs((prevLangs) => {
       const adjustedLangs = prevLangs.map((lang) => {

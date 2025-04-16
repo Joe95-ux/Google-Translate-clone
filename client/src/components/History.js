@@ -6,7 +6,7 @@ import { IoIosStar } from "react-icons/io";
 import { useHistory } from "../hooks/useHistory";
 import { toast } from 'sonner'
 
-const History = ({ translations, setTranslations, handleHistory, savedTranslations, setSavedTranslations }) => {
+const History = ({ translations, setTranslations, handleHistory, savedTranslations, setSavedTranslations}) => {
   const historyModal = useHistory();
   const sidebarRef = useRef();
 
@@ -108,7 +108,7 @@ const History = ({ translations, setTranslations, handleHistory, savedTranslatio
                     <div title={translation.saved ? "remove from save" : "save translation"} style={{ cursor:"pointer", transition: "all 0.5s ease"}} onClick={()=>handleSave(index)}>
                       {translation.saved ? <IoIosStar style={{fill: "#ca8a04"}}/> : <IoIosStarOutline/>}
                     </div>
-                    <div title="remove from history">
+                    <div title="remove from history" style={{display:"flex"}}>
                       <IoMdClose className="close-history-btn"  onClick={()=>handleDelete(index)}/>
                     </div>
                   </div>
