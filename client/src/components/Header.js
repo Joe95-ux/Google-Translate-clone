@@ -6,7 +6,8 @@ import { IoDocumentTextOutline, IoImageOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
 import { useUser } from "@clerk/clerk-react";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import AccountMenu from "./AccountMenu";
+import { SignedIn, SignedOut} from "@clerk/clerk-react";
 import { toast } from "sonner";
 
 const Header = ({
@@ -107,7 +108,7 @@ const Header = ({
 
           <div className="auth-btns">
             <SignedIn>
-              <UserButton />
+              <AccountMenu />
             </SignedIn>
             <SignedOut>
               <Link to="/sign-in">

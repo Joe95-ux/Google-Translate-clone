@@ -14,25 +14,23 @@ import SignUpPage from "./scenes/auth/sign-up/[[...index]]";
 
 const App = () => {
   return (
-    <div className="">
-      <Routes>
-        <Route path="/" element={<HomeLayout />}>
-          <Route index element={<Home />} />
-        </Route>
-        <Route element={<AuthLayout />}>
-          <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
-        </Route>
-        <Route element={<RootLayout />}>
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/ocr" element={<Ocr />} />
-          <Route path="/activity" element={<Activity />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<HomeLayout />}>
+        <Route index element={<Home />} />
+      </Route>
+      <Route element={<AuthLayout />}>
+        <Route path="/sign-in" element={<SignInPage />} />
+        <Route path="/sign-up" element={<SignUpPage />} />
+      </Route>
+      <Route element={<RootLayout />}>
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/ocr" element={<Ocr />} />
+        <Route path="/activity" element={<Activity />} />
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   );
 };
 

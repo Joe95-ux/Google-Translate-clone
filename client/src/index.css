@@ -914,6 +914,14 @@ div.lang-style::after{
   align-items: center;
   gap: 8px;
 }
+.text-sm{
+  font-size: 14px;
+  font-weight:600px;
+  color: #f1f7feb5;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 
 
 
