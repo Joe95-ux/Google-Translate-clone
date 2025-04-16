@@ -5,7 +5,7 @@ import { MdOutlineTranslate } from "react-icons/md";
 import { IoDocumentTextOutline, IoImageOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
-import {useUser, useClerk} from  "@clerk/clerk-react";
+import {useUser} from  "@clerk/clerk-react";
 import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
 import { toast } from "sonner";
 
@@ -20,7 +20,6 @@ const Header = ({
   const historyModal = useHistory();
   const saveModal = useSaveModal();
   const {isSignedIn} = useUser();
-  const {redirectToSignIn} = useClerk();
   const navigate = useNavigate();
 
   const activeStyles = {
@@ -36,7 +35,7 @@ const Header = ({
     const selectedType = e.target.innerText
     if(selectedType === "Images" && !isSignedIn){
       toast.error("Please log in to access image translation");
-      redirectToSignIn();
+      navigate("/sign-in");
       return;
     }
     setActiveType(selectedType);
