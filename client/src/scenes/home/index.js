@@ -17,6 +17,7 @@ import ShareModal from "../../components/ShareModal";
 import { useSaveModal } from "../../hooks/useSaveModal";
 import { useShareModal } from "../../hooks/useShareModal";
 import { Toaster, toast } from "sonner";
+import {useUser} from "@clerk/clerk-react";
 import axios from "axios";
 import { usePersistentState } from "../../hooks/usePersistentState";
 import { usePersistentArray } from "../../hooks/usePersistentArray";
@@ -65,6 +66,7 @@ const Home = () => {
   const [smallScreenWidth, setSmallScreenWidth] = useState(window.innerWidth);
 
   const translateRef = useRef(false);
+  const {isSignedIn} = useUser();
 
   const activeStyles = {
     active: {
@@ -74,6 +76,12 @@ const Home = () => {
       color: saveModal.isOpen && "#38BDF8",
     },
   };
+
+  useEffect(() => {
+    if (!isSignedIn && activeType === "Images") {
+      setActiveType("Text");
+    }
+  }, [isSignedIn, activeType, setActiveType]);
 
   let apiUrl;
   if (process.env.NODE_ENV === "development") {
@@ -536,7 +544,7 @@ const Home = () => {
                 />
               )}
 
-              {activeType === "Images" && (
+              {activeType === "Images" && isSignedIn && (
                 <Images
                   fromLanguage={inputLanguage}
                   toLanguage={outputLanguage}

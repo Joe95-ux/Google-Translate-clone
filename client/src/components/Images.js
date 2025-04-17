@@ -70,8 +70,8 @@ const Images = ({ fromLanguage, toLanguage }) => {
     }
 
     if (!isSupportedFileType(fileExtension)) {
-      toast(
-        "Unsupported file type. Please upload a .docx, .pdf, .pptx, or .xlsx file."
+      toast.error(
+        "Unsupported file type. Please upload a .jpg, .jpeg, .png, or .webp file."
       );
       return;
     }
@@ -98,7 +98,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${apiUrl}translate-document`,
+        `${apiUrl}translate-image`,
         formData,
         {
           responseType: "blob", // Receive binary data
@@ -141,7 +141,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
   };
 
   const isSupportedFileType = (fileExtension) => {
-    const supportedFileTypes = ["docx", "doc", "pdf", "pptx", "xlsx"];
+    const supportedFileTypes = ["jpg", "jpeg", "png", "webp"];
     return supportedFileTypes.includes(fileExtension);
   };
 
@@ -159,7 +159,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
             <div {...getRootProps()} className="drop-area">
               <input
                 {...getInputProps()}
-                accept=".pdf, .doc, .docx, PPT, .pptx, XLS, .xlsx"
+                accept=".jpg, .jpeg, .png, .webp"
               />
               {isDragActive ? (
                 <p>Drop the file here...</p>

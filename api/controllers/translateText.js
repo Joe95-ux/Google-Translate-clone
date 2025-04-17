@@ -140,3 +140,32 @@ export const getDocumentTranslation = async (req, res) => {
     res.status(500).send(`Failed to translate file. ${error.message}`);
   }
 };
+
+
+export const getImageTranslation = async (req, res) => {
+  try {
+    let { fromLanguage, toLanguage } = req.body;
+    const from = await getLangShort(fromLanguage);
+    const to = await getLangShort(toLanguage)
+    const file = req.file;
+    if (!file) {
+      return res.status(400).send('No file uploaded.');
+    }
+    const mimeType = mime.lookup(file.originalname);
+    if (!mimeType) {
+      return res.status(400).send('Could not determine the MIME type.');
+    }
+
+    const publicUrl = await uploadFile(file);
+    const {byteStreams, translatedMimeType} = await translateDocument(publicUrl, mimeType, from, to);
+    res.setHeader('Content-Type', translatedMimeType);
+    res.setHeader('Content-Disposition', `attachment; filename=translated_${file.originalname}`);
+    for (const buffer of byteStreams) {
+      res.write(buffer);
+    }
+    res.end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Failed to translate file. ${error.message}`);
+  }
+};

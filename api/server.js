@@ -15,6 +15,7 @@ import {
   getLanguageDisplayNames,
   getDetectedLanguage,
   getDocumentTranslation,
+  getImageTranslation,
 } from "./controllers/translateText.js";
 import {
   lanOptions,
@@ -270,6 +271,14 @@ app.post(
   "/translate-document",
   cloudUpload.single("file"),
   getDocumentTranslation
+);
+
+// translate images with GCT
+
+app.post(
+  "/translate-image",
+  cloudUpload.single("file"),
+  getImageTranslation
 );
 
 //translate text
