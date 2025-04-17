@@ -35,8 +35,14 @@ const Header = ({
   const handleType = (e) => {
     const selectedType = e.target.innerText;
     if (selectedType === "Images" && !isSignedIn) {
-      toast.error("Please log in to access image translation");
-      navigate("/sign-in");
+      toast.error("Please log in to access image translation", {
+        duration: 2500,
+      });
+
+      setTimeout(() => {
+        navigate("/sign-in");
+      }, 2500);
+
       return;
     }
     setActiveType(selectedType);
