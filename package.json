@@ -2,7 +2,7 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "api/server.js",
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development nodemon api/server.js",
@@ -19,7 +19,9 @@
   "dependencies": {
     "@adobe/pdfservices-node-sdk": "^4.0.1",
     "@google-cloud/storage": "^7.11.2",
+    "@google-cloud/text-to-speech": "^6.0.1",
     "@google-cloud/translate": "^8.3.0",
+    "@google-cloud/vision": "^5.1.0",
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
     "child_process": "^1.0.2",
