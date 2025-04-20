@@ -1,6 +1,60 @@
 dotenv.config();
 import dotenv from "dotenv";
 import { TranslationServiceClient } from "@google-cloud/translate";
+import {vision} from '@google-cloud/vision';
+import { createCanvas, loadImage, registerFont } from "canvas";
+import path from "path";
+import {v4 as uuidv4} from "uuid";
+import {fileURLpath} from "url";
+import sharp from "sharp";
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+// Font configuration
+const fonts = {
+  latin: { 
+    path: path.join(__dirname, 'fonts/NotoSans-Regular.ttf'),
+    family: 'Noto Sans'
+  },
+  cjk: {
+    path: path.join(__dirname, 'fonts/NotoSansCJK-Regular.ttc'),
+    family: 'Noto Sans CJK'
+  },
+  arabic: {
+    path: path.join(__dirname, 'fonts/NotoNaskhArabic-Regular.ttf'),
+    family: 'Noto Naskh Arabic'
+  }
+};
+
+// Register all fonts
+Object.values(fonts).forEach(font => {
+  registerFont(font.path, { family: font.family });
+});
+
+// Helper functions
+function getFontForLanguage(languageCode) {
+  if (/ja|ko|zh/.test(languageCode)) return fonts.cjk;
+  if (/ar|fa|ur/.test(languageCode)) return fonts.arabic;
+  return fonts.latin;
+}
+
+function drawRoundedRect(ctx, vertices, radius) {
+  const [v0, v1, v2, v3] = vertices;
+  ctx.beginPath();
+  ctx.moveTo(v0.x + radius, v0.y);
+  ctx.lineTo(v1.x - radius, v1.y);
+  ctx.quadraticCurveTo(v1.x, v1.y, v1.x, v1.y + radius);
+  ctx.lineTo(v2.x, v2.y - radius);
+  ctx.quadraticCurveTo(v2.x, v2.y, v2.x - radius, v2.y);
+  ctx.lineTo(v3.x + radius, v3.y);
+  ctx.quadraticCurveTo(v3.x, v3.y, v3.x, v3.y - radius);
+  ctx.lineTo(v0.x, v0.y + radius);
+  ctx.quadraticCurveTo(v0.x, v0.y, v0.x + radius, v0.y);
+  ctx.closePath();
+}
 
 const projectId = process.env.PROJECT_ID;
 const location = "global";
@@ -136,6 +190,15 @@ export async function translateDocument(inputUri, mimeType, from, to) {
   }
 }
 
+export async function picToText(inputUri){
+  const client = new vision.ImageAnnotatorClient();
+
+  // Performs text detection on the local file
+  const [result] = await client.textDetection(inputUri);
+  return result.fullTextAnnotation.text;
+
+}
+
 // Create Glossary
 
 // const glossaryId = 'your-glossary-display-name'
@@ -171,3 +234,110 @@ export async function translateDocument(inputUri, mimeType, from, to) {
 // }
 
 // createGlossary();
+
+
+
+async function createTranslatedImage(originalBuffer, textElements, targetLanguage) {
+  // Create a blurred version of the original for background
+  const blurredImage = await sharp(originalBuffer)
+    .blur(8)
+    .toBuffer();
+  
+  // Load the blurred background
+  const bgImage = await loadImage(blurredImage);
+  
+  // Get image dimensions
+  const metadata = await sharp(originalBuffer).metadata();
+  const { width, height } = metadata;
+  
+  // Create canvas
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+  
+  // Draw blurred background
+  ctx.drawImage(bgImage, 0, 0, width, height);
+  
+  // Draw original image with reduced opacity
+  const originalImage = await loadImage(originalBuffer);
+  ctx.globalAlpha = 0.4;
+  ctx.drawImage(originalImage, 0, 0, width, height);
+  ctx.globalAlpha = 1.0;
+  
+  // Process each text element
+  for (const element of textElements) {
+    await renderTranslatedText(ctx, element, targetLanguage);
+  }
+  
+  // Convert canvas to buffer
+  return canvas.toBuffer('image/png');
+}
+
+async function renderTranslatedText(ctx, element, targetLanguage) {
+  const vertices = element.boundingBox.vertices;
+  const { fontFamily, fontSize } = calculateTextStyle(
+    element.translatedText,
+    vertices,
+    targetLanguage
+  );
+  
+  // Draw text background
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+  drawRoundedRect(ctx, vertices, 5);
+  ctx.fill();
+  
+  // Configure text style
+  const font = getFontForLanguage(targetLanguage);
+  ctx.font = `${fontSize}px "${font.family}"`;
+  ctx.fillStyle = '#1a1a1a';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  
+  // Calculate text position
+  const x = vertices[0].x;
+  const y = vertices[0].y;
+  const boxWidth = vertices[1].x - vertices[0].x;
+  const boxHeight = vertices[3].y - vertices[0].y;
+  
+  // Wrap text to fit bounding box
+  const lines = wrapText(ctx, element.translatedText, boxWidth - 20, fontSize);
+  const totalTextHeight = lines.length * fontSize * 1.2;
+  const startY = y + (boxHeight - totalTextHeight) / 2;
+  
+  // Draw each line of text
+  lines.forEach((line, i) => {
+    ctx.fillText(line, x + 10, startY + (i * fontSize * 1.2));
+  });
+}
+
+function calculateTextStyle(text, vertices, languageCode) {
+  const boxWidth = vertices[1].x - vertices[0].x;
+  const boxHeight = vertices[3].y - vertices[0].y;
+  const font = getFontForLanguage(languageCode);
+  
+  // Start with maximum possible size
+  let fontSize = Math.min(boxHeight, 40);
+  let fits = false;
+  
+  // Reduce font size until text fits
+  while (fontSize > 8 && !fits) {
+    const testCanvas = createCanvas(1, 1);
+    const testCtx = testCanvas.getContext('2d');
+    testCtx.font = `${fontSize}px "${font.family}"`;
+    
+    const metrics = testCtx.measureText(text);
+    const textWidth = metrics.width;
+    
+    // Estimate lines needed
+    const charsPerLine = Math.floor(boxWidth / (fontSize * 0.6));
+    const linesNeeded = Math.ceil(text.length / charsPerLine);
+    const estimatedHeight = linesNeeded * fontSize * 1.2;
+    
+    if (textWidth < boxWidth * 1.5 && estimatedHeight < boxHeight * 0.9) {
+      fits = true;
+    } else {
+      fontSize -= 1;
+    }
+  }
+  
+  return { fontFamily: font.family, fontSize };
+}
