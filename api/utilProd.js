@@ -9,7 +9,7 @@ import {fileURLpath} from "url";
 import sharp from "sharp";
 
 
-const __filename = fileURLToPath(import.meta.url);
+const __filename = fileURLpath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
@@ -20,12 +20,12 @@ const fonts = {
     family: 'Noto Sans'
   },
   cjk: {
-    path: path.join(__dirname, 'fonts/NotoSansCJK-Regular.ttc'),
-    family: 'Noto Sans CJK'
+    path: path.join(__dirname, 'fonts/NotoSans-Regular.ttf'),
+    family: 'Noto Sans'
   },
   arabic: {
-    path: path.join(__dirname, 'fonts/NotoNaskhArabic-Regular.ttf'),
-    family: 'Noto Naskh Arabic'
+    path: path.join(__dirname, 'fonts/NotoSansArabic-Regular.ttf'),
+    family: 'Noto Sans Arabic'
   }
 };
 

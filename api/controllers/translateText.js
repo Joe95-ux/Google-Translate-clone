@@ -176,6 +176,12 @@ export const getImageTranslation = async (req, res) => {
       el.translatedText = translations[0].translations[index].translatedText;
     });
 
+    // Download original image for processing
+    const imageResponse = await axios.get(publicUrl.replace('gs://', 'https://storage.googleapis.com/'), { 
+      responseType: 'arraybuffer' 
+    });
+    const originalImageBuffer = Buffer.from(imageResponse.data);
+
     // Create translated image
     const translatedImageBuffer = await createTranslatedImage(
       originalImageBuffer, 
@@ -193,6 +199,10 @@ export const getImageTranslation = async (req, res) => {
     });
 
     // Return all required data
+    console.log({extractedText,
+      originalImageUrl: publicUrl,
+      translatedImageUrl: `gs://${process.env.BUCKET_NAME}/${translatedFileName}`,});
+
     res.json({
       extractedText,
       originalImageUrl: publicUrl,
@@ -200,8 +210,13 @@ export const getImageTranslation = async (req, res) => {
       textElements: textElements.map(el => ({
         originalText: el.text,
         translatedText: el.translatedText,
+        confidence: el.confidence,
         boundingBox: el.boundingBox
-      }))
+      })),
+      language: {
+        detected: translations[0].detectedLanguageCode || from,
+        target: to
+      }
     });
 
   } catch (error) {
