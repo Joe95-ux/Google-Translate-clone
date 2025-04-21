@@ -195,9 +195,85 @@ export async function picToText(inputUri){
 
   // Performs text detection on the local file
   const [result] = await client.textDetection(inputUri);
-  return result.fullTextAnnotation.text;
+  return result.fullTextAnnotation;
 
 }
+
+// Text extraction helper
+export function extractTextElements(fullTextAnnotation) {
+  const elements = [];
+  
+  for (const page of fullTextAnnotation.pages) {
+    for (const block of page.blocks) {
+      for (const paragraph of block.paragraphs) {
+        let paragraphText = '';
+        const words = [];
+        
+        for (const word of paragraph.words) {
+          let wordText = '';
+          for (const symbol of word.symbols) {
+            wordText += symbol.text;
+          }
+          words.push({
+            text: wordText,
+            boundingBox: word.boundingBox
+          });
+          paragraphText += wordText + ' ';
+        }
+        
+        elements.push({
+          text: paragraphText.trim(),
+          boundingBox: paragraph.boundingBox,
+          words
+        });
+      }
+    }
+  }
+  
+  return elements;
+}
+
+// Image creation helper
+export async function createTranslatedImage(originalBuffer, textElements, targetLanguage) {
+  // Load fonts (should be done once at startup)
+  const font = getFontForLanguage(targetLanguage);
+  
+  // Get image metadata
+  const metadata = await sharp(originalBuffer).metadata();
+  const canvas = createCanvas(metadata.width, metadata.height);
+  const ctx = canvas.getContext('2d');
+  
+  // Draw original image
+  const img = await loadImage(originalBuffer);
+  ctx.drawImage(img, 0, 0);
+  
+  // Process each text element
+  for (const element of textElements) {
+    const vertices = element.boundingBox.vertices;
+    
+    // Draw semi-transparent background
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    drawRoundedRect(ctx, vertices, 5);
+    ctx.fill();
+    
+    // Configure text style
+    const fontSize = calculateOptimalFontSize(element.translatedText, vertices);
+    ctx.font = `${fontSize}px "${font.family}"`;
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'left';
+    
+    // Draw translated text
+    const lines = wrapText(ctx, element.translatedText, vertices[1].x - vertices[0].x - 10);
+    const startY = vertices[0].y + 10;
+    
+    lines.forEach((line, i) => {
+      ctx.fillText(line, vertices[0].x + 5, startY + (i * fontSize * 1.2));
+    });
+  }
+  
+  return canvas.toBuffer('image/png');
+}
+
 
 // Create Glossary
 

@@ -1,5 +1,5 @@
 import { getLanguageShort, headers } from "../util.js";
-import {getSupportedLanguages, getLangShort, detectLanguage, translateDocument, translateTextFxn} from "../utilProd.js";
+import {getSupportedLanguages, getLangShort, detectLanguage, translateDocument, translateTextFxn, picToText, extractTextElements, createTranslatedImage} from "../utilProd.js";
 import axios from "axios";
 import mime from "mime-types";
 import { Writable } from 'stream';
@@ -157,13 +157,53 @@ export const getImageTranslation = async (req, res) => {
     }
 
     const publicUrl = await uploadFile(file);
-    const {byteStreams, translatedMimeType} = await translateDocument(publicUrl, mimeType, from, to);
-    res.setHeader('Content-Type', translatedMimeType);
-    res.setHeader('Content-Disposition', `attachment; filename=translated_${file.originalname}`);
-    for (const buffer of byteStreams) {
-      res.write(buffer);
+    const imageUri = publicUrl.replace('gs://', 'https://storage.googleapis.com/')
+    const fullTextAnnotation = await picToText(imageUri);
+
+    if (!fullTextAnnotation) {
+      return res.status(400).json({ error: 'No text found in image' });
     }
-    res.end();
+
+    // 4. Extract text elements with positions
+    const textElements = extractTextElements(fullTextAnnotation);
+    const extractedText = textElements.map(el => el.text).join('\n\n');
+    const contents = textElements.map(el => el.text);
+
+    const translations = await translateTextFxn(contents, from, to);
+
+    // Apply translations to text elements
+    textElements.forEach((el, index) => {
+      el.translatedText = translations[0].translations[index].translatedText;
+    });
+
+    // Create translated image
+    const translatedImageBuffer = await createTranslatedImage(
+      originalImageBuffer, 
+      textElements, 
+      to
+    );
+
+    // Upload translated image to GCS
+    const translatedFileName = `translated_${file.originalname}`;
+    const translatedFile = storage.bucket(process.env.BUCKET_NAME).file(translatedFileName);
+    
+    await translatedFile.save(translatedImageBuffer, {
+      metadata: { contentType: file.mimetype },
+      public: true,
+    });
+
+    // Return all required data
+    res.json({
+      extractedText,
+      originalImageUrl: publicUrl,
+      translatedImageUrl: `gs://${process.env.BUCKET_NAME}/${translatedFileName}`,
+      textElements: textElements.map(el => ({
+        originalText: el.text,
+        translatedText: el.translatedText,
+        boundingBox: el.boundingBox
+      }))
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).send(`Failed to translate file. ${error.message}`);

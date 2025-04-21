@@ -23,6 +23,7 @@
     "@google-cloud/translate": "^8.3.0",
     "@google-cloud/vision": "^5.1.0",
     "axios": "^1.6.8",
+    "canvas": "^2.11.2",
     "cheerio": "^1.0.0-rc.12",
     "child_process": "^1.0.2",
     "convertapi": "^1.14.0",
