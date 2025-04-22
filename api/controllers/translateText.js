@@ -158,7 +158,8 @@ export const getImageTranslation = async (req, res) => {
 
     const publicUrl = await uploadFile(file);
     const imageUri = publicUrl.replace('gs://', 'https://storage.googleapis.com/')
-    const fullTextAnnotation = await picToText(imageUri);
+    const fullTextAnnotation = await picToText(file.buffer);
+    console.log(fullTextAnnotation, publicUrl, imageUri)
 
     if (!fullTextAnnotation) {
       return res.status(400).json({ error: 'No text found in image' });
@@ -166,15 +167,32 @@ export const getImageTranslation = async (req, res) => {
 
     // 4. Extract text elements with positions
     const textElements = extractTextElements(fullTextAnnotation);
-    const extractedText = textElements.map(el => el.text).join('\n\n');
-    const contents = textElements.map(el => el.text);
+    const extractedText = fullTextAnnotation.text;
+    let contents = textElements.map(el => el.text);
+    contents = contents.join('|||');
 
     const translations = await translateTextFxn(contents, from, to);
 
+    let translatedSegments = [];
+    if (translations) {
+      translatedSegments = translations.split('|||');
+    }
+
+
     // Apply translations to text elements
     textElements.forEach((el, index) => {
-      el.translatedText = translations[0].translations[index].translatedText;
+      el.translatedText = translatedSegments[index] || el.text; // Fallback to original
+      
+      // Simple word-level translation (split by spaces)
+      if (el.words && el.translatedText) {
+        const translatedWords = el.translatedText.split(' ');
+        el.words.forEach((word, wordIndex) => {
+          word.translatedText = translatedWords[wordIndex] || word.text;
+        });
+      }
     });
+
+    console.log(translations)
 
     // Download original image for processing
     const imageResponse = await axios.get(publicUrl.replace('gs://', 'https://storage.googleapis.com/'), { 
@@ -198,6 +216,8 @@ export const getImageTranslation = async (req, res) => {
       public: true,
     });
 
+    await translatedFile.makePublic();
+
     // Return all required data
     console.log({extractedText,
       originalImageUrl: publicUrl,
@@ -208,13 +228,12 @@ export const getImageTranslation = async (req, res) => {
       originalImageUrl: publicUrl,
       translatedImageUrl: `gs://${process.env.BUCKET_NAME}/${translatedFileName}`,
       textElements: textElements.map(el => ({
-        originalText: el.text,
-        translatedText: el.translatedText,
-        confidence: el.confidence,
+        original: el.text,
+        translated: el.translatedText,
         boundingBox: el.boundingBox
       })),
       language: {
-        detected: translations[0].detectedLanguageCode || from,
+        detected: from,
         target: to
       }
     });

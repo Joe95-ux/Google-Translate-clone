@@ -1,15 +1,15 @@
 dotenv.config();
 import dotenv from "dotenv";
 import { TranslationServiceClient } from "@google-cloud/translate";
-import {vision} from '@google-cloud/vision';
+import vision from '@google-cloud/vision';
 import { createCanvas, loadImage, registerFont } from "canvas";
 import path from "path";
 import {v4 as uuidv4} from "uuid";
-import {fileURLpath} from "url";
+import {fileURLToPath} from "url";
 import sharp from "sharp";
 
 
-const __filename = fileURLpath(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
@@ -201,77 +201,42 @@ export async function picToText(inputUri){
 
 // Text extraction helper
 export function extractTextElements(fullTextAnnotation) {
-  const elements = [];
+  const textElements = [];
   
-  for (const page of fullTextAnnotation.pages) {
-    for (const block of page.blocks) {
-      for (const paragraph of block.paragraphs) {
-        let paragraphText = '';
-        const words = [];
-        
-        for (const word of paragraph.words) {
-          let wordText = '';
-          for (const symbol of word.symbols) {
-            wordText += symbol.text;
+  if (fullTextAnnotation && fullTextAnnotation.length > 1) {
+    // Skip the first element (it contains all text)
+    for (let i = 1; i < fullTextAnnotation.length; i++) {
+      const annotation = fullTextAnnotation[i];
+      textElements.push({
+        text: annotation.description,
+        boundingBox: annotation.boundingPoly,
+        confidence: annotation.confidence
+      });
+    }
+  } else {
+    // Fallback to using the full text annotation structure
+    for (const page of fullTextAnnotation.pages) {
+      for (const block of page.blocks) {
+        for (const paragraph of block.paragraphs) {
+          let paragraphText = '';
+          for (const word of paragraph.words) {
+            let wordText = '';
+            for (const symbol of word.symbols) {
+              wordText += symbol.text;
+            }
+            textElements.push({
+              text: wordText,
+              boundingBox: word.boundingPoly,
+              confidence: word.confidence
+            });
+            paragraphText += wordText + ' ';
           }
-          words.push({
-            text: wordText,
-            boundingBox: word.boundingBox
-          });
-          paragraphText += wordText + ' ';
         }
-        
-        elements.push({
-          text: paragraphText.trim(),
-          boundingBox: paragraph.boundingBox,
-          words
-        });
       }
     }
   }
   
-  return elements;
-}
-
-// Image creation helper
-export async function createTranslatedImage(originalBuffer, textElements, targetLanguage) {
-  // Load fonts (should be done once at startup)
-  const font = getFontForLanguage(targetLanguage);
-  
-  // Get image metadata
-  const metadata = await sharp(originalBuffer).metadata();
-  const canvas = createCanvas(metadata.width, metadata.height);
-  const ctx = canvas.getContext('2d');
-  
-  // Draw original image
-  const img = await loadImage(originalBuffer);
-  ctx.drawImage(img, 0, 0);
-  
-  // Process each text element
-  for (const element of textElements) {
-    const vertices = element.boundingBox.vertices;
-    
-    // Draw semi-transparent background
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    drawRoundedRect(ctx, vertices, 5);
-    ctx.fill();
-    
-    // Configure text style
-    const fontSize = calculateOptimalFontSize(element.translatedText, vertices);
-    ctx.font = `${fontSize}px "${font.family}"`;
-    ctx.fillStyle = '#000000';
-    ctx.textAlign = 'left';
-    
-    // Draw translated text
-    const lines = wrapText(ctx, element.translatedText, vertices[1].x - vertices[0].x - 10);
-    const startY = vertices[0].y + 10;
-    
-    lines.forEach((line, i) => {
-      ctx.fillText(line, vertices[0].x + 5, startY + (i * fontSize * 1.2));
-    });
-  }
-  
-  return canvas.toBuffer('image/png');
+  return textElements;
 }
 
 
@@ -313,7 +278,7 @@ export async function createTranslatedImage(originalBuffer, textElements, target
 
 
 
-async function createTranslatedImage(originalBuffer, textElements, targetLanguage) {
+export async function createTranslatedImage(originalBuffer, textElements, targetLanguage) {
   // Create a blurred version of the original for background
   const blurredImage = await sharp(originalBuffer)
     .blur(8)
