@@ -16,8 +16,6 @@ const Images = ({ fromLanguage, toLanguage }) => {
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState("");
-  const [extractedText, setExtractedText] = useState("");
-  const [textElements, setTextElements] = useState("");
   const [formData, setFormData] = useState(new FormData());
   const [translatedDocument, setTranslatedDocument] = useState(null);
 
@@ -98,44 +96,34 @@ const Images = ({ fromLanguage, toLanguage }) => {
 
   const translateDoc = async () => {
     setLoading(true);
-  
     try {
       const response = await axios.post(
         `${apiUrl}translate-image`,
-        formData
+        formData,
+        {
+          responseType: "blob", // Receive binary data
+        }
       );
-      console.log(response)
-  
-      const {
-        extractedText,
-        originalImageUrl,
-        translatedImageUrl,
-        textElements,
-        language
-      } = response.data;
-  
-      // You can use the translatedImageUrl to preview or download
-      setTranslatedDocument(translatedImageUrl); // or setPreviewUrl
-  
-      // Optionally update other states
-      setExtractedText(extractedText);
-      setTextElements(textElements);
+
+      // Determine the content type from the response headers
+      const contentType = response.headers["content-type"];
+
+      // Create a Blob object with the appropriate MIME type
+      const blob = new Blob([response.data], { type: contentType });
+
+      // Create a download URL
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      setTranslatedDocument(downloadUrl);
       setLoading(false);
     } catch (error) {
-      console.error("Full Axios error:", error);
-    
-      if (error.response) {
-        console.error("Backend status:", error.response.status);
-        console.error("Backend response data:", error.response.data);
-        toast.error(error.response.data || "Something went wrong.");
-      } else {
-        toast.error("No response from server.");
-      }
-    
+      console.error("Error translating document:", error);
+      toast.error(
+        "An error occurred while translating the document. Please try again later."
+      );
       setLoading(false);
     }
   };
-  
 
   const handleFolderReset = async () => {
     try {
@@ -169,10 +157,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
         <div className="container-fluid">
           <div className="drop-container">
             <div {...getRootProps()} className="drop-area">
-              <input
-                {...getInputProps()}
-                accept=".jpg, .jpeg, .png, .webp"
-              />
+              <input {...getInputProps()} accept=".jpg, .jpeg, .png, .webp" />
               {isDragActive ? (
                 <p>Drop the file here...</p>
               ) : (
