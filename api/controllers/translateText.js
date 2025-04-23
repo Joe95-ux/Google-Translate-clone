@@ -97,7 +97,7 @@ async function uploadFile(file) {
     resumable: false,
     metadata: {
       contentType: file.mimetype,
-    },
+    }
   });
 
   return new Promise((resolve, reject) => {
@@ -144,100 +144,43 @@ export const getDocumentTranslation = async (req, res) => {
 
 export const getImageTranslation = async (req, res) => {
   try {
-    let { fromLanguage, toLanguage } = req.body;
+    const { fromLanguage, toLanguage } = req.body;
     const from = await getLangShort(fromLanguage);
-    const to = await getLangShort(toLanguage)
+    const to = await getLangShort(toLanguage);
     const file = req.file;
+
     if (!file) {
-      return res.status(400).send('No file uploaded.');
+      return res.status(400).send("No file uploaded.");
     }
+
     const mimeType = mime.lookup(file.originalname);
     if (!mimeType) {
-      return res.status(400).send('Could not determine the MIME type.');
+      return res.status(400).send("Could not determine the MIME type.");
     }
 
-    const publicUrl = await uploadFile(file);
-    const imageUri = publicUrl.replace('gs://', 'https://storage.googleapis.com/')
     const fullTextAnnotation = await picToText(file.buffer);
-    console.log(fullTextAnnotation, publicUrl, imageUri)
 
     if (!fullTextAnnotation) {
-      return res.status(400).json({ error: 'No text found in image' });
+      return res.status(400).json({ error: "No text found in image" });
     }
 
-    // 4. Extract text elements with positions
     const textElements = extractTextElements(fullTextAnnotation);
     const extractedText = fullTextAnnotation.text;
-    let contents = textElements.map(el => el.text);
-    contents = contents.join('|||');
 
+    const contents = textElements.map((el) => el.text).join("|||");
     const translations = await translateTextFxn(contents, from, to);
+    const translatedSegments = translations?.split("|||") || [];
 
-    let translatedSegments = [];
-    if (translations) {
-      translatedSegments = translations.split('|||');
-    }
-
-
-    // Apply translations to text elements
     textElements.forEach((el, index) => {
-      el.translatedText = translatedSegments[index] || el.text; // Fallback to original
-      
-      // Simple word-level translation (split by spaces)
-      if (el.words && el.translatedText) {
-        const translatedWords = el.translatedText.split(' ');
-        el.words.forEach((word, wordIndex) => {
-          word.translatedText = translatedWords[wordIndex] || word.text;
-        });
-      }
+      el.translatedText = translatedSegments[index] || el.text;
     });
 
-    console.log(translations)
+    const translatedImageBuffer = await createTranslatedImage(file.buffer, textElements, to);
 
-    // Download original image for processing
-    const imageResponse = await axios.get(publicUrl.replace('gs://', 'https://storage.googleapis.com/'), { 
-      responseType: 'arraybuffer' 
-    });
-    const originalImageBuffer = Buffer.from(imageResponse.data);
-
-    // Create translated image
-    const translatedImageBuffer = await createTranslatedImage(
-      originalImageBuffer, 
-      textElements, 
-      to
-    );
-
-    // Upload translated image to GCS
-    const translatedFileName = `translated_${file.originalname}`;
-    const translatedFile = storage.bucket(process.env.BUCKET_NAME).file(translatedFileName);
-    
-    await translatedFile.save(translatedImageBuffer, {
-      metadata: { contentType: file.mimetype },
-      public: true,
-    });
-
-    await translatedFile.makePublic();
-
-    // Return all required data
-    console.log({extractedText,
-      originalImageUrl: publicUrl,
-      translatedImageUrl: `gs://${process.env.BUCKET_NAME}/${translatedFileName}`,});
-
-    res.json({
-      extractedText,
-      originalImageUrl: publicUrl,
-      translatedImageUrl: `gs://${process.env.BUCKET_NAME}/${translatedFileName}`,
-      textElements: textElements.map(el => ({
-        original: el.text,
-        translated: el.translatedText,
-        boundingBox: el.boundingBox
-      })),
-      language: {
-        detected: from,
-        target: to
-      }
-    });
-
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Disposition", `attachment; filename=translated_${file.originalname}`);
+    res.write(translatedImageBuffer);
+    res.end();
   } catch (error) {
     console.error(error);
     res.status(500).send(`Failed to translate file. ${error.message}`);

@@ -202,43 +202,32 @@ export async function picToText(inputUri){
 // Text extraction helper
 export function extractTextElements(fullTextAnnotation) {
   const textElements = [];
-  
-  if (fullTextAnnotation && fullTextAnnotation.length > 1) {
-    // Skip the first element (it contains all text)
-    for (let i = 1; i < fullTextAnnotation.length; i++) {
-      const annotation = fullTextAnnotation[i];
-      textElements.push({
-        text: annotation.description,
-        boundingBox: annotation.boundingPoly,
-        confidence: annotation.confidence
-      });
-    }
-  } else {
-    // Fallback to using the full text annotation structure
-    for (const page of fullTextAnnotation.pages) {
-      for (const block of page.blocks) {
-        for (const paragraph of block.paragraphs) {
-          let paragraphText = '';
-          for (const word of paragraph.words) {
-            let wordText = '';
-            for (const symbol of word.symbols) {
-              wordText += symbol.text;
-            }
+
+  if (!fullTextAnnotation?.pages) return textElements;
+
+  for (const page of fullTextAnnotation.pages) {
+    for (const block of page.blocks || []) {
+      for (const paragraph of block.paragraphs || []) {
+        for (const word of paragraph.words || []) {
+          const text = word.symbols?.map(s => s.text).join('') || '';
+          const boundingBox = word.boundingBox;
+
+          if (boundingBox?.vertices) {
             textElements.push({
-              text: wordText,
-              boundingBox: word.boundingPoly,
-              confidence: word.confidence
+              text,
+              boundingBox,
+              confidence: word.confidence || 0
             });
-            paragraphText += wordText + ' ';
+          } else {
+            console.log("Skipping element without valid bounding box:", { text, boundingBox });
           }
         }
       }
     }
   }
-  
+
   return textElements;
 }
-
 
 // Create Glossary
 
@@ -279,72 +268,54 @@ export function extractTextElements(fullTextAnnotation) {
 
 
 export async function createTranslatedImage(originalBuffer, textElements, targetLanguage) {
-  // Create a blurred version of the original for background
-  const blurredImage = await sharp(originalBuffer)
-    .blur(8)
-    .toBuffer();
-  
-  // Load the blurred background
+  const blurredImage = await sharp(originalBuffer).blur(8).toBuffer();
   const bgImage = await loadImage(blurredImage);
-  
-  // Get image dimensions
   const metadata = await sharp(originalBuffer).metadata();
   const { width, height } = metadata;
-  
-  // Create canvas
+
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
-  
-  // Draw blurred background
+
   ctx.drawImage(bgImage, 0, 0, width, height);
-  
-  // Draw original image with reduced opacity
   const originalImage = await loadImage(originalBuffer);
   ctx.globalAlpha = 0.4;
   ctx.drawImage(originalImage, 0, 0, width, height);
   ctx.globalAlpha = 1.0;
-  
-  // Process each text element
+
   for (const element of textElements) {
-    await renderTranslatedText(ctx, element, targetLanguage);
+    if (element.boundingBox?.vertices) {
+      await renderTranslatedText(ctx, element, targetLanguage);
+    } else {
+      console.log("Skipping element without valid bounding box:", element);
+    }
   }
-  
-  // Convert canvas to buffer
+
   return canvas.toBuffer('image/png');
 }
 
 async function renderTranslatedText(ctx, element, targetLanguage) {
   const vertices = element.boundingBox.vertices;
-  const { fontFamily, fontSize } = calculateTextStyle(
-    element.translatedText,
-    vertices,
-    targetLanguage
-  );
-  
-  // Draw text background
+  const { fontFamily, fontSize } = calculateTextStyle(element.translatedText, vertices, targetLanguage);
+
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   drawRoundedRect(ctx, vertices, 5);
   ctx.fill();
-  
-  // Configure text style
+
   const font = getFontForLanguage(targetLanguage);
   ctx.font = `${fontSize}px "${font.family}"`;
   ctx.fillStyle = '#1a1a1a';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  
-  // Calculate text position
+
   const x = vertices[0].x;
   const y = vertices[0].y;
   const boxWidth = vertices[1].x - vertices[0].x;
   const boxHeight = vertices[3].y - vertices[0].y;
-  
-  // Wrap text to fit bounding box
+
   const lines = wrapText(ctx, element.translatedText, boxWidth - 20, fontSize);
   const totalTextHeight = lines.length * fontSize * 1.2;
   const startY = y + (boxHeight - totalTextHeight) / 2;
-  
-  // Draw each line of text
+
   lines.forEach((line, i) => {
     ctx.fillText(line, x + 10, startY + (i * fontSize * 1.2));
   });
@@ -382,3 +353,40 @@ function calculateTextStyle(text, vertices, languageCode) {
   
   return { fontFamily: font.family, fontSize };
 }
+
+// Text wrapping helper
+function wrapText(ctx, text, maxWidth, fontSize) {
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = words[0];
+
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = ctx.measureText(currentLine + ' ' + word).width;
+    if (width < maxWidth) {
+      currentLine += ' ' + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+  return lines;
+}
+
+// Draw rounded rectangle
+function drawRoundedRect(ctx, vertices, radius) {
+  const [v0, v1, v2, v3] = vertices;
+  ctx.beginPath();
+  ctx.moveTo(v0.x + radius, v0.y);
+  ctx.lineTo(v1.x - radius, v1.y);
+  ctx.quadraticCurveTo(v1.x, v1.y, v1.x, v1.y + radius);
+  ctx.lineTo(v2.x, v2.y - radius);
+  ctx.quadraticCurveTo(v2.x, v2.y, v2.x - radius, v2.y);
+  ctx.lineTo(v3.x + radius, v3.y);
+  ctx.quadraticCurveTo(v3.x, v3.y, v3.x, v3.y - radius);
+  ctx.lineTo(v0.x, v0.y + radius);
+  ctx.quadraticCurveTo(v0.x, v0.y, v0.x + radius, v0.y);
+  ctx.closePath();
+}
+
