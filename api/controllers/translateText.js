@@ -159,22 +159,23 @@ export const getImageTranslation = async (req, res) => {
     }
 
     const fullTextAnnotation = await picToText(file.buffer);
-
-    if (!fullTextAnnotation) {
+    if (!fullTextAnnotation || !fullTextAnnotation.pages) {
       return res.status(400).json({ error: "No text found in image" });
     }
 
     const textElements = extractTextElements(fullTextAnnotation);
     const extractedText = fullTextAnnotation.text;
+    let contents = textElements.map((el) => el.text).join("|||");
 
-    const contents = textElements.map((el) => el.text).join("|||");
     const translations = await translateTextFxn(contents, from, to);
     const translatedSegments = translations?.split("|||") || [];
 
+    // Apply translations to text elements
     textElements.forEach((el, index) => {
       el.translatedText = translatedSegments[index] || el.text;
     });
 
+    // Generate translated image
     const translatedImageBuffer = await createTranslatedImage(file.buffer, textElements, to);
 
     res.setHeader("Content-Type", mimeType);

@@ -203,29 +203,20 @@ export async function picToText(inputUri){
 export function extractTextElements(fullTextAnnotation) {
   const textElements = [];
 
-  if (!fullTextAnnotation?.pages) return textElements;
-
   for (const page of fullTextAnnotation.pages) {
-    for (const block of page.blocks || []) {
-      for (const paragraph of block.paragraphs || []) {
-        for (const word of paragraph.words || []) {
-          const text = word.symbols?.map(s => s.text).join('') || '';
-          const boundingBox = word.boundingBox;
-
-          if (boundingBox?.vertices) {
-            textElements.push({
-              text,
-              boundingBox,
-              confidence: word.confidence || 0
-            });
-          } else {
-            console.log("Skipping element without valid bounding box:", { text, boundingBox });
-          }
+    for (const block of page.blocks) {
+      for (const paragraph of block.paragraphs) {
+        for (const word of paragraph.words) {
+          const wordText = word.symbols.map((s) => s.text).join("");
+          textElements.push({
+            text: wordText,
+            boundingBox: word.boundingBox,
+            confidence: word.confidence || 1.0,
+          });
         }
       }
     }
   }
-
   return textElements;
 }
 
@@ -268,90 +259,73 @@ export function extractTextElements(fullTextAnnotation) {
 
 
 export async function createTranslatedImage(originalBuffer, textElements, targetLanguage) {
-  const blurredImage = await sharp(originalBuffer).blur(8).toBuffer();
-  const bgImage = await loadImage(blurredImage);
+  const blurred = await sharp(originalBuffer).blur(8).toBuffer();
+  const bgImage = await loadImage(blurred);
   const metadata = await sharp(originalBuffer).metadata();
   const { width, height } = metadata;
 
   const canvas = createCanvas(width, height);
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
 
   ctx.drawImage(bgImage, 0, 0, width, height);
+
   const originalImage = await loadImage(originalBuffer);
   ctx.globalAlpha = 0.4;
   ctx.drawImage(originalImage, 0, 0, width, height);
   ctx.globalAlpha = 1.0;
 
-  for (const element of textElements) {
-    if (element.boundingBox?.vertices) {
-      await renderTranslatedText(ctx, element, targetLanguage);
-    } else {
-      console.log("Skipping element without valid bounding box:", element);
+  for (const el of textElements) {
+    if (!el.boundingBox?.vertices) {
+      console.warn("Skipping element without valid bounding box:", el);
+      continue;
     }
+    await renderTranslatedText(ctx, el, targetLanguage);
   }
 
-  return canvas.toBuffer('image/png');
+  return canvas.toBuffer("image/png");
 }
+
 
 async function renderTranslatedText(ctx, element, targetLanguage) {
   const vertices = element.boundingBox.vertices;
-  const { fontFamily, fontSize } = calculateTextStyle(element.translatedText, vertices, targetLanguage);
-
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  drawRoundedRect(ctx, vertices, 5);
-  ctx.fill();
-
-  const font = getFontForLanguage(targetLanguage);
-  ctx.font = `${fontSize}px "${font.family}"`;
-  ctx.fillStyle = '#1a1a1a';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
+  if (!vertices || vertices.length !== 4) return;
 
   const x = vertices[0].x;
   const y = vertices[0].y;
   const boxWidth = vertices[1].x - vertices[0].x;
-  const boxHeight = vertices[3].y - vertices[0].y;
+  const boxHeight = vertices[2].y - vertices[1].y;
 
-  const lines = wrapText(ctx, element.translatedText, boxWidth - 20, fontSize);
-  const totalTextHeight = lines.length * fontSize * 1.2;
-  const startY = y + (boxHeight - totalTextHeight) / 2;
+  const { fontFamily, fontSize } = calculateTextStyle(element.translatedText, boxWidth, boxHeight, targetLanguage);
 
+  ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+  ctx.fillRect(x, y, boxWidth, boxHeight);
+
+  ctx.font = `${fontSize}px ${fontFamily}`;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.textBaseline = "top";
+
+  const lines = wrapText(ctx, element.translatedText, boxWidth - 10);
   lines.forEach((line, i) => {
-    ctx.fillText(line, x + 10, startY + (i * fontSize * 1.2));
+    ctx.fillText(line, x + 5, y + i * fontSize * 1.2);
   });
 }
 
-function calculateTextStyle(text, vertices, languageCode) {
-  const boxWidth = vertices[1].x - vertices[0].x;
-  const boxHeight = vertices[3].y - vertices[0].y;
-  const font = getFontForLanguage(languageCode);
-  
-  // Start with maximum possible size
+
+function calculateTextStyle(text, boxWidth, boxHeight, languageCode) {
   let fontSize = Math.min(boxHeight, 40);
-  let fits = false;
-  
-  // Reduce font size until text fits
-  while (fontSize > 8 && !fits) {
-    const testCanvas = createCanvas(1, 1);
-    const testCtx = testCanvas.getContext('2d');
-    testCtx.font = `${fontSize}px "${font.family}"`;
-    
-    const metrics = testCtx.measureText(text);
-    const textWidth = metrics.width;
-    
-    // Estimate lines needed
-    const charsPerLine = Math.floor(boxWidth / (fontSize * 0.6));
-    const linesNeeded = Math.ceil(text.length / charsPerLine);
-    const estimatedHeight = linesNeeded * fontSize * 1.2;
-    
-    if (textWidth < boxWidth * 1.5 && estimatedHeight < boxHeight * 0.9) {
-      fits = true;
-    } else {
-      fontSize -= 1;
-    }
+  const fontFamily = getFontForLanguage(languageCode);
+
+  const testCanvas = createCanvas(1, 1);
+  const ctx = testCanvas.getContext("2d");
+
+  while (fontSize > 10) {
+    ctx.font = `${fontSize}px ${fontFamily}`;
+    const metrics = ctx.measureText(text);
+    if (metrics.width < boxWidth) break;
+    fontSize -= 1;
   }
-  
-  return { fontFamily: font.family, fontSize };
+
+  return { fontFamily, fontSize };
 }
 
 // Text wrapping helper
@@ -373,20 +347,3 @@ function wrapText(ctx, text, maxWidth, fontSize) {
   lines.push(currentLine);
   return lines;
 }
-
-// Draw rounded rectangle
-function drawRoundedRect(ctx, vertices, radius) {
-  const [v0, v1, v2, v3] = vertices;
-  ctx.beginPath();
-  ctx.moveTo(v0.x + radius, v0.y);
-  ctx.lineTo(v1.x - radius, v1.y);
-  ctx.quadraticCurveTo(v1.x, v1.y, v1.x, v1.y + radius);
-  ctx.lineTo(v2.x, v2.y - radius);
-  ctx.quadraticCurveTo(v2.x, v2.y, v2.x - radius, v2.y);
-  ctx.lineTo(v3.x + radius, v3.y);
-  ctx.quadraticCurveTo(v3.x, v3.y, v3.x, v3.y - radius);
-  ctx.lineTo(v0.x, v0.y + radius);
-  ctx.quadraticCurveTo(v0.x, v0.y, v0.x + radius, v0.y);
-  ctx.closePath();
-}
-
