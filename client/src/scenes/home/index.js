@@ -27,6 +27,7 @@ const Home = () => {
   const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
+  const [isContext, setIsContext] = useState(false);
   const [otherInputLangs, setOtherInputLangs] = usePersistentArray(
     "otherInputLangs",
     ["Detect language", "French", "English", "Spanish"]
@@ -464,6 +465,8 @@ const Home = () => {
         otherInputLangs={otherInputLangs}
         setInputLanguage={setInputLanguage}
         outputLanguage={outputLanguage}
+        context={isContext}
+        setContext={setIsContext}
       />
       <div className="app">
         <div

@@ -5,9 +5,10 @@ import { MdOutlineTranslate } from "react-icons/md";
 import { IoDocumentTextOutline, IoImageOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
+import ToggleTab from "./ToggleTab";
 import { useUser } from "@clerk/clerk-react";
 import AccountMenu from "./AccountMenu";
-import { SignedIn, SignedOut} from "@clerk/clerk-react";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { toast } from "sonner";
 
 const Header = ({
@@ -17,6 +18,8 @@ const Header = ({
   otherInputLangs,
   setInputLanguage,
   outputLanguage,
+  context,
+  setContext
 }) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
@@ -133,34 +136,40 @@ const Header = ({
           </div>
         </div>
       </nav>
-      <div className="types">
-        <div
-          className="open-history-inner top-btn"
-          style={{ color: activeType === "Text" ? "#38BDF8" : "#f5f5f5" }}
-        >
-          <MdOutlineTranslate size={22} />
-          <h3 className="textt" onClick={handleType}>
-            Text
-          </h3>
+
+      <div className="bottom-nav">
+        <div className="types">
+          <div
+            className="open-history-inner top-btn"
+            style={{ color: activeType === "Text" ? "#38BDF8" : "#f5f5f5" }}
+          >
+            <MdOutlineTranslate size={22} />
+            <h3 className="textt" onClick={handleType}>
+              Text
+            </h3>
+          </div>
+          <div
+            className="saved top-btn"
+            style={{
+              color: activeType === "Documents" ? "#38BDF8" : "#f5f5f5",
+            }}
+          >
+            <IoDocumentTextOutline size={22} />
+            <h3 className="docs" onClick={handleType}>
+              Documents
+            </h3>
+          </div>
+          <div
+            className="saved top-btn"
+            style={{ color: activeType === "Images" ? "#38BDF8" : "#f5f5f5" }}
+          >
+            <IoImageOutline size={22} />
+            <h3 className="images" onClick={handleType}>
+              Images
+            </h3>
+          </div>
         </div>
-        <div
-          className="saved top-btn"
-          style={{ color: activeType === "Documents" ? "#38BDF8" : "#f5f5f5" }}
-        >
-          <IoDocumentTextOutline size={22} />
-          <h3 className="docs" onClick={handleType}>
-            Documents
-          </h3>
-        </div>
-        <div
-          className="saved top-btn"
-          style={{ color: activeType === "Images" ? "#38BDF8" : "#f5f5f5" }}
-        >
-          <IoImageOutline size={22} />
-          <h3 className="images" onClick={handleType}>
-            Images
-          </h3>
-        </div>
+        <ToggleTab isContext={context} setIsContext={setContext}/>
       </div>
     </div>
   );
