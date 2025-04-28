@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BsInfoSquare } from "react-icons/bs";
+import { TiInfo } from "react-icons/ti";
 
 export default function ToggleTab({ isContext, setIsContext }) {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -26,7 +26,7 @@ export default function ToggleTab({ isContext, setIsContext }) {
         onClick={() => setShowTooltip(!showTooltip)}
         aria-label="More information"
       >
-        <BsInfoSquare size={16} style={{color:"#38BDF8"}}/>
+        <TiInfo size={16}/>
       </button>
       {showTooltip && (
         <div className="tooltip">

@@ -1134,7 +1134,7 @@ div.lang-style::after{
 .tooltip {
   position: absolute;
   top: 100%;
-  left: 0;
+  right: -5px;
   background-color: #142342;
   color: #fff;
   padding: 12px;
@@ -1143,7 +1143,7 @@ div.lang-style::after{
   width: 200px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 .tooltip p {
@@ -1154,7 +1154,7 @@ div.lang-style::after{
 .tooltip-arrow {
   position: absolute;
   bottom: 100%;
-  left: 10px;
+  right: 8px;
   border-width: 0 8px 8px;
   border-style: solid;
   border-color: transparent transparent #142342;
