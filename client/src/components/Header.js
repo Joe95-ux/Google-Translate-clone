@@ -14,6 +14,8 @@ import { toast } from "sonner";
 const Header = ({
   activeType,
   setActiveType,
+  isTranslating,
+  setIsTranslating,
   inputLanguage,
   otherInputLangs,
   setInputLanguage,
@@ -169,7 +171,7 @@ const Header = ({
             </h3>
           </div>
         </div>
-        <ToggleTab isContext={context} setIsContext={setContext}/>
+        <ToggleTab isContext={context} setIsContext={setContext} isTranslating={isTranslating} setIsTranslating={setIsTranslating}/>
       </div>
     </div>
   );

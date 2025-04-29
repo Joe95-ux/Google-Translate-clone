@@ -467,6 +467,8 @@ const Home = () => {
         outputLanguage={outputLanguage}
         context={isContext}
         setContext={setIsContext}
+        isTranslating={isLoading}
+        setIsTranslating={setIsLoading}
       />
       <div className="app">
         <div

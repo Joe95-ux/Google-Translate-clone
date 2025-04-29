@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TiInfo } from "react-icons/ti";
 
-export default function ToggleTab({ isContext, setIsContext }) {
+export default function ToggleTab({ isContext, setIsContext, isTranslating }) {
   const [showTooltip, setShowTooltip] = useState(false);
   return (
     <div className="switch-tab-wrapper">
@@ -9,12 +9,14 @@ export default function ToggleTab({ isContext, setIsContext }) {
         <button
           className={`toggle-option ${!isContext ? "active" : ""}`}
           onClick={() => setIsContext(false)}
+          disabled={isTranslating}
         >
           CONTEXT OFF
         </button>
         <button
           className={`toggle-option ${isContext ? "active" : ""}`}
           onClick={() => setIsContext(true)}
+          disabled={isTranslating}
         >
           CONTEXT ON
         </button>
@@ -25,6 +27,7 @@ export default function ToggleTab({ isContext, setIsContext }) {
         className="info-icon"
         onClick={() => setShowTooltip(!showTooltip)}
         aria-label="More information"
+        disabled={isTranslating}
       >
         <TiInfo size={16}/>
       </button>
