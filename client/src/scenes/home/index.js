@@ -17,7 +17,7 @@ import ShareModal from "../../components/ShareModal";
 import { useSaveModal } from "../../hooks/useSaveModal";
 import { useShareModal } from "../../hooks/useShareModal";
 import { Toaster, toast } from "sonner";
-import {useUser} from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
 import axios from "axios";
 import { usePersistentState } from "../../hooks/usePersistentState";
 import { usePersistentArray } from "../../hooks/usePersistentArray";
@@ -28,6 +28,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
   const [isContext, setIsContext] = useState(false);
+  const [contextTranslations, setContextTranslations] = useState({});
   const [otherInputLangs, setOtherInputLangs] = usePersistentArray(
     "otherInputLangs",
     ["Detect language", "French", "English", "Spanish"]
@@ -45,7 +46,7 @@ const Home = () => {
     "outputLanguage",
     ""
   );
-  const [activeType, setActiveType] = usePersistentState('activeType', 'Text');
+  const [activeType, setActiveType] = usePersistentState("activeType", "Text");
 
   const [textToTranslate, setTextToTranslate] = usePersistentState(
     "textToTranslate",
@@ -67,7 +68,7 @@ const Home = () => {
   const [smallScreenWidth, setSmallScreenWidth] = useState(window.innerWidth);
 
   const translateRef = useRef(false);
-  const {isSignedIn} = useUser();
+  const { isSignedIn } = useUser();
 
   const activeStyles = {
     active: {
@@ -263,48 +264,57 @@ const Home = () => {
     }
   }, [setInputLanguage, setOtherInputLangs, textToTranslate]);
 
-  const translate = async (timestamp = "", text, outputLang, inputLang) => {
-    text = text || textToTranslate;
-    outputLang = outputLang || outputLanguage;
-    inputLang = inputLang || inputLanguage;
-    const data = {
-      text,
-      outputLang,
-      inputLang,
-    };
-    setIsLoading(true);
-    try {
-      if (text !== "" && text !== null) {
-        const response = await axios.get(`${apiUrl}translation`, {
-          params: data,
-        });
-        // response.data.trans
-        setTranslatedText(response.data);
-        //response.data?.dict || (for old model)
-        setDictionary([]);
-        setShowCopy(true);
-        setIsLoading(false);
-        if (timestamp === "" || timestamp === undefined || timestamp === null) {
-          saveTranslation({
-            text: text,
-            to: outputLang,
-            from: inputLang.includes("Detected")
-              ? inputLang.split(" - ")[0]
-              : inputLang,
-            translation: response.data,
-            timestamp: new Date().toLocaleString(),
-            saved: false,
+  const translate = useCallback(
+    async (timestamp = "", text, outputLang, inputLang, isContext) => {
+      text = text || textToTranslate;
+      outputLang = outputLang || outputLanguage;
+      inputLang = inputLang || inputLanguage;
+      const data = {
+        text,
+        outputLang,
+        inputLang,
+        isContext,
+      };
+      setIsLoading(true);
+      try {
+        if (text !== "" && text !== null) {
+          const response = await axios.get(`${apiUrl}translation`, {
+            params: data,
           });
+          // response.data.trans
+          setTranslatedText(response.data.trans);
+          setContextTranslations(response.data.context);
+          //response.data?.dict || (for old model)
+          setDictionary([]);
+          setShowCopy(true);
+          setIsLoading(false);
+          if (
+            timestamp === "" ||
+            timestamp === undefined ||
+            timestamp === null
+          ) {
+            saveTranslation({
+              text: text,
+              to: outputLang,
+              from: inputLang.includes("Detected")
+                ? inputLang.split(" - ")[0]
+                : inputLang,
+              translation: response.data,
+              timestamp: new Date().toLocaleString(),
+              saved: false,
+            });
+          }
+        } else {
+          setIsLoading(false);
+          toast.warning("please provide text to translate");
         }
-      } else {
+      } catch (error) {
+        toast.error(error.message);
         setIsLoading(false);
-        toast.warning("please provide text to translate");
       }
-    } catch (error) {
-      toast.error(error.message);
-      setIsLoading(false);
-    }
-  };
+    },
+    [apiUrl, inputLanguage, outputLanguage, setTranslatedText, textToTranslate]
+  );
 
   const saveTranslation = (translation) => {
     setTranslations((prevTranslations) => {
@@ -313,6 +323,28 @@ const Home = () => {
       return translationData;
     });
   };
+
+  //translate again when context is set after translation
+  useEffect(() => {
+    if (translatedText && !contextTranslations && isContext) {
+      const timestamp = Date.now();
+      translate(
+        timestamp,
+        textToTranslate,
+        outputLanguage,
+        inputLanguage,
+        isContext
+      );
+    }
+  }, [
+    contextTranslations,
+    inputLanguage,
+    isContext,
+    outputLanguage,
+    textToTranslate,
+    translate,
+    translatedText,
+  ]);
 
   useEffect(() => {
     localStorage.setItem("translations", JSON.stringify(translations));
@@ -397,7 +429,7 @@ const Home = () => {
   const handleReTranslate = (from, to, text, translatedText, timestamp) => {
     setInputLanguage(from);
     setOutputLanguage(to);
-    setActiveType((prev)=> (prev === "Text" ? prev : "Text"));
+    setActiveType((prev) => (prev === "Text" ? prev : "Text"));
     // set otherInputLangs
     setOtherInputLangs((prevLangs) => {
       const adjustedLangs = prevLangs.map((lang) => {
