@@ -66,7 +66,7 @@ app.use(
 
 //openai config
 
-const openai = new OpenAI({
+export const openai = new OpenAI({
   apiKey: process.env.OPEN_API_KEY,
 });
 
