@@ -1,5 +1,6 @@
 import { getLanguageShort, headers } from "../util.js";
 import {getSupportedLanguages, getLangShort, detectLanguage, translateDocument, translateTextFxn, picToText, extractTextElements, createTranslatedImage} from "../utilProd.js";
+import {contextualize} from "../openAI.js";
 import axios from "axios";
 import mime from "mime-types";
 import { Writable } from 'stream';
@@ -35,14 +36,27 @@ export const translateText = async (req, res) => {
 
 //translate text with google cloud translate
 export const translateTextWithGoogle = async (req, res) => {
-  const { text, outputLang, inputLang } = req.query;
+  const { text, outputLang, inputLang, isContext } = req.query;
   let fromLang = await getLangShort(inputLang);
   let toLang = await getLangShort(outputLang);
   if(fromLang === toLang){
     fromLang = "";
   }
   try {
-    const response = await translateTextFxn(text, fromLang, toLang);
+    const result = await translateTextFxn(text, fromLang, toLang);
+    let contextResponse;
+    if(isContext){
+      contextResponse = await contextualize(
+        inputLang,
+        outputLang,
+        text,
+        response
+      );
+    }else{
+      contextResponse = {};
+    }
+    console.log(contextResponse);
+    const response = {translation: result, contextTranslations: contextResponse};
     res.status(200).json(response);
   } catch (err) {
     console.log(err);

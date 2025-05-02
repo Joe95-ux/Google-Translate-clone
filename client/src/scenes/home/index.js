@@ -282,8 +282,8 @@ const Home = () => {
             params: data,
           });
           // response.data.trans
-          setTranslatedText(response.data.trans);
-          setContextTranslations(response.data.context);
+          setTranslatedText(response.data.translation);
+          setContextTranslations(response.data.contextTranslations);
           //response.data?.dict || (for old model)
           setDictionary([]);
           setShowCopy(true);
