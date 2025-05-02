@@ -20,8 +20,8 @@ const Header = ({
   otherInputLangs,
   setInputLanguage,
   outputLanguage,
-  context,
-  setContext
+  isContext,
+  setIsContext
 }) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
@@ -171,7 +171,7 @@ const Header = ({
             </h3>
           </div>
         </div>
-        <ToggleTab isContext={context} setIsContext={setContext} isTranslating={isTranslating} setIsTranslating={setIsTranslating}/>
+        <ToggleTab isContext={isContext} setIsContext={setIsContext} isTranslating={isTranslating} setIsTranslating={setIsTranslating}/>
       </div>
     </div>
   );

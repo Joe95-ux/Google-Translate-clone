@@ -28,6 +28,8 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
   const [isContext, setIsContext] = useState(false);
+  const [hasTranslated, setHasTranslated] = useState(false);
+  const [contextFetched, setContextFetched] = useState(false);
   const [contextTranslations, setContextTranslations] = useState({});
   const [otherInputLangs, setOtherInputLangs] = usePersistentArray(
     "otherInputLangs",
@@ -269,44 +271,46 @@ const Home = () => {
       text = text || textToTranslate;
       outputLang = outputLang || outputLanguage;
       inputLang = inputLang || inputLanguage;
-      const data = {
-        text,
-        outputLang,
-        inputLang,
-        isContext,
-      };
+      if (!text) {
+        toast.warning("Please provide text to translate");
+        return;
+      }
       setIsLoading(true);
       try {
-        if (text !== "" && text !== null) {
-          const response = await axios.get(`${apiUrl}translation`, {
-            params: data,
+        const { data } = await axios.get(`${apiUrl}translation`, {
+          params: {
+            text,
+            outputLang,
+            inputLang,
+            isContext,
+          },
+        });
+        const result = data;
+        console.log(isContext);
+        // response.data.trans
+        setTranslatedText(result.translation);
+        setContextTranslations(result.contextTranslations);
+        //response.data?.dict || (for old model)
+        setDictionary([]);
+        setShowCopy(true);
+        setIsLoading(false);
+        setHasTranslated(true);
+
+        if (isContext && result.contextTranslations) {
+          setContextTranslations(result.contextTranslations);
+          setContextFetched(true);
+        }
+        if (timestamp === "" || timestamp === undefined || timestamp === null) {
+          saveTranslation({
+            text: text,
+            to: outputLang,
+            from: inputLang.includes("Detected")
+              ? inputLang.split(" - ")[0]
+              : inputLang,
+            translation: result.translation,
+            timestamp: new Date().toLocaleString(),
+            saved: false,
           });
-          // response.data.trans
-          setTranslatedText(response.data.translation);
-          setContextTranslations(response.data.contextTranslations);
-          //response.data?.dict || (for old model)
-          setDictionary([]);
-          setShowCopy(true);
-          setIsLoading(false);
-          if (
-            timestamp === "" ||
-            timestamp === undefined ||
-            timestamp === null
-          ) {
-            saveTranslation({
-              text: text,
-              to: outputLang,
-              from: inputLang.includes("Detected")
-                ? inputLang.split(" - ")[0]
-                : inputLang,
-              translation: response.data,
-              timestamp: new Date().toLocaleString(),
-              saved: false,
-            });
-          }
-        } else {
-          setIsLoading(false);
-          toast.warning("please provide text to translate");
         }
       } catch (error) {
         toast.error(error.message);
@@ -326,24 +330,23 @@ const Home = () => {
 
   //translate again when context is set after translation
   useEffect(() => {
-    if (translatedText && !contextTranslations && isContext) {
-      const timestamp = Date.now();
+    if (hasTranslated && isContext && !contextFetched) {
       translate(
-        timestamp,
+        Date.now(),
         textToTranslate,
         outputLanguage,
         inputLanguage,
-        isContext
+        true
       );
     }
   }, [
-    contextTranslations,
-    inputLanguage,
+    hasTranslated,
     isContext,
-    outputLanguage,
-    textToTranslate,
+    contextFetched,
     translate,
-    translatedText,
+    textToTranslate,
+    outputLanguage,
+    inputLanguage,
   ]);
 
   useEffect(() => {
@@ -497,8 +500,8 @@ const Home = () => {
         otherInputLangs={otherInputLangs}
         setInputLanguage={setInputLanguage}
         outputLanguage={outputLanguage}
-        context={isContext}
-        setContext={setIsContext}
+        isContext={isContext}
+        setIsContext={setIsContext}
         isTranslating={isLoading}
         setIsTranslating={setIsLoading}
       />
