@@ -267,7 +267,7 @@ const Home = () => {
   }, [setInputLanguage, setOtherInputLangs, textToTranslate]);
 
   const translate = useCallback(
-    async (timestamp = "", text, outputLang, inputLang, isContext) => {
+    async (timestamp = "", text, outputLang, inputLang) => {
       text = text || textToTranslate;
       outputLang = outputLang || outputLanguage;
       inputLang = inputLang || inputLanguage;
@@ -282,7 +282,7 @@ const Home = () => {
             text,
             outputLang,
             inputLang,
-            isContext,
+            context: isContext,
           },
         });
         const result = data;
@@ -317,7 +317,7 @@ const Home = () => {
         setIsLoading(false);
       }
     },
-    [apiUrl, inputLanguage, outputLanguage, setTranslatedText, textToTranslate]
+    [apiUrl, inputLanguage, isContext, outputLanguage, setTranslatedText, textToTranslate]
   );
 
   const saveTranslation = (translation) => {

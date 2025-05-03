@@ -7,6 +7,7 @@ export default function ToggleTab({ isContext, setIsContext, isTranslating }) {
     <div className="switch-tab-wrapper">
       <div className="toggle-container">
         <button
+          style={{cursor:`${isTranslating} ? not-allowed : pointer`}}
           className={`toggle-option ${!isContext ? "active" : ""}`}
           onClick={() => setIsContext(false)}
           disabled={isTranslating}
@@ -14,6 +15,7 @@ export default function ToggleTab({ isContext, setIsContext, isTranslating }) {
           CONTEXT OFF
         </button>
         <button
+          style={{cursor:`${isTranslating} ? not-allowed : pointer`}}
           className={`toggle-option ${isContext ? "active" : ""}`}
           onClick={() => setIsContext(true)}
           disabled={isTranslating}

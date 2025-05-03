@@ -30,6 +30,7 @@ export default function AuthLayout() {
                 display: "flex",
                 justifyContent: "flex-start",
                 alignItems: "center",
+                cursor:"pointer"
               }}
               onClick={handleLogoClick}
             >
