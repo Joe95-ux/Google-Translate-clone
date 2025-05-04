@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TiInfo } from "react-icons/ti";
+import {toast} from "sonner";
 
 export default function ToggleTab({ isContext, setIsContext, isTranslating }) {
   const [showTooltip, setShowTooltip] = useState(false);
+
+  useEffect(() => {
+    toast.info(`Context is now ${isContext ? "on" : "off"}`);
+  }, [isContext]);
+
   return (
     <div className="switch-tab-wrapper">
       <div className="toggle-container">
         <button
-          style={{cursor:`${isTranslating} ? not-allowed : pointer`}}
+          style={{ cursor: isTranslating ? 'not-allowed' : 'pointer' }}
           className={`toggle-option ${!isContext ? "active" : ""}`}
           onClick={() => setIsContext(false)}
           disabled={isTranslating}
@@ -15,7 +21,7 @@ export default function ToggleTab({ isContext, setIsContext, isTranslating }) {
           CONTEXT OFF
         </button>
         <button
-          style={{cursor:`${isTranslating} ? not-allowed : pointer`}}
+          style={{ cursor: isTranslating ? 'not-allowed' : 'pointer' }}
           className={`toggle-option ${isContext ? "active" : ""}`}
           onClick={() => setIsContext(true)}
           disabled={isTranslating}

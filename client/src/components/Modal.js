@@ -104,6 +104,7 @@ const Modal = ({
   }, [outputLanguage, tab, translate, translateRef]);
 
   const handleChange = (e) => {
+    e.stopPropagation();
     setSearchedLanguage(e.target.value);
     setChosenLanguage(e.target.value);
   };
