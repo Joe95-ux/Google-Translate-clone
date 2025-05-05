@@ -112,7 +112,7 @@ const Modal = ({
   return (
     <div className="option-list">
       <div className="search-bar">
-        <input value={chosenLanguage} onChange={handleChange} />
+        <input value="" onChange={handleChange} />
         <div className="close-button">
           <IoSearch size={22} style={{ marginRight: "20px" }} />
           <IoMdClose
