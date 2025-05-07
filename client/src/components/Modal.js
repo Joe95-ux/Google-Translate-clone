@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IoMdClose } from "react-icons/io";
 import { IoSearch } from "react-icons/io5";
 import LanguageLoader from "./LanguageLoader";
@@ -30,6 +30,14 @@ const Modal = ({
   const filteredLanguages = languages?.filter((language) =>
     language.toLowerCase().startsWith(searchedLanguage.toLowerCase())
   );
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (showModal && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [showModal]);
 
   const handleSelect = (e, language) => {
     e.stopPropagation(); // Stop event propagation to prevent triggering parent elements' click handlers
@@ -111,7 +119,7 @@ const Modal = ({
   return (
     <div className="option-list">
       <div className="search-bar">
-        <input value={searchedLanguage} onChange={handleChange} />
+        <input ref={inputRef} value={searchedLanguage} onChange={handleChange} />
         <div className="close-button">
           <IoSearch size={22} style={{ marginRight: "20px" }} />
           <IoMdClose

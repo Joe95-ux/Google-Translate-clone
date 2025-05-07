@@ -282,14 +282,12 @@ const Home = () => {
             text,
             outputLang,
             inputLang,
-            context: isContext,
+            isContext,
           },
         });
         const result = data;
-        console.log(isContext);
         // response.data.trans
         setTranslatedText(result.translation);
-        setContextTranslations(result.contextTranslations);
         //response.data?.dict || (for old model)
         setDictionary([]);
         setShowCopy(true);
@@ -331,12 +329,12 @@ const Home = () => {
   //translate again when context is set after translation
   useEffect(() => {
     if (hasTranslated && isContext && !contextFetched) {
+      console.log("Re-translating with context...");
       translate(
         Date.now(),
         textToTranslate,
         outputLanguage,
         inputLanguage,
-        true
       );
     }
   }, [
@@ -348,6 +346,13 @@ const Home = () => {
     outputLanguage,
     inputLanguage,
   ]);
+
+  // prepare for re-fetch if needed
+  useEffect(() => {
+    if (isContext) {
+      setContextFetched(false); 
+    }
+  }, [isContext]);
 
   useEffect(() => {
     localStorage.setItem("translations", JSON.stringify(translations));
