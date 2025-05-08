@@ -1,12 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TiInfo } from "react-icons/ti";
 import {toast} from "sonner";
 
 export default function ToggleTab({ isContext, setIsContext, isTranslating }) {
   const [showTooltip, setShowTooltip] = useState(false);
 
+  const hasMounted = useRef(false);
+
   useEffect(() => {
-    toast.info(`Context is now ${isContext ? "on" : "off"}`);
+    if (hasMounted.current) {
+      toast.info(`Context is now ${isContext ? "on" : "off"}`);
+    } else {
+      hasMounted.current = true;
+    }
   }, [isContext]);
 
 
