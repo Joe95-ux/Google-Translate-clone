@@ -9,6 +9,7 @@ export default function ToggleTab({ isContext, setIsContext, isTranslating }) {
     toast.info(`Context is now ${isContext ? "on" : "off"}`);
   }, [isContext]);
 
+
   return (
     <div className="switch-tab-wrapper">
       <div className="toggle-container">

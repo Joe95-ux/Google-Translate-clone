@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TextBox from "../../components/TextBox";
 import Documents from "../../components/Documents";
 import Images from "../../components/Images";
@@ -307,7 +307,6 @@ const Home = () => {
               : inputLang,
             translation: result.translation,
             timestamp: new Date().toLocaleString(),
-            context: context,
             saved: false,
           });
         }

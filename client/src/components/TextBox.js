@@ -280,7 +280,7 @@ const TextBox = ({
               }}
             >
               {!selectedLanguage.includes("language") &&
-                textToTranslate !== "" && (
+                textToTranslate !== "" && detectLanguage !== "" &&(
                   <>
                     <BsTranslate size={22} style={{ color: "#38BDF8" }} />
                     <span
