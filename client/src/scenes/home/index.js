@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import TextBox from "../../components/TextBox";
 import Documents from "../../components/Documents";
 import Images from "../../components/Images";
@@ -27,7 +27,7 @@ const Home = () => {
   const [languages, setLanguages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showCopy, setShowCopy] = useState(false);
-  const [isContext, setIsContext] = useState(false);
+  const [isContext, setIsContext] = usePersistentState("context", "false");
   const [hasTranslated, setHasTranslated] = useState(false);
   const [contextFetched, setContextFetched] = useState(false);
   const [contextTranslations, setContextTranslations] = useState({});
@@ -267,7 +267,7 @@ const Home = () => {
   }, [setInputLanguage, setOtherInputLangs, textToTranslate]);
 
   const translate = useCallback(
-    async (timestamp = "", text, outputLang, inputLang) => {
+    async (timestamp = "", text, outputLang, inputLang, context = isContext) => {
       text = text || textToTranslate;
       outputLang = outputLang || outputLanguage;
       inputLang = inputLang || inputLanguage;
@@ -282,7 +282,7 @@ const Home = () => {
             text,
             outputLang,
             inputLang,
-            isContext,
+            context,
           },
         });
         const result = data;
@@ -307,6 +307,7 @@ const Home = () => {
               : inputLang,
             translation: result.translation,
             timestamp: new Date().toLocaleString(),
+            context: context,
             saved: false,
           });
         }
@@ -335,6 +336,7 @@ const Home = () => {
         textToTranslate,
         outputLanguage,
         inputLanguage,
+        isContext
       );
     }
   }, [
