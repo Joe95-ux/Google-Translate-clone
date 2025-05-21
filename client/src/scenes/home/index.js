@@ -12,7 +12,7 @@ import { IoIosStar } from "react-icons/io";
 import { useHistory } from "../../hooks/useHistory";
 import Header from "../../components/Header";
 import Dictionary from "../../components/Dictionary";
-import ContextTranslationViewBox from "../components/ContextTranslationViewBox";
+import ContextTranslationViewBox from "../../components/ContextTranslationViewBox";
 import Footer from "../../components/Footer";
 import ShareModal from "../../components/ShareModal";
 import { useSaveModal } from "../../hooks/useSaveModal";

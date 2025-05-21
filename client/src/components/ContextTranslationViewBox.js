@@ -10,7 +10,6 @@ import {
   FiMessageSquare,
   FiX
 } from 'react-icons/fi';
-import './ContextTranslationViewBox.css';
 
 const ContextTranslationViewBox = ({ translationOptions }) => {
   const [activeIndex, setActiveIndex] = useState(null);
