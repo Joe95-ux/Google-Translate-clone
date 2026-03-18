@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./scenes/home";
 import Privacy from "./scenes/privacy";
 import Activity from "./scenes/activity";
+import Glossary from "./scenes/glossary";
+import Batch from "./scenes/batch";
 import Terms from "./scenes/terms";
 import AboutUs from "./scenes/about-us";
 import Ocr from "./scenes/ocr";
@@ -27,6 +29,8 @@ const App = () => {
         <Route path="/terms" element={<Terms />} />
         <Route path="/ocr" element={<Ocr />} />
         <Route path="/activity" element={<Activity />} />
+        <Route path="/glossary" element={<Glossary />} />
+        <Route path="/batch" element={<Batch />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

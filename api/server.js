@@ -9,6 +9,7 @@ import cors from "cors";
 import multer from "multer";
 import { OpenAI } from "openai";
 import { Readable } from "stream";
+import { clerkMiddleware, requireAuth } from "@clerk/express";
 import {
   translateText,
   translateTextWithGoogle,
@@ -17,6 +18,20 @@ import {
   getDocumentTranslation,
   getImageTranslation,
 } from "./controllers/translateText.js";
+import { createOrganizationInvitation } from "./controllers/orgManagement.js";
+import requireOrgSubscription from "./middleware/requireOrgSubscription.js";
+import { getActivityLog } from "./controllers/activity.js";
+import {
+  listGlossaries,
+  createGlossary,
+  getGlossary,
+  updateGlossary,
+  deleteGlossary,
+  createGlossaryEntry,
+  updateGlossaryEntry,
+  deleteGlossaryEntry,
+} from "./controllers/glossary.js";
+import { translateDocumentsZip } from "./controllers/batchTranslate.js";
 import {
   lanOptions,
   headers,
@@ -49,8 +64,27 @@ connectDB();
 
 const app = express();
 
-app.use(cors({ origin: "http://localhost:3000" }));
-app.options("*", cors());
+// Must be registered before other middleware to populate auth state.
+const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+const clerkPublishableKey = process.env.CLERK_PUBLISHABLE_KEY;
+if (clerkPublishableKey) {
+  app.use(
+    clerkMiddleware({
+      publishableKey: clerkPublishableKey,
+      secretKey: process.env.CLERK_SECRET_KEY,
+      // Optional: supply jwtKey for networkless verification.
+      jwtKey: process.env.CLERK_JWT_KEY,
+      // Used to validate cookies across subdomains safely.
+      authorizedParties: [clientOrigin],
+    })
+  );
+} else {
+  // Fallback: Clerk can read keys from environment automatically.
+  app.use(clerkMiddleware());
+}
+
+app.use(cors({ origin: clientOrigin, credentials: true }));
+app.options("*", cors({ origin: clientOrigin, credentials: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -144,6 +178,15 @@ app.get("/clear-uploads", async (req, res) => {
     console.log(error);
   }
 });
+
+// -----------------------------
+// Organization management (SaaS)
+// -----------------------------
+app.post(
+  "/orgs/:organizationId/invitations",
+  requireAuth(),
+  createOrganizationInvitation
+);
 
 //translate Doc
 
@@ -278,8 +321,72 @@ app.post(
 
 app.post(
   "/translate-image",
+  requireAuth(),
+  requireOrgSubscription,
   cloudUpload.single("file"),
   getImageTranslation
+);
+
+// -----------------------------
+// Advanced org-only features
+// -----------------------------
+
+// Activity log (org subscription required)
+app.get(
+  "/activity",
+  requireAuth(),
+  requireOrgSubscription,
+  getActivityLog
+);
+
+// Glossary CRUD (org subscription required; admin/owner required inside controller)
+app.get("/glossaries", requireAuth(), requireOrgSubscription, listGlossaries);
+app.post("/glossaries", requireAuth(), requireOrgSubscription, createGlossary);
+app.get(
+  "/glossaries/:glossaryId",
+  requireAuth(),
+  requireOrgSubscription,
+  getGlossary
+);
+app.patch(
+  "/glossaries/:glossaryId",
+  requireAuth(),
+  requireOrgSubscription,
+  updateGlossary
+);
+app.delete(
+  "/glossaries/:glossaryId",
+  requireAuth(),
+  requireOrgSubscription,
+  deleteGlossary
+);
+
+app.post(
+  "/glossaries/:glossaryId/entries",
+  requireAuth(),
+  requireOrgSubscription,
+  createGlossaryEntry
+);
+app.patch(
+  "/glossaries/:glossaryId/entries/:entryId",
+  requireAuth(),
+  requireOrgSubscription,
+  updateGlossaryEntry
+);
+app.delete(
+  "/glossaries/:glossaryId/entries/:entryId",
+  requireAuth(),
+  requireOrgSubscription,
+  deleteGlossaryEntry
+);
+
+// Batch document translation ZIP (org subscription required)
+app.post(
+  "/batch/translate-documents-zip",
+  requireAuth(),
+  requireOrgSubscription,
+  cloudUpload.array("files", 25),
+  translateDocumentsZip
 );
 
 //translate text

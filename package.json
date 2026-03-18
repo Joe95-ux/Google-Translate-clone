@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@adobe/pdfservices-node-sdk": "^4.0.1",
+    "@clerk/backend": "^3.2.1",
+    "@clerk/express": "^2.0.5",
     "@google-cloud/storage": "^7.11.2",
     "@google-cloud/text-to-speech": "^6.0.1",
     "@google-cloud/translate": "^8.3.0",

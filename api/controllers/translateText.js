@@ -5,6 +5,7 @@ import axios from "axios";
 import mime from "mime-types";
 import { Writable } from 'stream';
 import {Storage} from '@google-cloud/storage';
+import path from "path";
 
 const storage = new Storage();
 
@@ -186,33 +187,32 @@ export const getImageTranslation = async (req, res) => {
       return res.status(400).send("No file uploaded.");
     }
 
-    const mimeType = mime.lookup(file.originalname);
-    if (!mimeType) {
-      return res.status(400).send("Could not determine the MIME type.");
-    }
-
     const fullTextAnnotation = await picToText(file.buffer);
     if (!fullTextAnnotation || !fullTextAnnotation.pages) {
       return res.status(400).json({ error: "No text found in image" });
     }
 
     const textElements = extractTextElements(fullTextAnnotation);
-    const extractedText = fullTextAnnotation.text;
-    let contents = textElements.map((el) => el.text).join("|||");
 
-    const translations = await translateTextFxn(contents, from, to);
-    const translatedSegments = translations?.split("|||") || [];
+    // Translate each extracted element without delimiters.
+    // This avoids delimiter corruption (the service may translate/modify tokens like "|||").
+    const texts = textElements.map((el) => el.text);
+    const translatedTexts = await translateTextFxn(texts, from, to);
 
-    // Apply translations to text elements
     textElements.forEach((el, index) => {
-      el.translatedText = translatedSegments[index] || el.text;
+      el.translatedText = translatedTexts?.[index] || el.text;
     });
 
     // Generate translated image
     const translatedImageBuffer = await createTranslatedImage(file.buffer, textElements, to);
 
-    res.setHeader("Content-Type", mimeType);
-    res.setHeader("Content-Disposition", `attachment; filename=translated_${file.originalname}`);
+    // createTranslatedImage always returns PNG.
+    const baseName = path.parse(file.originalname).name || "image";
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=translated_${baseName}.png`
+    );
     res.write(translatedImageBuffer);
     res.end();
   } catch (error) {

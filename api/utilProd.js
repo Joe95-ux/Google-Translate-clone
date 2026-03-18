@@ -137,23 +137,32 @@ export async function detectLanguage(text) {
 // translate text
 
 export async function translateTextFxn(text, fromLang, toLang) {
-  // Construct request
-  const request = {
-    parent: `projects/${projectId}/locations/${location}`,
-    contents: [text],
-    mimeType: "text/plain", // mime types: text/plain, text/html
-    sourceLanguageCode: fromLang,
-    targetLanguageCode: toLang,
-  };
+  const texts = Array.isArray(text) ? text : [text];
 
-  // Run request
-  const [response] = await translationClient.translateText(request);
-  // console.log(response.glossaryTranslations);
+  // Prevent huge requests by chunking.
+  // Google Translate has request limits; smaller batches keep the pipeline stable.
+  const chunkSize = 50;
+  const translatedTexts = [];
 
-  // for (const translation of response.translations) {
-  //   console.log(`Translation: ${translation.translatedText}`);
-  // }
-  return response.translations[0].translatedText;
+  for (let i = 0; i < texts.length; i += chunkSize) {
+    const chunk = texts.slice(i, i + chunkSize);
+
+    const request = {
+      parent: `projects/${projectId}/locations/${location}`,
+      contents: chunk,
+      mimeType: "text/plain", // mime types: text/plain, text/html
+      sourceLanguageCode: fromLang,
+      targetLanguageCode: toLang,
+    };
+
+    const [response] = await translationClient.translateText(request);
+    const chunkTranslations = (response?.translations || []).map(
+      (t) => t.translatedText
+    );
+    translatedTexts.push(...chunkTranslations);
+  }
+
+  return Array.isArray(text) ? translatedTexts : translatedTexts[0];
 }
 
 // translateText("The quick brown fox jumped over the white lazy dog");
@@ -190,13 +199,31 @@ export async function translateDocument(inputUri, mimeType, from, to) {
   }
 }
 
-export async function picToText(inputUri){
+export async function picToText(imageInput) {
   const client = new vision.ImageAnnotatorClient();
 
-  // Performs text detection on the local file
-  const [result] = await client.textDetection(inputUri);
-  return result.fullTextAnnotation;
+  // Vision expects a request object.
+  // For buffers, we send base64 in `image.content`.
+  let request;
+  if (Buffer.isBuffer(imageInput)) {
+    request = {
+      image: {
+        content: imageInput.toString("base64"),
+      },
+    };
+  } else if (typeof imageInput === "string") {
+    // If you pass a filepath string.
+    request = {
+      image: {
+        source: { filename: imageInput },
+      },
+    };
+  } else {
+    throw new Error("picToText() expects a Buffer or a filepath string.");
+  }
 
+  const [result] = await client.textDetection(request);
+  return result?.fullTextAnnotation;
 }
 
 // Text extraction helper
