@@ -556,7 +556,9 @@ const Home = () => {
                   {(smallScreenWidth > 600 || translatedText) && (
                     <>
                     {contextTranslations && (
-                      <ContextTranslationViewBox translationOptions={ContextTranslationViewBox}/>
+                      <ContextTranslationViewBox
+                        translationOptions={contextTranslations}
+                      />
                     )}
                     <TextBox
                       variant="output"

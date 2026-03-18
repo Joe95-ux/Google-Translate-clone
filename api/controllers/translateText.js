@@ -44,7 +44,7 @@ export const translateTextWithGoogle = async (req, res) => {
   }
   try {
     const result = await translateTextFxn(text, fromLang, toLang);
-    let contextResponse;
+    let contextResponse = {};
     if(context === "true"){
       const resultObject = await contextualize(
         inputLang,
@@ -53,7 +53,24 @@ export const translateTextWithGoogle = async (req, res) => {
         result
       );
 
-      contextResponse = resultObject.choices[0].message.content;
+      const rawContent = resultObject?.choices?.[0]?.message?.content;
+      // OpenAI returns JSON as a string; normalize it into an object for the frontend.
+      if (typeof rawContent === "string") {
+        const trimmed = rawContent.trim();
+        const jsonCandidate = trimmed.startsWith("```")
+          ? trimmed.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "")
+          : trimmed;
+        try {
+          contextResponse = JSON.parse(jsonCandidate);
+        } catch (e) {
+          console.warn("Failed to parse context JSON; returning empty object.", {
+            error: e?.message,
+          });
+          contextResponse = {};
+        }
+      } else {
+        contextResponse = rawContent || {};
+      }
       console.log(contextResponse, context);
     }else{
       contextResponse = {};
