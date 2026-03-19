@@ -34,7 +34,7 @@ const Saved = ({ translations, setTranslations, handleHistory, savedTranslations
       zIndex: saveModal.isOpen ? "1000" : "-1",
     },
     fix:{
-        backgroundColor: saveModal.isOpen ? "rgb(17 24 39)" : "inherit"
+        backgroundColor: saveModal.isOpen ? "var(--bg-surface)" : "inherit"
     }
   };
 

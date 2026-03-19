@@ -105,9 +105,9 @@ const BatchTranslate = () => {
     <>
       <PageHeader />
       <div style={{ paddingBottom: "2rem", width: "100%" }}>
-        <div style={{ color: "#f5f5f5", marginBottom: "1rem" }}>
+        <div style={{ color: "var(--text-primary)", marginBottom: "1rem" }}>
           <h1 style={{ margin: 0 }}>Batch Translation</h1>
-          <p style={{ marginTop: "0.5rem", color: "rgb(148 163 184)" }}>
+          <p style={{ marginTop: "0.5rem", color: "var(--text-secondary)" }}>
             Upload multiple documents and download a translated ZIP.
           </p>
         </div>
@@ -122,7 +122,7 @@ const BatchTranslate = () => {
                 <div style={{ fontWeight: 700, color: "#38BDF8" }}>
                   Drop files to translate
                 </div>
-                <div style={{ color: "rgb(148 163 184)", fontSize: "14px" }}>
+                <div style={{ color: "var(--text-secondary)", fontSize: "14px" }}>
                   {supportedFileNote}
                 </div>
               </div>
@@ -134,7 +134,7 @@ const BatchTranslate = () => {
           <div className="browse-container" style={{ width: "100%", padding: "0 1rem" }}>
             <div style={{ width: "100%", display: "flex", gap: "10px", flexWrap: "wrap" }}>
               <div style={{ flex: "1 1 260px", minWidth: 220 }}>
-                <label style={{ display: "block", color: "rgb(148 163 184)", marginBottom: "6px" }}>
+                <label style={{ display: "block", color: "var(--text-secondary)", marginBottom: "6px" }}>
                   From language
                 </label>
                 <select
@@ -144,9 +144,9 @@ const BatchTranslate = () => {
                     width: "100%",
                     padding: "10px 12px",
                     borderRadius: "6px",
-                    border: "1px solid rgb(100 116 139)",
+                    border: "1px solid var(--border-color)",
                     background: "transparent",
-                    color: "#f5f5f5",
+                    color: "var(--text-primary)",
                   }}
                 >
                   {fromOptions.map((l) => (
@@ -158,7 +158,7 @@ const BatchTranslate = () => {
               </div>
 
               <div style={{ flex: "1 1 260px", minWidth: 220 }}>
-                <label style={{ display: "block", color: "rgb(148 163 184)", marginBottom: "6px" }}>
+                <label style={{ display: "block", color: "var(--text-secondary)", marginBottom: "6px" }}>
                   To language
                 </label>
                 <select
@@ -168,9 +168,9 @@ const BatchTranslate = () => {
                     width: "100%",
                     padding: "10px 12px",
                     borderRadius: "6px",
-                    border: "1px solid rgb(100 116 139)",
+                    border: "1px solid var(--border-color)",
                     background: "transparent",
-                    color: "#f5f5f5",
+                    color: "var(--text-primary)",
                   }}
                 >
                   {toOptions.map((l) => (
@@ -196,23 +196,23 @@ const BatchTranslate = () => {
                         justifyContent: "space-between",
                         gap: "12px",
                         padding: "10px 12px",
-                        border: "1px solid rgb(100 116 139)",
+                        border: "1px solid var(--border-color)",
                         borderRadius: "8px",
-                        background: "rgba(2, 6, 23, 0.4)",
+                        background: "var(--bg-surface)",
                       }}
                     >
-                      <div style={{ color: "#f5f5f5", fontWeight: 600 }}>
+                      <div style={{ color: "var(--text-primary)", fontWeight: 600 }}>
                         {f.name}
                       </div>
                       <button
                         onClick={() => removeFile(idx)}
                         style={{
-                          border: "1px solid rgb(100 116 139)",
+                          border: "1px solid var(--border-color)",
                           background: "transparent",
                           borderRadius: "6px",
                           padding: "6px 10px",
                           cursor: "pointer",
-                          color: "rgb(203 213 225)",
+                          color: "var(--text-secondary)",
                           fontWeight: 600,
                           whiteSpace: "nowrap",
                         }}

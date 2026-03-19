@@ -1,15 +1,18 @@
 import React from "react";
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useHistory } from "../hooks/useHistory";
 import { useSaveModal } from "../hooks/useSaveModal";
-import { SignedIn, SignedOut, useAuth, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
+import AccountMenu from "./AccountMenu";
 
 const Header = ({ activeType, setActiveType }) => {
   const historyModal = useHistory();
   const saveModal = useSaveModal();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectUrl = `${location.pathname}${location.search}${location.hash}`;
 
   const activeStyles = {
     active: {
@@ -37,7 +40,7 @@ const Header = ({ activeType, setActiveType }) => {
           display: "flex",
           justifyContent: "space-between",
           padding: "1rem 0",
-          borderBottom: "1px solid rgb(30 41 59)",
+          borderBottom: "1px solid var(--border-color)",
         }}
       >
         <div
@@ -55,8 +58,8 @@ const Header = ({ activeType, setActiveType }) => {
           />
           <h2
             style={{
-              color: "#F5F5F5",
-              fontWeight: "500px",
+              color: "var(--text-primary)",
+              fontWeight: 600,
               fontSize: "18px",
               margin: "0 0 0 5px",
             }}
@@ -87,17 +90,10 @@ const Header = ({ activeType, setActiveType }) => {
 
           <div className="auth-btns">
             <SignedIn>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <Link to="/organization">
-                  <div className="auth-btn top-btn" style={{ border: "1px solid rgb(100 116 139)" }}>
-                    <h3>Organization</h3>
-                  </div>
-                </Link>
-                <UserButton afterSignOutUrl="/sign-in" />
-              </div>
+              <AccountMenu />
             </SignedIn>
             <SignedOut>
-              <Link to="/sign-in">
+              <Link to={`/sign-in?redirect_url=${encodeURIComponent(redirectUrl)}`}>
                 <div className="auth-btn top-btn" style={{ border: "none" }}>
                   <h3>Login</h3>
                 </div>

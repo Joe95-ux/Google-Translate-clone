@@ -44,25 +44,25 @@ const Activity = () => {
     <>
       <PageHeader />
       <div style={{ padding: "0 0 2rem", width: "100%" }}>
-        <div style={{ color: "#f5f5f5", marginBottom: "1rem" }}>
+        <div style={{ color: "var(--text-primary)", marginBottom: "1rem" }}>
           <h1 style={{ margin: 0 }}>Activity</h1>
-          <p style={{ marginTop: "0.5rem", color: "rgb(148 163 184)" }}>
+          <p style={{ marginTop: "0.5rem", color: "var(--text-secondary)" }}>
             Org audit log (admin & members with subscription)
           </p>
         </div>
 
         {loading ? (
-          <div style={{ color: "rgb(148 163 184)" }}>Loading...</div>
+          <div style={{ color: "var(--text-secondary)" }}>Loading...</div>
         ) : activities.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {activities.map((a) => (
               <div
                 key={a._id || `${a.action}-${a.createdAt}`}
                 style={{
-                  border: "1px solid rgb(100 116 139)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "8px",
                   padding: "14px 16px",
-                  background: "rgba(2, 6, 23, 0.6)",
+                  background: "var(--bg-surface)",
                 }}
               >
                 <div
@@ -77,12 +77,12 @@ const Activity = () => {
                     <div style={{ color: "#38BDF8", fontWeight: 600 }}>
                       {a.action}
                     </div>
-                    <div style={{ color: "rgb(148 163 184)", marginTop: "6px" }}>
+                    <div style={{ color: "var(--text-secondary)", marginTop: "6px" }}>
                       Actor: {a.actor_user_id}
                       {a.target_user_id ? ` • Target: ${a.target_user_id}` : ""}
                     </div>
                   </div>
-                  <div style={{ color: "rgb(148 163 184)" }}>
+                  <div style={{ color: "var(--text-secondary)" }}>
                     {a.createdAt ? new Date(a.createdAt).toLocaleString() : ""}
                   </div>
                 </div>
@@ -93,7 +93,7 @@ const Activity = () => {
                       margin: "10px 0 0",
                       whiteSpace: "pre-wrap",
                       wordBreak: "break-word",
-                      color: "rgb(203 213 225)",
+                      color: "var(--text-secondary)",
                       fontSize: "12px",
                       background: "transparent",
                     }}
@@ -105,7 +105,7 @@ const Activity = () => {
             ))}
           </div>
         ) : (
-          <div style={{ color: "rgb(148 163 184)" }}>No activity yet.</div>
+          <div style={{ color: "var(--text-secondary)" }}>No activity yet.</div>
         )}
       </div>
     </>

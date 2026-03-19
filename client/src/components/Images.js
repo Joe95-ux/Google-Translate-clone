@@ -126,8 +126,6 @@ const Images = ({ fromLanguage, toLanguage }) => {
       } else if (status === 403) {
         toast.error("Set up or select an organization to translate images.");
         navigate("/organization");
-      } else if (status === 402) {
-        toast.error("Subscription required to translate images.");
       } else {
         toast.error("An error occurred while translating the image. Please try again later.");
       }
@@ -182,7 +180,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
               <h4>Or Choose a file</h4>
               <div className="container-flex">
                 <div>
-                  <label for="file-upload" class="custom-file-upload">
+                  <label htmlFor="file-upload" className="custom-file-upload">
                     Browse your files
                   </label>
                   <input
@@ -192,7 +190,7 @@ const Images = ({ fromLanguage, toLanguage }) => {
                     accept=".jpg, .jpeg, .png, .webp"
                   />
                 </div>
-                <button class="paste-clipboard" onClick={handleClipBoardEvent}>
+                <button className="paste-clipboard" onClick={handleClipBoardEvent}>
                   <Clipboard size={16} style={{ marginRight: "8px" }} />
                   <span>Paste from clipboard</span>
                 </button>

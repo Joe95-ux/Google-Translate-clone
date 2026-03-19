@@ -1,10 +1,12 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import Footer from "../../components/Footer";
 
 
 export default function AuthLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isOnboardingRoute = location.pathname.startsWith("/onboarding/");
   const handleLogoClick = ()=>{
     navigate("/");
   }
@@ -41,8 +43,8 @@ export default function AuthLayout() {
               />
               <h2
                 style={{
-                  color: "#F5F5F5",
-                  fontWeight: "500px",
+                  color: "var(--text-primary)",
+                  fontWeight: 600,
                   fontSize: "18px",
                   margin: "0 0 0 5px",
                 }}
@@ -52,7 +54,7 @@ export default function AuthLayout() {
             </div>
           </nav>
         </div>
-        <main className="justify-center">
+        <main className={isOnboardingRoute ? "auth-main" : "justify-center"}>
           <Outlet />
         </main>
         <Footer />

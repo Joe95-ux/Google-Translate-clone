@@ -34,7 +34,7 @@ const History = ({ translations, setTranslations, handleHistory, savedTranslatio
       zIndex: historyModal.isOpen ? "1000" : "-1",
     },
     fix:{
-        backgroundColor: historyModal.isOpen ? "rgb(17 24 39)" : "inherit"
+        backgroundColor: historyModal.isOpen ? "var(--bg-surface)" : "inherit"
     }
   };
 

@@ -9,6 +9,17 @@ import {
   useOrganization,
 } from "@clerk/clerk-react";
 import { toast } from "sonner";
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 const OrganizationOnboarding = () => {
   const navigate = useNavigate();
@@ -61,128 +72,117 @@ const OrganizationOnboarding = () => {
   };
 
   return (
-    <div className="wrapper">
-      <main style={{ width: "100%", maxWidth: 860, margin: "2.5rem auto", padding: "0 1rem" }}>
+    <Container maxWidth="md" sx={{ py: { xs: 3, md: 6 } }}>
+      <main>
         <SignedOut>
-          <div
-            style={{
-              border: "1px solid rgb(100 116 139)",
-              borderRadius: "8px",
-              padding: "16px",
-              background: "rgba(2, 6, 23, 0.6)",
-              color: "#f5f5f5",
-            }}
-          >
-            <h2 style={{ marginTop: 0 }}>Sign in to continue onboarding</h2>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <Link to="/sign-in" className="auth-btn top-btn" style={{ textDecoration: "none" }}>
-                Sign in
-              </Link>
-              <Link to="/sign-up" className="auth-btn top-btn" style={{ textDecoration: "none" }}>
-                Sign up
-              </Link>
-            </div>
-          </div>
+          <Card variant="outlined" sx={{ borderRadius: 2 }}>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+              <Stack spacing={2.25}>
+                <Typography variant="h5" fontWeight={700}>
+                  Sign in to continue onboarding
+                </Typography>
+                <Typography color="text.secondary">
+                  Create an account or sign in to continue setup.
+                </Typography>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                  <Button component={Link} to="/sign-in" variant="contained">
+                    Sign in
+                  </Button>
+                  <Button component={Link} to="/sign-up" variant="outlined">
+                    Sign up
+                  </Button>
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
         </SignedOut>
 
         <SignedIn>
-          <div style={{ color: "#f5f5f5", marginBottom: "1rem" }}>
-            <h1 style={{ margin: 0 }}>Organization onboarding</h1>
-            <p style={{ marginTop: "0.5rem", color: "rgb(148 163 184)" }}>
-              Step 1: Create or select your organization. Step 2: Invite teammates (optional).
-            </p>
-          </div>
+          <Stack spacing={2.5}>
+            <Stack spacing={1}>
+              <Typography variant="h4" fontWeight={800}>
+                Welcome to TranslateIt
+              </Typography>
+              <Typography color="text.secondary" sx={{ maxWidth: 640 }}>
+                Quick setup: create/select your organization, then optionally invite teammates.
+              </Typography>
+            </Stack>
 
-          <div style={{ display: "grid", gap: "16px" }}>
-            <section
-              style={{
-                border: "1px solid rgb(100 116 139)",
-                borderRadius: "8px",
-                padding: "16px",
-                background: "rgba(2, 6, 23, 0.6)",
-              }}
-            >
-              <h3 style={{ marginTop: 0, color: "#f5f5f5" }}>1. Create/select organization</h3>
-              <p style={{ marginTop: "0.5rem", color: "rgb(148 163 184)" }}>
-                Use the switcher to create a new organization or select one you already belong to.
-              </p>
-              <OrganizationSwitcher
-                hidePersonal
-                afterCreateOrganizationUrl="/onboarding/organization"
-                afterSelectOrganizationUrl="/onboarding/organization"
-                afterLeaveOrganizationUrl="/onboarding/organization"
-              />
-              <div style={{ marginTop: "10px", color: "rgb(148 163 184)" }}>
-                {orgLoaded
-                  ? organization?.name
-                    ? `Current organization: ${organization.name}`
-                    : "No organization selected yet."
-                  : "Loading organization..."}
-              </div>
-            </section>
+            <Card variant="outlined" sx={{ borderRadius: 2 }}>
+              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <Stack spacing={1.75}>
+                  <Chip label="Step 1" size="small" sx={{ alignSelf: "flex-start" }} />
+                  <Typography variant="h6" fontWeight={700}>
+                    Create or select your organization
+                  </Typography>
+                  <Typography color="text.secondary">
+                    Use the switcher to create a new organization or select one you already belong to.
+                  </Typography>
+                  <OrganizationSwitcher
+                    hidePersonal
+                    afterCreateOrganizationUrl="/onboarding/organization"
+                    afterSelectOrganizationUrl="/onboarding/organization"
+                    afterLeaveOrganizationUrl="/onboarding/organization"
+                  />
+                  <Alert severity={organization?.name ? "success" : "info"}>
+                    {orgLoaded
+                      ? organization?.name
+                        ? `Current organization: ${organization.name}`
+                        : "No organization selected yet."
+                      : "Loading organization..."}
+                  </Alert>
+                </Stack>
+              </CardContent>
+            </Card>
 
-            <section
-              style={{
-                border: "1px solid rgb(100 116 139)",
-                borderRadius: "8px",
-                padding: "16px",
-                background: "rgba(2, 6, 23, 0.6)",
-              }}
-            >
-              <h3 style={{ marginTop: 0, color: "#f5f5f5" }}>2. Invite teammates (optional)</h3>
-              <p style={{ marginTop: "0.5rem", color: "rgb(148 163 184)" }}>
-                Invite organization members now, or skip and do this later.
-              </p>
-              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                <input
-                  type="email"
-                  placeholder="teammate@company.com"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  style={{
-                    flex: "1 1 280px",
-                    minWidth: 220,
-                    padding: "10px 12px",
-                    borderRadius: "6px",
-                    border: "1px solid rgb(100 116 139)",
-                    background: "transparent",
-                    color: "#f5f5f5",
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={handleInvite}
-                  disabled={inviting || !organization?.id}
-                  className="translate-btn"
-                  style={{ minWidth: 140 }}
-                >
-                  {inviting ? "Sending..." : "Send invite"}
-                </button>
-              </div>
-            </section>
-          </div>
+            <Card variant="outlined" sx={{ borderRadius: 2 }}>
+              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <Stack spacing={1.75}>
+                  <Chip label="Step 2 (Optional)" size="small" sx={{ alignSelf: "flex-start" }} />
+                  <Typography variant="h6" fontWeight={700}>
+                    Invite teammates
+                  </Typography>
+                  <Typography color="text.secondary">
+                    Add teammates now, or skip and do this later from Organization settings.
+                  </Typography>
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                    <TextField
+                      type="email"
+                      size="small"
+                      placeholder="teammate@company.com"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      fullWidth
+                    />
+                    <Button
+                      variant="contained"
+                      onClick={handleInvite}
+                      disabled={inviting || !organization?.id}
+                      sx={{ minWidth: { sm: 140 } }}
+                    >
+                      {inviting ? "Sending..." : "Send invite"}
+                    </Button>
+                  </Stack>
+                </Stack>
+              </CardContent>
+            </Card>
 
-          <div style={{ marginTop: "18px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <button
-              type="button"
-              className="translate-btn"
-              onClick={handleContinue}
-              disabled={!authLoaded || !userId}
-            >
-              Continue to Home
-            </button>
-            <button
-              type="button"
-              className="translate-btn"
-              style={{ background: "transparent", border: "1px solid rgb(100 116 139)" }}
-              onClick={() => navigate("/")}
-            >
-              Skip for now
-            </button>
-          </div>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+              <Button
+                variant="contained"
+                onClick={handleContinue}
+                disabled={!authLoaded || !userId}
+              >
+                Continue to Home
+              </Button>
+              <Button variant="outlined" onClick={() => navigate("/")}>
+                Skip for now
+              </Button>
+            </Stack>
+          </Stack>
         </SignedIn>
       </main>
-    </div>
+    </Container>
   );
 };
 

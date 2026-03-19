@@ -1,6 +1,6 @@
 import { FaHistory } from "react-icons/fa";
 import { IoIosStar } from "react-icons/io";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlineTranslate } from "react-icons/md";
 import { IoDocumentTextOutline, IoImageOutline } from "react-icons/io5";
 import { useHistory } from "../hooks/useHistory";
@@ -27,6 +27,8 @@ const Header = ({
   const saveModal = useSaveModal();
   const { isSignedIn } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectUrl = `${location.pathname}${location.search}${location.hash}`;
 
   const activeStyles = {
     active: {
@@ -45,7 +47,7 @@ const Header = ({
       });
 
       setTimeout(() => {
-        navigate("/sign-in");
+        navigate(`/sign-in?redirect_url=${encodeURIComponent(redirectUrl)}`);
       }, 2500);
 
       return;
@@ -68,7 +70,7 @@ const Header = ({
           display: "flex",
           justifyContent: "space-between",
           padding: "1rem 0",
-          borderBottom: "1px solid rgb(30 41 59)",
+          borderBottom: "1px solid var(--border-color)",
         }}
       >
         <div
@@ -87,8 +89,8 @@ const Header = ({
           />
           <h2
             style={{
-              color: "#F5F5F5",
-              fontWeight: "500px",
+              color: "var(--text-primary)",
+              fontWeight: 600,
               fontSize: "18px",
               margin: "0 0 0 5px",
             }}
@@ -119,17 +121,10 @@ const Header = ({
 
           <div className="auth-btns">
             <SignedIn>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <Link to="/organization">
-                  <div className="auth-btn top-btn" style={{ border: "1px solid rgb(100 116 139)" }}>
-                    <h3>Organization</h3>
-                  </div>
-                </Link>
-                <AccountMenu />
-              </div>
+              <AccountMenu />
             </SignedIn>
             <SignedOut>
-              <Link to="/sign-in">
+              <Link to={`/sign-in?redirect_url=${encodeURIComponent(redirectUrl)}`}>
                 <div className="auth-btn top-btn" style={{ border: "none" }}>
                   <h3>Login</h3>
                 </div>
@@ -150,7 +145,7 @@ const Header = ({
         <div className="types">
           <div
             className="open-history-inner top-btn"
-            style={{ color: activeType === "Text" ? "#38BDF8" : "#f5f5f5" }}
+            style={{ color: activeType === "Text" ? "#38BDF8" : "var(--text-primary)" }}
           >
             <MdOutlineTranslate size={22} />
             <h3 className="textt" onClick={handleType}>
@@ -160,7 +155,7 @@ const Header = ({
           <div
             className="saved top-btn"
             style={{
-              color: activeType === "Documents" ? "#38BDF8" : "#f5f5f5",
+              color: activeType === "Documents" ? "#38BDF8" : "var(--text-primary)",
             }}
           >
             <IoDocumentTextOutline size={22} />
@@ -170,7 +165,7 @@ const Header = ({
           </div>
           <div
             className="saved top-btn"
-            style={{ color: activeType === "Images" ? "#38BDF8" : "#f5f5f5" }}
+            style={{ color: activeType === "Images" ? "#38BDF8" : "var(--text-primary)" }}
           >
             <IoImageOutline size={22} />
             <h3 className="images" onClick={handleType}>

@@ -240,7 +240,7 @@ const TextBox = ({
         borderRight:
           variant === "input" &&
           screenWidth > 600 &&
-          "1px solid rgb(100 116 139)",
+          "1px solid var(--border-color)",
         order: variant === "output" && screenWidth < 601 && "2",
         padding: "1rem",
       }}
@@ -266,7 +266,7 @@ const TextBox = ({
                 cursor: "pointer",
               }}
             >
-              <IoMdClose size={22} style={{ color: "rgb(203 213 225)" }} />
+              <IoMdClose size={22} style={{ color: "var(--text-secondary)" }} />
             </div>
           )}
         </div>
@@ -287,7 +287,7 @@ const TextBox = ({
                       style={{
                         fontSize: "14px",
                         marginLeft: "10px",
-                        color: "#f5f5f5",
+                        color: "var(--text-primary)",
                       }}
                     >
                       Translate from:{" "}
@@ -339,8 +339,8 @@ const TextBox = ({
                       size={22}
                       style={{
                         color: listening
-                          ? "rgb(203 213 225)"
-                          : "rgb(148 163 184)",
+                          ? "var(--text-secondary)"
+                          : "var(--text-secondary)",
                         cursor: "pointer",
                       }}
                     />
@@ -361,7 +361,7 @@ const TextBox = ({
                         <HiOutlineSpeakerWave
                           size={22}
                           style={{
-                            color: "rgb(148 163 184)",
+                            color: "var(--text-secondary)",
                             cursor: "pointer",
                           }}
                         />
@@ -370,7 +370,7 @@ const TextBox = ({
                     {loadingAudio && (
                       <small
                         style={{
-                          color: "rgb(148 163 184)",
+                          color: "var(--text-secondary)",
                           marginLeft: "12px",
                         }}
                       >
@@ -433,12 +433,12 @@ const TextBox = ({
                   >
                     <HiOutlineSpeakerWave
                       size={22}
-                      style={{ color: "rgb(148 163 184)", cursor: "pointer" }}
+                      style={{ color: "var(--text-secondary)", cursor: "pointer" }}
                     />
                   </div>
                 )}
                 {loadingAudio && (
-                  <small style={{ color: "rgb(148 163 184)" }}>
+                  <small style={{ color: "var(--text-secondary)" }}>
                     loading speech...
                   </small>
                 )}
@@ -481,7 +481,7 @@ const TextBox = ({
                 <PiCopySimple
                   size={22}
                   style={{
-                    color: "rgb(148 163 184)",
+                    color: "var(--text-secondary)",
                     transform: "rotate(180deg)",
                     cursor: "pointer",
                   }}
@@ -492,7 +492,7 @@ const TextBox = ({
                 title="share translation"
                 style={{
                   marginLeft: "10px",
-                  color: "rgb(148 163 184)",
+                  color: "var(--text-secondary)",
                   cursor: "pointer",
                 }}
               >
@@ -500,7 +500,7 @@ const TextBox = ({
                   id="toggle-share"
                   size={22}
                   style={{
-                    color: "rgb(148 163 184)",
+                    color: "var(--text-secondary)",
                     cursor: "pointer",
                   }}
                   onClick={shareModal.onOpen}

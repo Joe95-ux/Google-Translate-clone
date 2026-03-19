@@ -13,7 +13,7 @@ const Button = ({ disable, translate }) => {
           height="80"
           width="80"
           radius="9"
-          color="rgb(148 163 184)"
+          color="var(--text-secondary)"
           ariaLabel="loading"
           style={{ cursor: "default" }}
         />

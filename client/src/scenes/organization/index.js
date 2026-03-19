@@ -16,9 +16,9 @@ const Organization = () => {
     <>
       <PageHeader />
       <div style={{ paddingBottom: "2rem", width: "100%" }}>
-        <div style={{ color: "#f5f5f5", marginBottom: "1rem" }}>
+        <div style={{ color: "var(--text-primary)", marginBottom: "1rem" }}>
           <h1 style={{ margin: 0 }}>Organization Setup</h1>
-          <p style={{ marginTop: "0.5rem", color: "rgb(148 163 184)" }}>
+          <p style={{ marginTop: "0.5rem", color: "var(--text-secondary)" }}>
             Create or select an organization to unlock org features like image, batch, and glossary.
           </p>
         </div>
@@ -26,14 +26,14 @@ const Organization = () => {
         <SignedOut>
           <div
             style={{
-              border: "1px solid rgb(100 116 139)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
               padding: "16px",
-              background: "rgba(2, 6, 23, 0.6)",
-              color: "#f5f5f5",
+              background: "var(--bg-surface)",
+              color: "var(--text-primary)",
             }}
           >
-            <p style={{ margin: 0, color: "rgb(148 163 184)" }}>
+            <p style={{ margin: 0, color: "var(--text-secondary)" }}>
               You need to sign in before you can create or join an organization.
             </p>
             <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
@@ -51,15 +51,15 @@ const Organization = () => {
           <div style={{ display: "grid", gap: "16px" }}>
             <div
               style={{
-                border: "1px solid rgb(100 116 139)",
+                border: "1px solid var(--border-color)",
                 borderRadius: "8px",
                 padding: "16px",
-                background: "rgba(2, 6, 23, 0.6)",
-                color: "#f5f5f5",
+                background: "var(--bg-surface)",
+                color: "var(--text-primary)",
               }}
             >
               <h3 style={{ marginTop: 0 }}>Select or create an organization</h3>
-              <p style={{ color: "rgb(148 163 184)", marginBottom: "12px" }}>
+              <p style={{ color: "var(--text-secondary)", marginBottom: "12px" }}>
                 Use the switcher below to create a new org or choose an existing one.
               </p>
               <OrganizationSwitcher
@@ -73,17 +73,17 @@ const Organization = () => {
             {organization ? (
               <div
                 style={{
-                  border: "1px solid rgb(100 116 139)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "8px",
                   padding: "16px",
-                  background: "rgba(2, 6, 23, 0.6)",
+                  background: "var(--bg-surface)",
                 }}
               >
-                <h3 style={{ marginTop: 0, color: "#f5f5f5" }}>Manage organization</h3>
+                <h3 style={{ marginTop: 0, color: "var(--text-primary)" }}>Manage organization</h3>
                 <OrganizationProfile routing="hash" />
               </div>
             ) : (
-              <div style={{ color: "rgb(148 163 184)" }}>
+              <div style={{ color: "var(--text-secondary)" }}>
                 No organization selected yet. Create one from the switcher above.
               </div>
             )}

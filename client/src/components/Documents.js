@@ -137,7 +137,7 @@ const Documents = ({ fromLanguage, toLanguage }) => {
             <div className="browse-inner">
               <h4>Or Choose a file</h4>
               <div className="file-box">
-                <label for="file-upload" class="custom-file-upload">
+                <label htmlFor="file-upload" className="custom-file-upload">
                   Browse your files
                 </label>
                 <input

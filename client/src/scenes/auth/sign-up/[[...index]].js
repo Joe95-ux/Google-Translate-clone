@@ -4,7 +4,7 @@ const SignUpPage = () => (
   <SignUp
     path="/sign-up"
     routing="path"
-    afterSignUpUrl="/onboarding/organization"
+    forceRedirectUrl="/onboarding/organization"
     signInUrl="/sign-in"
   />
 )

@@ -4,7 +4,7 @@ const SignInPage = () => (
   <SignIn
     path="/sign-in"
     routing="path"
-    afterSignInUrl="/"
+    fallbackRedirectUrl="/"
     signUpUrl="/sign-up"
   />
 )
