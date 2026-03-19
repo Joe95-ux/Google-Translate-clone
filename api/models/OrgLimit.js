@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const OrgLimitSchema = new Schema({
@@ -17,5 +17,6 @@ const OrgLimitSchema = new Schema({
   period: { type: String, default: "monthly" },
 }, { timestamps: true });
 
-const OrgLimit = mongoose.model('OrgLimit', OrgLimitSchema);
-module.exports = OrgLimit;
+const OrgLimit = mongoose.model("OrgLimit", OrgLimitSchema);
+
+export default OrgLimit;

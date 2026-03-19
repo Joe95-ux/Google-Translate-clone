@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const DocTranslationSchema = new Schema({
@@ -10,5 +10,6 @@ const DocTranslationSchema = new Schema({
   output_document_path: { type: String, required: true }
 },{ timestamps: true });
 
-const DocTranslation = mongoose.model('DocTranslation', DocTranslationSchema);
-module.exports = DocTranslation;
+const DocTranslation = mongoose.model("DocTranslation", DocTranslationSchema);
+
+export default DocTranslation;

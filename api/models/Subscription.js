@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 // Notes:
@@ -53,4 +53,5 @@ const SubscriptionSchema = new Schema(
 SubscriptionSchema.index({ user_id: 1, organization_id: 1 });
 
 const Subscription = mongoose.model("Subscription", SubscriptionSchema);
-module.exports = Subscription;
+
+export default Subscription;

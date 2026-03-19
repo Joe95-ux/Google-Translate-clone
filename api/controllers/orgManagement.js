@@ -1,9 +1,6 @@
 import { createClerkClient } from "@clerk/backend";
 import { getAuth } from "@clerk/express";
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-const ActivityLog = require("../models/Activity.js");
+import ActivityLog from "../models/Activity.js";
 
 const clerkClient =
   process.env.CLERK_SECRET_KEY

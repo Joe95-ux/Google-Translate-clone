@@ -1,9 +1,5 @@
 import { getAuth } from "@clerk/express";
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-
-const Subscription = require("../models/Subscription.js");
+import Subscription from "../models/Subscription.js";
 
 function isSubscriptionActive(sub) {
   if (!sub) return false;

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 // Audit log for org/user actions.
@@ -31,4 +31,5 @@ const ActivityLogSchema = new Schema(
 );
 
 const ActivityLog = mongoose.model("ActivityLog", ActivityLogSchema);
-module.exports = ActivityLog;
+
+export default ActivityLog;

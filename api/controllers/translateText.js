@@ -99,12 +99,15 @@ export const getLanguageDisplayNames = async (req, res)=>{
       res.status(200).json(displayNames);
 
     }else {
-      throw new Error("Unexpected response format");
+      return res.status(500).json({ message: "Unexpected response format from Google supported languages." });
     }
     
   } catch (error) {
-    console.log(error)
-    
+    console.error("getLanguageDisplayNames error:", error);
+    return res.status(500).json({
+      message: "Failed to fetch languages from Google Cloud.",
+      details: error?.message || String(error),
+    });
   }
 }
 

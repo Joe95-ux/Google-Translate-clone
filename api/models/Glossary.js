@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const GlossarySchema = new Schema(
@@ -13,5 +13,6 @@ const GlossarySchema = new Schema(
 );
 
 const Glossary = mongoose.model("Glossary", GlossarySchema);
-module.exports = Glossary;
+
+export default Glossary;
 

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const TextTranslationSchema = new Schema(
@@ -17,4 +17,5 @@ const TextTranslation = mongoose.model(
   "TextTranslation",
   TextTranslationSchema
 );
-module.exports = TextTranslation;
+
+export default TextTranslation;

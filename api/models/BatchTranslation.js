@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const BatchTranslationSchema = new Schema({
@@ -10,5 +10,6 @@ const BatchTranslationSchema = new Schema({
   outputDocumentPaths: { type: [String], required: true },  // Array of strings
 },{ timestamps: true });
 
-const BatchTranslation = mongoose.model('BatchTranslation', BatchTranslationSchema);
-module.exports = BatchTranslation;
+const BatchTranslation = mongoose.model("BatchTranslation", BatchTranslationSchema);
+
+export default BatchTranslation;

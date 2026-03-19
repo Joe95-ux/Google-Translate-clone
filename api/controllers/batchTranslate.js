@@ -1,14 +1,11 @@
 import { getLangShort } from "../utilProd.js";
 import { translateDocument } from "../utilProd.js";
-import { createRequire } from "module";
 import { Storage } from "@google-cloud/storage";
 import path from "path";
 import mime from "mime-types";
 import archiver from "archiver";
 import { getAuth } from "@clerk/express";
-
-const require = createRequire(import.meta.url);
-const ActivityLog = require("../models/Activity.js");
+import ActivityLog from "../models/Activity.js";
 
 const storage = new Storage();
 

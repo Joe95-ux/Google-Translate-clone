@@ -1,11 +1,7 @@
 import { getAuth } from "@clerk/express";
-import { createRequire } from "module";
-
-const require = createRequire(import.meta.url);
-
-const Glossary = require("../models/Glossary.js");
-const GlossaryEntry = require("../models/GlossaryEntry.js");
-const ActivityLog = require("../models/Activity.js");
+import Glossary from "../models/Glossary.js";
+import GlossaryEntry from "../models/GlossaryEntry.js";
+import ActivityLog from "../models/Activity.js";
 
 function isOrgAdmin(auth) {
   return Boolean(

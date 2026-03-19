@@ -62,7 +62,8 @@ if (!projectId) {
   throw new Error("PROJECT_ID environment variable is not set");
 }
 
-// Instantiates a client
+// Instantiates a client.
+// Keep default ADC resolution behavior to avoid auth regressions.
 const translationClient = new TranslationServiceClient();
 
 export async function getSupportedLanguages() {
@@ -76,7 +77,8 @@ export async function getSupportedLanguages() {
     const [response] = await translationClient.getSupportedLanguages(request);
     return response.languages;
   } catch (error) {
-    console.log(error);
+    // Surface credential/auth problems (e.g. invalid_grant) to callers.
+    throw error;
   }
 }
 
