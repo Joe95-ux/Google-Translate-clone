@@ -5,8 +5,10 @@ import { toast } from "sonner";
 import { IoCloudUploadSharp } from "react-icons/io5";
 import FileBox from "./fileBox";
 import { Clipboard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Images = ({ fromLanguage, toLanguage }) => {
+  const navigate = useNavigate();
   let apiUrl;
   if (process.env.NODE_ENV === "development") {
     apiUrl = "http://localhost:4000/";
@@ -122,7 +124,8 @@ const Images = ({ fromLanguage, toLanguage }) => {
       if (status === 401) {
         toast.error("Please log in to translate images.");
       } else if (status === 403) {
-        toast.error("An organization is required for image translation.");
+        toast.error("Set up or select an organization to translate images.");
+        navigate("/organization");
       } else if (status === 402) {
         toast.error("Subscription required to translate images.");
       } else {

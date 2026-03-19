@@ -119,7 +119,14 @@ const Header = ({
 
           <div className="auth-btns">
             <SignedIn>
-              <AccountMenu />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <Link to="/organization">
+                  <div className="auth-btn top-btn" style={{ border: "1px solid rgb(100 116 139)" }}>
+                    <h3>Organization</h3>
+                  </div>
+                </Link>
+                <AccountMenu />
+              </div>
             </SignedIn>
             <SignedOut>
               <Link to="/sign-in">

@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import PageHeader from "../../components/PageHeader";
+import { useNavigate } from "react-router-dom";
 
 const Glossary = () => {
+  const navigate = useNavigate();
   const [glossaries, setGlossaries] = useState([]);
   const [selectedGlossaryId, setSelectedGlossaryId] = useState(null);
   const [selectedGlossary, setSelectedGlossary] = useState(null);
@@ -44,6 +46,35 @@ const Glossary = () => {
     setEditingEntryId(null);
   };
 
+  const handleAuthzError = (error, fallbackMessage) => {
+    const status = error?.response?.status;
+    const message = String(error?.response?.data?.message || "");
+
+    if (status === 401) {
+      toast.error("Please log in to access glossary features.");
+      return true;
+    }
+
+    if (status === 403 && message.toLowerCase().includes("organization")) {
+      toast.error("Set up or select an organization to access glossary features.");
+      navigate("/organization");
+      return true;
+    }
+
+    if (status === 403) {
+      toast.error("Admin/owner role required to manage glossary entries.");
+      return true;
+    }
+
+    if (status === 402) {
+      toast.error("Subscription required for glossary features.");
+      return true;
+    }
+
+    if (fallbackMessage) toast.error(fallbackMessage);
+    return false;
+  };
+
   const refreshGlossaries = async () => {
     const response = await axios.get(`${apiUrl}glossaries`);
     const list = response?.data?.glossaries || [];
@@ -63,14 +94,14 @@ const Glossary = () => {
       setEditDescription(response?.data?.glossary?.description || "");
       resetEntryForm();
     } catch (error) {
-      toast.error("Failed to load glossary.");
+      handleAuthzError(error, "Failed to load glossary.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshGlossaries().catch(() => {});
+    refreshGlossaries().catch((error) => handleAuthzError(error, "Failed to load glossaries."));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -104,9 +135,7 @@ const Glossary = () => {
       await refreshGlossaries();
       toast.success("Glossary created.");
     } catch (error) {
-      const status = error?.response?.status;
-      if (status === 403) toast.error("Admin/owner role required to manage glossaries.");
-      else toast.error("Failed to create glossary.");
+      handleAuthzError(error, "Failed to create glossary.");
     } finally {
       setLoading(false);
     }
@@ -123,9 +152,7 @@ const Glossary = () => {
       toast.success("Glossary updated.");
       await loadSelectedGlossary(selectedGlossaryId);
     } catch (error) {
-      const status = error?.response?.status;
-      if (status === 403) toast.error("Admin/owner role required to manage glossaries.");
-      else toast.error("Failed to update glossary.");
+      handleAuthzError(error, "Failed to update glossary.");
     } finally {
       setLoading(false);
     }
@@ -144,9 +171,7 @@ const Glossary = () => {
       setSelectedGlossary(null);
       setEntries([]);
     } catch (error) {
-      const status = error?.response?.status;
-      if (status === 403) toast.error("Admin/owner role required to manage glossaries.");
-      else toast.error("Failed to delete glossary.");
+      handleAuthzError(error, "Failed to delete glossary.");
     } finally {
       setLoading(false);
     }
@@ -196,9 +221,7 @@ const Glossary = () => {
       await loadSelectedGlossary(selectedGlossaryId);
       resetEntryForm();
     } catch (error) {
-      const status = error?.response?.status;
-      if (status === 403) toast.error("Admin/owner role required to manage glossary entries.");
-      else toast.error("Failed to save entry.");
+      handleAuthzError(error, "Failed to save entry.");
     } finally {
       setLoading(false);
     }
@@ -217,9 +240,7 @@ const Glossary = () => {
       await loadSelectedGlossary(selectedGlossaryId);
       resetEntryForm();
     } catch (error) {
-      const status = error?.response?.status;
-      if (status === 403) toast.error("Admin/owner role required to manage glossary entries.");
-      else toast.error("Failed to delete entry.");
+      handleAuthzError(error, "Failed to delete entry.");
     } finally {
       setLoading(false);
     }

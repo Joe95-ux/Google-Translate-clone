@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import PageHeader from "../../components/PageHeader";
+import { useNavigate } from "react-router-dom";
 
 const Activity = () => {
+  const navigate = useNavigate();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,8 +25,10 @@ const Activity = () => {
       } catch (error) {
         const status = error?.response?.status;
         if (status === 401) toast.error("Please log in to view activity.");
-        else if (status === 403)
-          toast.error("Organization subscription is required for this feature.");
+        else if (status === 403) {
+          toast.error("Set up or select an organization to view activity.");
+          navigate("/organization");
+        }
         else if (status === 402)
           toast.error("Subscription required for this feature.");
         else toast.error("Failed to load activity. Please try again.");

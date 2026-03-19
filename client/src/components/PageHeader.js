@@ -87,7 +87,14 @@ const Header = ({ activeType, setActiveType }) => {
 
           <div className="auth-btns">
             <SignedIn>
-              <UserButton afterSignOutUrl="/sign-in" />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <Link to="/organization">
+                  <div className="auth-btn top-btn" style={{ border: "1px solid rgb(100 116 139)" }}>
+                    <h3>Organization</h3>
+                  </div>
+                </Link>
+                <UserButton afterSignOutUrl="/sign-in" />
+              </div>
             </SignedIn>
             <SignedOut>
               <Link to="/sign-in">

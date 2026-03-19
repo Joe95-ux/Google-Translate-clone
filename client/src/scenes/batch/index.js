@@ -3,8 +3,10 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useDropzone } from "react-dropzone";
 import PageHeader from "../../components/PageHeader";
+import { useNavigate } from "react-router-dom";
 
 const BatchTranslate = () => {
+  const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [languages, setLanguages] = useState([]);
@@ -84,8 +86,10 @@ const BatchTranslate = () => {
     } catch (error) {
       const status = error?.response?.status;
       if (status === 401) toast.error("Please log in for batch translation.");
-      else if (status === 403)
-        toast.error("Organization is required for batch translation.");
+      else if (status === 403) {
+        toast.error("Set up or select an organization for batch translation.");
+        navigate("/organization");
+      }
       else if (status === 402)
         toast.error("Subscription required for batch translation.");
       else toast.error("Batch translation failed. Please try again.");
