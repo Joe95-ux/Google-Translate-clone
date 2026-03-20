@@ -20,6 +20,7 @@ import {
 } from "./controllers/translateText.js";
 import { createOrganizationInvitation } from "./controllers/orgManagement.js";
 import requireOrgSubscription from "./middleware/requireOrgSubscription.js";
+import requireOrganization from "./middleware/requireOrganization.js";
 import { getActivityLog } from "./controllers/activity.js";
 import {
   listGlossaries,
@@ -322,7 +323,8 @@ app.post(
 app.post(
   "/translate-image",
   requireAuth(),
-  requireOrgSubscription,
+  // TODO: Reinstate subscription gate once pricing flow is finalized.
+  requireOrganization,
   cloudUpload.single("file"),
   getImageTranslation
 );

@@ -17,11 +17,13 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
-import ApartmentRoundedIcon from "@mui/icons-material/ApartmentRounded";
-import BadgeRoundedIcon from "@mui/icons-material/BadgeRounded";
-import Brightness4RoundedIcon from "@mui/icons-material/Brightness4Rounded";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import {
+  Building2,
+  CircleUserRound,
+  LogOut,
+  MoonStar,
+  UserRoundCog,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAppTheme } from "../theme/AppThemeProvider";
@@ -92,6 +94,7 @@ export default function AccountMenu() {
             borderRadius: 2,
             border: "1px solid",
             borderColor: "divider",
+            backgroundColor: mode === "dark" ? "#0b1220" : "background.paper",
             boxShadow: "0 12px 28px rgba(2, 6, 23, 0.28)",
             overflow: "hidden",
           },
@@ -113,14 +116,14 @@ export default function AccountMenu() {
 
         <MenuItem onClick={handleManageAccount} sx={{ py: 1.1 }}>
           <ListItemIcon>
-            <ManageAccountsRoundedIcon fontSize="small" />
+            <UserRoundCog size={18} />
           </ListItemIcon>
           <ListItemText primary="Manage Account" />
         </MenuItem>
 
         <MenuItem onClick={handleOrganization} sx={{ py: 1.1 }}>
           <ListItemIcon>
-            <ApartmentRoundedIcon fontSize="small" />
+            <Building2 size={18} />
           </ListItemIcon>
           <ListItemText
             primary="Organization"
@@ -136,7 +139,7 @@ export default function AccountMenu() {
           sx={{ py: 1.1 }}
         >
           <ListItemIcon>
-            <BadgeRoundedIcon fontSize="small" />
+            <CircleUserRound size={18} />
           </ListItemIcon>
           <ListItemText primary="Your profile" />
         </MenuItem>
@@ -149,7 +152,7 @@ export default function AccountMenu() {
           sx={{ py: 1.1 }}
         >
           <ListItemIcon>
-            <Brightness4RoundedIcon fontSize="small" />
+            <MoonStar size={18} />
           </ListItemIcon>
           <ListItemText primary="Theme" secondary={mode === "dark" ? "Dark" : "Light"} />
           <Switch edge="end" checked={mode === "dark"} onChange={toggleTheme} />
@@ -158,9 +161,9 @@ export default function AccountMenu() {
         <Divider />
 
         <SignOutButton>
-          <MenuItem onClick={handleCloseMenu} sx={{ color: "error.main", py: 1.1 }}>
+          <MenuItem onClick={handleCloseMenu} sx={{ py: 1.1 }}>
             <ListItemIcon>
-              <LogoutRoundedIcon fontSize="small" color="error" />
+              <LogOut size={18} />
             </ListItemIcon>
             <ListItemText primary="Log out" />
           </MenuItem>

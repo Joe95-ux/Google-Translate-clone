@@ -182,6 +182,10 @@ export const getDocumentTranslation = async (req, res) => {
 export const getImageTranslation = async (req, res) => {
   try {
     const { fromLanguage, toLanguage } = req.body;
+    if (!toLanguage) {
+      return res.status(400).json({ message: "`toLanguage` is required." });
+    }
+
     const from = await getLangShort(fromLanguage);
     const to = await getLangShort(toLanguage);
     const file = req.file;
@@ -207,7 +211,16 @@ export const getImageTranslation = async (req, res) => {
     });
 
     // Generate translated image
-    const translatedImageBuffer = await createTranslatedImage(file.buffer, textElements, to);
+    let translatedImageBuffer;
+    try {
+      translatedImageBuffer = await createTranslatedImage(file.buffer, textElements, to);
+    } catch (imageRenderError) {
+      console.error("createTranslatedImage error:", imageRenderError);
+      return res.status(500).json({
+        message:
+          "Image rendering failed while composing translated image. Check canvas/sharp runtime dependencies.",
+      });
+    }
 
     // createTranslatedImage always returns PNG.
     const baseName = path.parse(file.originalname).name || "image";
@@ -220,6 +233,10 @@ export const getImageTranslation = async (req, res) => {
     res.end();
   } catch (error) {
     console.error(error);
-    res.status(500).send(`Failed to translate file. ${error.message}`);
+    const message = error?.message || "Failed to translate image.";
+    if (message.includes("Unsupported language")) {
+      return res.status(400).json({ message });
+    }
+    res.status(500).json({ message });
   }
 };

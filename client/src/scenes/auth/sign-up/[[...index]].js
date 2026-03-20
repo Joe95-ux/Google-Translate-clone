@@ -1,12 +1,22 @@
-import { SignUp } from '@clerk/clerk-react'
+import { SignUp, useAuth } from "@clerk/clerk-react";
+import { Navigate } from "react-router-dom";
 
-const SignUpPage = () => (
-  <SignUp
-    path="/sign-up"
-    routing="path"
-    forceRedirectUrl="/onboarding/organization"
-    signInUrl="/sign-in"
-  />
-)
+const SignUpPage = () => {
+  const { isLoaded, userId } = useAuth();
 
-export default SignUpPage
+  if (isLoaded && userId) {
+    return <Navigate to="/onboarding/organization" replace />;
+  }
+
+  return (
+    <SignUp
+      path="/sign-up"
+      routing="path"
+      afterSignUpUrl="/onboarding/organization"
+      fallbackRedirectUrl="/onboarding/organization"
+      signInUrl="/sign-in"
+    />
+  );
+};
+
+export default SignUpPage;

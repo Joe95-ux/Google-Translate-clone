@@ -18,7 +18,14 @@ const Button = ({ disable, translate }) => {
           style={{ cursor: "default" }}
         />
       ) : (
-        <IoEnter size={30} onClick={()=>translate(timestamp)} style={{ cursor: "pointer" }} />
+        <button
+          type="button"
+          onClick={() => translate(timestamp)}
+          className="middle-translate-btn"
+          aria-label="Translate"
+        >
+          <IoEnter size={24} />
+        </button>
       )}
     </div>
   );

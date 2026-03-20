@@ -98,15 +98,17 @@ export async function getLangShort(language) {
     lan = language;
   }
 
-  try {
-    const data = await getSupportedLanguages();
-    const filteredLan = data.filter(
-      (languageObj) => languageObj.displayName === lan
-    );
-    return filteredLan[0]?.languageCode || 'undefined';
-  } catch (error) {
-    console.log(error);
+  const data = await getSupportedLanguages();
+  const filteredLan = data.filter(
+    (languageObj) => languageObj.displayName === lan
+  );
+
+  const code = filteredLan[0]?.languageCode;
+  if (!code) {
+    throw new Error(`Unsupported language: ${lan}`);
   }
+
+  return code;
 }
 
 // detect language

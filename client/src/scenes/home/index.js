@@ -32,6 +32,7 @@ const Home = () => {
   const [hasTranslated, setHasTranslated] = useState(false);
   const [contextFetched, setContextFetched] = useState(false);
   const [contextTranslations, setContextTranslations] = useState({});
+  const [showContextPanel, setShowContextPanel] = useState(true);
   const [otherInputLangs, setOtherInputLangs] = usePersistentArray(
     "otherInputLangs",
     ["Detect language", "French", "English", "Spanish"]
@@ -298,6 +299,7 @@ const Home = () => {
         if (isContext && result.contextTranslations) {
           setContextTranslations(result.contextTranslations);
           setContextFetched(true);
+          setShowContextPanel(true);
         }
         if (timestamp === "" || timestamp === undefined || timestamp === null) {
           saveTranslation({
@@ -353,6 +355,8 @@ const Home = () => {
   useEffect(() => {
     if (isContext) {
       setContextFetched(false); 
+    } else {
+      setShowContextPanel(false);
     }
   }, [isContext]);
 
@@ -555,9 +559,10 @@ const Home = () => {
                   />
                   {(smallScreenWidth > 600 || translatedText) && (
                     <>
-                    {contextTranslations && (
+                    {showContextPanel && contextTranslations && Object.keys(contextTranslations).length > 0 && (
                       <ContextTranslationViewBox
                         translationOptions={contextTranslations}
+                        onClose={() => setShowContextPanel(false)}
                       />
                     )}
                     <TextBox

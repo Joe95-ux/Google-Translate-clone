@@ -38,7 +38,7 @@ const Activity = () => {
     };
 
     run();
-  }, [apiUrl]);
+  }, [apiUrl, navigate]);
 
   return (
     <>

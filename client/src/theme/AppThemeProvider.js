@@ -24,6 +24,9 @@ export const AppThemeProvider = ({ children }) => {
   const theme = useMemo(
     () =>
       createTheme({
+        shape: {
+          borderRadius: 8,
+        },
         palette: {
           mode,
           primary: { main: "#38BDF8" },
@@ -31,6 +34,35 @@ export const AppThemeProvider = ({ children }) => {
             mode === "dark"
               ? { default: "#020617", paper: "#0f172a" }
               : { default: "#f8fafc", paper: "#ffffff" },
+        },
+        components: {
+          MuiButton: {
+            styleOverrides: {
+              root: {
+                borderRadius: 8,
+                textTransform: "none",
+                fontWeight: 600,
+              },
+              outlined: {
+                borderWidth: "1px",
+              },
+            },
+          },
+          MuiOutlinedInput: {
+            styleOverrides: {
+              root: {
+                borderRadius: 8,
+              },
+            },
+          },
+          MuiCard: {
+            styleOverrides: {
+              root: {
+                borderRadius: 8,
+                borderWidth: "1px",
+              },
+            },
+          },
         },
       }),
     [mode]

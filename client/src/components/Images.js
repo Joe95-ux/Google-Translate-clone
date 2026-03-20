@@ -121,13 +121,16 @@ const Images = ({ fromLanguage, toLanguage }) => {
     } catch (error) {
       console.error("Error translating document:", error);
       const status = error?.response?.status;
+      const serverMessage = error?.response?.data?.message;
       if (status === 401) {
         toast.error("Please log in to translate images.");
       } else if (status === 403) {
         toast.error("Set up or select an organization to translate images.");
         navigate("/organization");
+      } else if (status === 400) {
+        toast.error(serverMessage || "Invalid image translation request.");
       } else {
-        toast.error("An error occurred while translating the image. Please try again later.");
+        toast.error(serverMessage || "An error occurred while translating the image. Please try again later.");
       }
       setLoading(false);
     }

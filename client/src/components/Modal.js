@@ -23,7 +23,7 @@ const Modal = ({
   tab
 }) => {
   const [searchedLanguage, setSearchedLanguage] = useState("");
-  chosenLanguage = chosenLanguage.includes("Detected")
+  const normalizedChosenLanguage = chosenLanguage.includes("Detected")
     ? chosenLanguage.split(" - ")[0]
     : chosenLanguage;
 
@@ -38,6 +38,12 @@ const Modal = ({
       inputRef.current.focus();
     }
   }, [showModal]);
+
+  useEffect(() => {
+    if (showModal) {
+      setSearchedLanguage(normalizedChosenLanguage || "");
+    }
+  }, [showModal, normalizedChosenLanguage]);
 
   const handleSelect = (e, language) => {
     e.stopPropagation(); // Stop event propagation to prevent triggering parent elements' click handlers
@@ -119,13 +125,18 @@ const Modal = ({
   return (
     <div className="option-list">
       <div className="search-bar">
-        <input ref={inputRef} value={searchedLanguage} onChange={handleChange} />
-        <div className="close-button">
-          <IoSearch size={22} style={{ marginRight: "20px" }} />
+        <input
+          ref={inputRef}
+          value={searchedLanguage}
+          onChange={handleChange}
+          className="language-search-input"
+        />
+        <div className="search-actions">
+          <IoSearch size={20} className="search-icon" />
           <IoMdClose
             size={22}
             onClick={() => setShowModal(null)}
-            style={{ cursor: "pointer" }}
+            className="search-close-btn"
           />
         </div>
       </div>
@@ -135,13 +146,13 @@ const Modal = ({
             {filteredLanguages?.map((filteredLanguage, index) => (
               <div className="list-item" key={index}>
                 <div className="icon">
-                  {chosenLanguage === filteredLanguage ? "✓" : ""}
+                  {normalizedChosenLanguage === filteredLanguage ? "✓" : ""}
                 </div>
                 <li
                   onClick={(e) => handleSelect(e, filteredLanguage)}
                   style={{
                     color:
-                      chosenLanguage === filteredLanguage ? "#8ab4f8" : null,
+                      normalizedChosenLanguage === filteredLanguage ? "#8ab4f8" : null,
                   }}
                 >
                   {filteredLanguage}
