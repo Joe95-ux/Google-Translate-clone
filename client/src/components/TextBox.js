@@ -30,6 +30,7 @@ const TextBox = ({
   detectLanguage,
   synthesizeSpeech,
   text,
+  contextPanel,
 }) => {
   const inputBoxRef = useRef(null);
   const outputBoxRef = useRef(null);
@@ -245,6 +246,7 @@ const TextBox = ({
         padding: "1rem",
       }}
     >
+      {variant === "output" && contextPanel}
       <div className="textarea-wrapper">
         <div className="textarea-inner">
           <textarea

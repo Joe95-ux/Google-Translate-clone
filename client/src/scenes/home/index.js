@@ -558,13 +558,6 @@ const Home = () => {
                     setDic={setDictionary}
                   />
                   {(smallScreenWidth > 600 || translatedText) && (
-                    <>
-                    {showContextPanel && contextTranslations && Object.keys(contextTranslations).length > 0 && (
-                      <ContextTranslationViewBox
-                        translationOptions={contextTranslations}
-                        onClose={() => setShowContextPanel(false)}
-                      />
-                    )}
                     <TextBox
                       variant="output"
                       setShowModal={setShowModal}
@@ -581,8 +574,17 @@ const Home = () => {
                       detectLanguage={detectedLang}
                       synthesizeSpeech={synthesizeSpeech}
                       text={translatedText}
+                      contextPanel={
+                        showContextPanel &&
+                        contextTranslations &&
+                        Object.keys(contextTranslations).length > 0 ? (
+                          <ContextTranslationViewBox
+                            translationOptions={contextTranslations}
+                            onClose={() => setShowContextPanel(false)}
+                          />
+                        ) : null
+                      }
                     />
-                    </>
                   )}
 
                   {(smallScreenWidth > 600 ||

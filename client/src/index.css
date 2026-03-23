@@ -1327,7 +1327,7 @@ context translation css */
   border: 1px solid var(--border-color);
   background: var(--bg-surface);
   border-radius: var(--radius-md);
-  margin: 12px;
+  margin: 0 0 12px 0;
   padding: 10px;
   box-shadow: var(--shadow-soft);
 }
